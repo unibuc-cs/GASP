@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "smartcity-gasp-marl"
+version = "0.2.0"
+description = "Governed Agent Societies smart-city MARL prototype with typed traces and governance metrics."
+requires-python = ">=3.9"
+dependencies = ["numpy>=1.23"]
+
+[tool.setuptools.packages.find]
+include = ["smartcity_gasp*"]

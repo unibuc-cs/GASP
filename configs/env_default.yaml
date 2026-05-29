@@ -1,0 +1,13 @@
+# Human-readable reference config. The command-line scripts use argparse, but
+# these values document the default experiment setup used by the artifact.
+environment:
+  activation_mode: scenario
+  governed: true
+  max_steps: 8
+  seed: 7
+scenarios:
+  families:
+    - traffic_accident
+    - power_outage
+    - flooded_underpass
+    - pollution_spike

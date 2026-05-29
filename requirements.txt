@@ -1,0 +1,3 @@
+numpy>=1.23
+# Optional for MARL training:
+# torch>=2.0
