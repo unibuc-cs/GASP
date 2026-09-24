@@ -4,22 +4,28 @@ Status 2026-09-24 (evening). Target: SEAMS 2027 research track, full paper. Dead
 
 ## 0. Where things stand
 
-Done today (branch `seams2027`, package `gasp/`, 33 tests pass, one command regenerates every deterministic table):
+Status 2026-09-24, end of day. Branch `seams2027`, package `gasp/`, 36 tests pass, `make` in `paper/` builds the IEEE skeleton.
 
-- New environment with evidence objects, partial observability, forwarded verification, approvals with latency and denial, false reports, distractors, three rule sets.
-- Guard that separates attempted from executed violations; executed violations are zero under the guard in every run and the tests assert it.
-- Deterministic policies: naive (does not know the rules, learns only from guard feedback) and procedural (compliant), for roles and for one monolithic controller.
-- LLM role policy with Anthropic, OpenAI-compatible (vLLM, Ollama, OpenRouter) and mock backends; two prompt variants; JSON validation with one retry; token counts in traces.
-- Metrics v2, statistics script (paired Wilcoxon, Cliff's delta, bootstrap CIs, Holm), role ablation, GAU weight grid.
-- Deterministic results table (80 scenarios, 20 per family, seed 2027). Headline: naive roles without the guard succeed 100% in 1.3 steps with 2.1 executed violations per episode, silent violation rate 1.00, false alerts in 21% of episodes; with the guard: 100% success, 4.5 steps, zero executed violations, zero false alerts, 0.64 approval requests per episode.
+Done today, first half: new environment, guard with attempted vs executed violations, deterministic policies, LLM role policy with backends, metrics, statistics, reproduction script (see sections 3–8).
+
+Done today, second half:
+
+- Hidden context: in 15% of scenarios the overseer knows something the rules do not encode and refuses soft approval requests; acting without asking then causes "hidden harm". New metric, new flag, new tests. Unguarded naive roles: hidden harm in 7% of episodes; guarded: 0.
+- Soft vs hard approvals (road closures near a hospital are hard and never delegated).
+- Trust-adaptive governor: per role trust carried across incidents, soft approvals delegated to trusted roles. Sweep over thresholds, rule sets and hidden context rates (5/15/30%), tables and figures in `outputs/paper/adaptive`. Result under R3: static guard costs 14% success when the human is unavailable and puts two requests per incident on the human; delegation removes both and exposes the system to every hidden context case (16% of episodes). Trust earned by compliance says nothing about what the rules do not encode.
+- Worked example script: one trace to every metric, markdown and LaTeX (`gasp/experiments/worked_example.py`).
+- Re-proposing while an approval is pending no longer counts as a violation attempt.
+- Hidden context removed from observations (it had leaked); LLM prompt compacted: about 750 system + 200 observation tokens per call, so the main grid is about 25M tokens per model.
+- GAU includes hidden harm; weight grid has 243 points.
+- Paper skeleton: `paper/main.tex` (IEEEtran, all sections, RQs, contribution list, red TODO notes saying what goes where), `paper/references.bib` with the verified references, `paper/Makefile` that syncs tables and figures from the outputs and builds the PDF.
 
 Needs the group (blocking):
 
 - API keys and model names for the pilot (`configs/llm_grid.yaml`); the pilot is one command once keys exist.
 - Owners for the writing and for the LLM runs.
-- Repository privacy decision (the public repo still shows the old code and names).
+- Repository privacy decision.
 
-Next in line (no one blocked): adaptive governor, worked example, observation trimming for token cost, IEEE skeleton with section stubs.
+Next in line (no one blocked): prompt hashes in the manifest; redraw the trade-off figure for print; fill the three bib entries marked TODO; start writing Sections 3–5 from the skeleton notes; decide RDC.
 
 ## 1. Target and hard dates
 
@@ -51,7 +57,8 @@ Next in line (no one blocked): adaptive governor, worked example, observation tr
 - [x] Guard unit tests: one per rule and outcome, plus unguarded labelling, reproducibility, solvability.
 - [x] Manifest with git commit, Python version, seed, mode list, episode count; LLM manifest with config, temperature, repeats.
 - [ ] Add prompt hashes to the LLM manifest.
-- [ ] Fix the legacy `.gitignore` (was UTF-16, so bytecode had been committed). Done on the branch; check on the main repo too.
+- [x] Fix the legacy `.gitignore` (was UTF-16, so bytecode had been committed). Done on the branch.
+- [ ] Check the main repository's `.gitignore` too when merging.
 
 ## 4. Environment redesign
 
@@ -68,7 +75,9 @@ Next in line (no one blocked): adaptive governor, worked example, observation tr
 - [x] Public communication rule: every cited item must be verified; a refuted citation makes any action unsupported.
 - [x] Solvability: the procedural policy reaches 100% success with zero attempted violations on every scenario under R2 (existence proof; also a test).
 - [ ] Sanity target changed: the deterministic policies reach 100% success in every R2 mode, so the governance cost in success shows only under R3 with the overseer unavailable (85%). Decide whether to make some approval-required actions fallback-free under R2 so the cost is visible there too, or leave it to the LLM runs. Suggestion: leave it; report R3 as the strict setting.
-- [ ] Trim the observation JSON (about 1.5k tokens per call): drop `allowed_actions` from the user message, shorten claims.
+- [x] Trim the observation JSON: `allowed_actions` dropped from the user message (it is in the system prompt), compact JSON. About 200 tokens per observation now.
+- [x] Hidden context: `params.hidden_denial` (15% by default, `hidden_denial_rate` option); the overseer refuses soft requests in those scenarios; never shown to policies.
+- [x] Approval kinds: hard (road closure with hospital access at risk) and soft (everything else that needs approval).
 
 ## 5. Role policies
 
@@ -97,7 +106,9 @@ Modes (in `run_grid.py`): M0 one agent, all tools, rules in prompt · M1 roles, 
 - [x] Implemented in `gasp/core/metrics.py`: success, steps, proposals, attempted and executed violations (by type), missed approvals, unsupported memory writes, escalations, overseer load, approvals granted and denied, unnecessary share, escalation precision and recall, Brier score of `needs_approval_prob`, TSC on executed high-impact actions, hallucinated references, cited false evidence, false alert, unsupported alert, silent violation, off-target actions, formatting failures, tokens, GAU with stated weights (0.30 executed violation, 0.20 missed approval, 0.10 unsupported memory write, 0.10 step cost) and a 81-point weight grid.
 - [x] RDC by role ablation (`gasp/experiments/ablation.py`).
 - [ ] RDC finding: with the current success conditions the drop is 1.0 for every sole provider of an outcome flag, so RDC describes the task structure rather than the policy. Decide: drop it, or keep it as a testbed description. Suggestion: drop from the metrics table, mention once.
-- [ ] Worked example: one governed trace turned into every metric value, as a table for the paper. The traces in `outputs/paper/traces` (TRAF-004 under D3 is a good one: escalation, denial, fallback) are the material.
+- [x] Worked example: `gasp/experiments/worked_example.py` picks the trace with the most distinct guard outcomes (or `--scenario`), writes the step table and the metric derivation as markdown and LaTeX. The LaTeX lands in the paper through `make sync`.
+- [x] New metrics: hidden_harm, hidden_exposure, approvals_waived, approvals_delegated; GAU includes hidden harm (weight 0.30).
+- [x] Pending re-proposals are waiting, not violation attempts; escalations count new requests only.
 - [ ] Remove the old EscCE and activation precision/recall from the paper text.
 
 ## 8. Statistics
@@ -112,7 +123,10 @@ Modes (in `run_grid.py`): M0 one agent, all tools, rules in prompt · M1 roles, 
 - The governor keeps a per role trust score from recent supported actions and violations. Medium-risk actions require approval only while trust is below a threshold. Hard rules never relax.
 - Output: executed violations against overseer load, static R1/R2/R3 vs adaptive, one Pareto plot.
 - Threshold by sweep on a separate 20-scenario tuning set (seed different from the evaluation set).
-- [ ] Implement (`gasp/core/adaptive.py`, about a day), run, plot.
+- [x] Implemented inside guard and environment (`EnvConfig.adaptive_threshold`, trust carried across incidents, delegated approvals that never reach the human); sweep in `gasp/experiments/adaptive.py`; tests for hard vs soft, waiver only above threshold, harm only without human approval.
+- [x] Sweep run for R2 and R3 at hidden context rates 5/15/30%. Tables in `outputs/paper/adaptive/table_adaptive.md`, figures `tradeoff_*.png`.
+- [ ] Redraw the figure for print: one label per distinct point (thresholds 0.5–0.9 coincide for the naive brain).
+- [ ] Paper text: present it as a measured trade-off, not a recommendation.
 
 ## 10. Optional second domain: incident response for a web service
 
@@ -130,7 +144,7 @@ Section plan with page budget: 1 Introduction (1) · 2 Background and related wo
 
 Things the testbed section must now explain (new since the ESEM version): evidence objects and statuses; verification permission by topic and forwarded requests; memory notes as evidence with inherited status; approval lifecycle (pending, approved, denied, latency); attempted vs executed violations; the guard using catalogue risk levels; public communication requiring every citation verified.
 
-- [ ] IEEE skeleton with section stubs and the RQs (can start now).
+- [x] IEEE skeleton with section stubs, RQs, contribution list and red TODO notes (`paper/main.tex`; `make` builds it, `make sync` refreshes tables and figures from `outputs/paper`).
 - [ ] Contribution statement: framework and evaluation paper; learning layer is future work; remove Listing 1's warm start and offline optimization.
 - [ ] Related work with SE venue citations (section 12).
 - [ ] Worked example table (section 7).
@@ -144,7 +158,8 @@ Things the testbed section must now explain (new since the ESEM version): eviden
 
 Verified: AgentSpec (ICSE 2026, closest work: single agent, no roles, no human escalation as an outcome, no trace metrics) · Progent (2025) · GuardAgent (ICML 2025) · τ-bench (ICLR 2025) · Why Do Multi-Agent LLM Systems Fail? (NeurIPS 2025) · Safe Multi-Agent RL via Shielding (AAMAS 2021) · Compositional Shielding and RL for Multi-Agent Systems (AAMAS 2025) · Exploring the Potential of LLMs in Self-adaptive Systems (SEAMS 2024) · MAPER (SEAMS 2026) · Explanations for Human-on-the-loop (SEAMS 2020).
 
-- [ ] Verify exact references: Kephart and Chess (IEEE Computer 2003); Salehie and Tahvildari (ACM TAAS 2009); Weyns, An Introduction to Self-Adaptive Systems (Wiley 2020); Calinescu et al., dynamic assurance cases (IEEE TSE 2018); Sha, Simplex (IEEE Software 2001); runtime enforcement monitors (Falcone et al.); electronic institutions (Esteva et al.); MOISE and JaCaMo (Hübner, Boissier et al.).
+- [x] Entries drafted in `paper/references.bib` for all of the above.
+- [ ] Fill the author lists marked TODO (compositional shielding AAMAS 2025; SEAMS 2024 LLM paper; MAPER) and check pages/DOIs of the classic entries.
 - [ ] Keep the agentic AI and MARL citations that still carry weight; drop padding surveys.
 
 ## 13. Artifact track (by 7 Dec)
@@ -156,7 +171,7 @@ Verified: AgentSpec (ICSE 2026, closest work: single agent, no roles, no human e
 ## 14. Timeline
 
 - Week 1, Thu 24 – Sun 27 Sep: decisions (section 2); ~~schema freeze; reproduction script; environment redesign; LLM wrapper~~ done 24 Sep; pilot as soon as keys exist.
-- Week 2, Mon 28 Sep – Sun 4 Oct: pilot and budget check; adaptive governor; observation trimming; IEEE skeleton; worked example.
+- Week 2, Mon 28 Sep – Sun 4 Oct: pilot and budget check; ~~adaptive governor; observation trimming; IEEE skeleton; worked example~~ done 24 Sep; write Sections 3–5 from the skeleton notes; redraw figures.
 - Week 3, Mon 5 – Sun 11 Oct: main grid; statistics and figures; sensitivity; go or no-go on the second domain Fri 10 Oct.
 - Week 4, Mon 12 – Sun 18 Oct: results text; full draft; related work; threats.
 - Week 5, Mon 19 – Fri 23 Oct: internal review 19–20; anonymity and format check 21; buffer 22; submit Fri 23 Oct AoE.
@@ -175,3 +190,4 @@ Verified: AgentSpec (ICSE 2026, closest work: single agent, no roles, no human e
 
 - 2026-09-23: three ESEM reviews analyzed. Public repository run at 80 episodes does not reproduce the paper's Table 3. Venue decision: SEAMS 2027 (deadline 23 Oct) over AAMAS 2027 (deadline 8 Oct).
 - 2026-09-24: plan created. Built `gasp/` v2 on branch `seams2027`: environment, rule sets, guard, deterministic policies, LLM policy and backends, metrics, statistics, ablation, reproduction script, 33 tests. First deterministic table produced. Findings while building: (1) with parallel roles, "steps" is a poor cost measure; report proposals too; (2) the communication role needs a verified path to public facts, so verification requests are forwarded to roles that can check them; (3) a public message must have every citation verified, otherwise a true and an untrue claim can go out together; (4) the guard must use catalogue risk levels; (5) under lenient rules a naive society can get stuck waiting for verification it never asks for, which the forwarding mechanism fixed; (6) RDC by ablation mostly reflects task structure.
+- 2026-09-24 (later): hidden context and soft/hard approvals; trust-adaptive governor with delegated approvals and the sweep (R2/R3 × 5/15/30%); worked example script; prompt compaction (about 950 tokens per call); hidden context leak fixed; pending re-proposals no longer count as attempts; IEEE skeleton compiles. Finding: under strict rules, delegating soft approvals to roles that earned trust by compliance removes the human load and the success loss but exposes every hidden context case; the trade-off is close to linear in the delegated share.
