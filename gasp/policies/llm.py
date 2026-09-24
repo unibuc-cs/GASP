@@ -190,7 +190,9 @@ def system_prompt(domain, role: str, rules: Optional[RuleSet], include_rules: bo
 
 
 def user_prompt(observation: Dict[str, Any]) -> str:
-    return "Observation:\n" + json.dumps(observation, indent=1, default=str) + "\nYour action as one JSON object:"
+    # The allowed actions are already in the system prompt; compact JSON saves about a fifth of the tokens.
+    obs = {k: v for k, v in observation.items() if k != "allowed_actions"}
+    return "Observation:\n" + json.dumps(obs, separators=(",", ":"), default=str) + "\nYour action as one JSON object:"
 
 
 _JSON_RE = re.compile(r"\{.*\}", re.DOTALL)

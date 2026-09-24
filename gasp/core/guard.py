@@ -107,9 +107,10 @@ class GovernanceGuard:
                 supported=report.supported,
             )
 
-        if decision.outcome == GuardOutcome.ESCALATE:
+        if decision.outcome == GuardOutcome.ESCALATE and state.approval_status(action.key) is None:
             kind = self.domain.approval_kind(state, action, self.rules.cfg("approval"))
             state.request_approval(action.key, action.role, justified=report.supported, soft=(kind != "hard"))
+            decision.approval_requested = True
         return decision
 
     def _waived(self, state: State, action: TypedAction) -> bool:
@@ -161,9 +162,14 @@ class GovernanceGuard:
                 return GuardDecision(GuardOutcome.DENY, False, "approval", "missed_approval", True,
                                      "the overseer denied this action", requires_approval=True,
                                      approval_granted=False, supported=report.supported)
+            elif status == "pending":
+                # Re-proposing while the request is open is waiting, not an attempt to bypass the rule.
+                return GuardDecision(GuardOutcome.ESCALATE, False, "approval", None, False,
+                                     "approval still pending", requires_approval=True, approval_granted=False,
+                                     supported=report.supported)
             else:
                 return GuardDecision(GuardOutcome.ESCALATE, False, "approval", "missed_approval", True,
-                                     "human approval is required before this action" if status is None else "approval still pending",
+                                     "human approval is required before this action",
                                      requires_approval=True, approval_granted=False, supported=report.supported)
 
         # 6. domain-specific sanitization (e.g. pollution zone)
