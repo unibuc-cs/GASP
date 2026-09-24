@@ -152,14 +152,18 @@ def to_markdown(results: List[Dict[str, Any]], label_a: str, label_b: str) -> st
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--episodes", type=Path, required=True)
+    ap.add_argument("--episodes", type=str, required=True, help="a CSV or a glob such as 'outputs/llm/*/episodes.csv'")
     ap.add_argument("--out", type=Path, required=True)
     ap.add_argument("--pairs", type=str, default="M2:M3,M0:M3,M3:M4")
     ap.add_argument("--group", type=str, default=None, help="column to split by, e.g. model or rule_set")
     ap.add_argument("--filter", type=str, default=None, help="key=value filters, comma separated, e.g. rule_set=R2,overseer=scenario")
     args = ap.parse_args()
 
-    rows = read_rows(args.episodes)
+    import glob
+    paths = sorted(glob.glob(str(args.episodes))) or [args.episodes]
+    rows = []
+    for path in paths:
+        rows += read_rows(Path(path))
     if args.filter:
         for kv in args.filter.split(","):
             k, v = kv.split("=")

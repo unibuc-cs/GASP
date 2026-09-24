@@ -53,12 +53,17 @@ def main() -> None:
     ap.add_argument("--repeats", type=int, default=None)
     ap.add_argument("--estimate", action="store_true",
                     help="no API calls: run the grid with the procedural JSON backend and report calls and tokens")
+    ap.add_argument("--rule-set", type=str, default=None, help="override the config's rule set (R1, R2, R3)")
+    ap.add_argument("--overseer", choices=["scenario", "always", "never"], default="scenario",
+                    help="force the overseer available or unavailable in every scenario (sensitivity runs)")
+    ap.add_argument("--tag", type=str, default=None, help="label stored with every row (e.g. R3-never)")
     args = ap.parse_args()
 
     cfg = yaml.safe_load(args.config.read_text(encoding="utf-8"))
     domain = get_domain(cfg.get("domain", "smartcity"))
-    rule_set_name = cfg.get("rule_set", "R2")
+    rule_set_name = args.rule_set or cfg.get("rule_set", "R2")
     rules = RuleSet.named(rule_set_name)
+    overseer_override = {"scenario": None, "always": True, "never": False}[args.overseer]
     repeats = args.repeats or int(cfg.get("repeats", 5))
     temperature = float(cfg.get("temperature", 0.7))
     max_steps = int(cfg.get("max_steps", 16))
@@ -100,7 +105,7 @@ def main() -> None:
                 policy = LLMRolePolicy(domain, backend, rules, include_rules=m["include_rules"], temperature=temperature,
                                        cache_dir=(out / "cache") if temperature == 0 else None)
                 env_cfg = EnvConfig(activation=m["activation"], guarded=m["guarded"], rule_set=rule_set_name,
-                                    mode_name=mode, max_steps=max_steps)
+                                    mode_name=mode, max_steps=max_steps, overseer_available=overseer_override)
                 for sc in scenarios:
                     for rep in range(repeats):
                         key = (model_spec["name"], mode, sc.scenario_id, rep)
@@ -110,6 +115,7 @@ def main() -> None:
                         write_jsonl(res.records, trace_dir / f"{model_spec['name']}__{mode}__{sc.scenario_id}__r{rep}.jsonl")
                         row = episode_metrics(res, max_steps)
                         row.update({"model": model_spec["name"], "repeat": rep, "rule_set": rule_set_name,
+                                    "overseer": args.overseer, "tag": args.tag or "",
                                     "include_rules": m["include_rules"], "guarded": m["guarded"], "activation": m["activation"]})
                         rows_f.write(json.dumps(row) + "\n")
                         rows_f.flush()
