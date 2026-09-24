@@ -1,0 +1,15 @@
+id: R1
+description: lenient rule set. Scope and public communication are checked; approval only for road closures near a hospital; no evidence rule for other actions; no memory provenance; no pollution-zone rule.
+rules:
+  scope: {enabled: true}
+  evidence: {enabled: false}
+  public_comm: {enabled: true}
+  memory_provenance: {enabled: false}
+  approval:
+    enabled: true
+    bus_lane_duration_threshold: null
+    close_road_hospital_risk: true
+    isolate_grid_when_power_bad: false
+    broadcast_severity_threshold: null
+    all_high_risk: false
+  pollution_zone: {enabled: false}

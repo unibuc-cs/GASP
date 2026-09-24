@@ -1,0 +1,15 @@
+id: R2
+description: default rule set, the seven rules of the paper.
+rules:
+  scope: {enabled: true}
+  evidence: {enabled: true, risk_levels: [high]}
+  public_comm: {enabled: true}
+  memory_provenance: {enabled: true}
+  approval:
+    enabled: true
+    bus_lane_duration_threshold: 5
+    close_road_hospital_risk: true
+    isolate_grid_when_power_bad: true
+    broadcast_severity_threshold: 3
+    all_high_risk: false
+  pollution_zone: {enabled: true}

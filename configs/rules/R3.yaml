@@ -1,0 +1,15 @@
+id: R3
+description: strict rule set. R2 plus evidence for medium-risk actions and approval for every high-risk action.
+rules:
+  scope: {enabled: true}
+  evidence: {enabled: true, risk_levels: [high, medium]}
+  public_comm: {enabled: true}
+  memory_provenance: {enabled: true}
+  approval:
+    enabled: true
+    bus_lane_duration_threshold: 0
+    close_road_hospital_risk: true
+    isolate_grid_when_power_bad: true
+    broadcast_severity_threshold: 2
+    all_high_risk: true
+  pollution_zone: {enabled: true}
