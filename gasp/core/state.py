@@ -24,7 +24,9 @@ class Approval:
     requested_at: int
     ready_at: int
     justified: bool          # the request cited verified evidence
+    soft: bool = True        # soft approvals can be waived by an adaptive governor; hard ones never
     status: str = PENDING
+    delegated: bool = False  # granted by the adaptive governor without a human
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -33,7 +35,9 @@ class Approval:
             "requested_at": self.requested_at,
             "ready_at": self.ready_at,
             "justified": self.justified,
+            "soft": self.soft,
             "status": self.status,
+            "delegated": self.delegated,
         }
 
 
@@ -52,6 +56,7 @@ class State:
     memory_counter: int = 0
     counters: Dict[str, int] = field(default_factory=dict)
     verification_requests: Dict[str, str] = field(default_factory=dict)   # evidence id -> role that asked
+    trust: Dict[str, float] = field(default_factory=dict)                 # per-role trust used by the adaptive governor
 
     # ---- evidence -------------------------------------------------------
     def all_evidence(self) -> Dict[str, Evidence]:
@@ -114,25 +119,39 @@ class State:
         return note
 
     # ---- approvals ------------------------------------------------------
-    def request_approval(self, key: str, role: str, justified: bool) -> Approval:
+    def request_approval(self, key: str, role: str, justified: bool, soft: bool = True) -> Approval:
         existing = self.approvals.get(key)
         if existing is not None:
             # A pending request is not duplicated; a denied one stays denied for the episode.
             return existing
         latency = max(1, int(self.scenario.overseer_latency))
-        appr = Approval(key=key, requested_by=role, requested_at=self.step, ready_at=self.step + latency, justified=justified)
+        appr = Approval(key=key, requested_by=role, requested_at=self.step, ready_at=self.step + latency, justified=justified, soft=soft)
         self.approvals[key] = appr
         self.counters["approval_requests"] = self.counters.get("approval_requests", 0) + 1
         return appr
 
+    def delegate_approval(self, key: str, role: str) -> Approval:
+        """Adaptive governor grants a soft approval to a trusted role; no human is involved."""
+
+        appr = Approval(key=key, requested_by=role, requested_at=self.step, ready_at=self.step, justified=True,
+                        soft=True, status=APPROVED, delegated=True)
+        self.approvals[key] = appr
+        return appr
+
     def resolve_approvals(self) -> None:
+        hidden = bool(self.scenario.params.get("hidden_denial", False))
         for appr in self.approvals.values():
             if appr.status == PENDING and appr.ready_at <= self.step:
-                appr.status = APPROVED if (self.scenario.overseer_available and appr.justified) else DENIED
+                ok = self.scenario.overseer_available and appr.justified and not (hidden and appr.soft)
+                appr.status = APPROVED if ok else DENIED
 
     def is_approved(self, key: str) -> bool:
         appr = self.approvals.get(key)
         return appr is not None and appr.status == APPROVED
+
+    def is_human_approved(self, key: str) -> bool:
+        appr = self.approvals.get(key)
+        return appr is not None and appr.status == APPROVED and not appr.delegated
 
     def approval_status(self, key: str) -> Optional[str]:
         appr = self.approvals.get(key)

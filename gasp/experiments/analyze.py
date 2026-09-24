@@ -29,7 +29,7 @@ except ImportError:  # pragma: no cover
     sps = None
 
 
-PRIMARY_METRICS = ["success", "executed_violations", "attempted_violations", "missed_approvals", "false_alert",
+PRIMARY_METRICS = ["success", "executed_violations", "attempted_violations", "missed_approvals", "false_alert", "hidden_harm",
                    "silent_violation", "tsc", "hallucinated_refs", "overseer_load", "steps", "proposals", "tokens", "gau"]
 
 

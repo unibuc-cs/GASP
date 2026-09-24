@@ -33,10 +33,13 @@ class SupportReport:
 
 
 class GovernanceGuard:
-    def __init__(self, domain, rule_set: RuleSet, enabled: bool = True):
+    def __init__(self, domain, rule_set: RuleSet, enabled: bool = True, adaptive_threshold: Optional[float] = None):
         self.domain = domain
         self.rules = rule_set
         self.enabled = enabled
+        # Adaptive governor: when set, a role whose trust is at or above the threshold may execute
+        # soft-approval actions without asking. Hard approvals are never waived.
+        self.adaptive_threshold = adaptive_threshold
 
     # ------------------------------------------------------------------
     def assess(self, state: State, action: TypedAction) -> SupportReport:
@@ -80,12 +83,14 @@ class GovernanceGuard:
         decision = self._first_failing_rule(state, action, spec, report)
 
         if decision is None:
+            waived = self._waived(state, action)
             return GuardDecision(
                 outcome=GuardOutcome.ALLOW,
                 executed=True,
-                reason="proposal satisfies the active rules",
-                requires_approval=False,
+                reason="proposal satisfies the active rules" if not waived else "soft approval waived for a trusted role",
+                requires_approval=waived,
                 supported=report.supported,
+                approval_waived=waived,
             )
 
         if not self.enabled:
@@ -103,8 +108,15 @@ class GovernanceGuard:
             )
 
         if decision.outcome == GuardOutcome.ESCALATE:
-            state.request_approval(action.key, action.role, justified=report.supported)
+            kind = self.domain.approval_kind(state, action, self.rules.cfg("approval"))
+            state.request_approval(action.key, action.role, justified=report.supported, soft=(kind != "hard"))
         return decision
+
+    def _waived(self, state: State, action: TypedAction) -> bool:
+        if self.adaptive_threshold is None or not self.rules.enabled("approval"):
+            return False
+        kind = self.domain.approval_kind(state, action, self.rules.cfg("approval"))
+        return kind == "soft" and not state.is_approved(action.key) and state.trust.get(action.role, 0.0) >= self.adaptive_threshold
 
     # ------------------------------------------------------------------
     def _first_failing_rule(self, state: State, action: TypedAction, spec, report: SupportReport) -> Optional[GuardDecision]:
@@ -138,10 +150,13 @@ class GovernanceGuard:
                                  "the action must cite verified evidence on its topic", supported=False)
 
         # 5. approval
-        if rs.enabled("approval") and self.domain.requires_approval(state, action, rs.cfg("approval")):
+        kind = self.domain.approval_kind(state, action, rs.cfg("approval")) if rs.enabled("approval") else None
+        if kind is not None:
             status = state.approval_status(action.key)
             if status == "approved":
                 pass
+            elif self.enabled and self._waived(state, action):
+                pass   # adaptive governor: trusted role, soft approval
             elif status == "denied":
                 return GuardDecision(GuardOutcome.DENY, False, "approval", "missed_approval", True,
                                      "the overseer denied this action", requires_approval=True,

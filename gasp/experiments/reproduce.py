@@ -27,7 +27,7 @@ from gasp.policies import make_policy
 
 
 MAIN_COLUMNS = ["success", "steps", "proposals", "attempted_violations", "executed_violations", "missed_approvals",
-                "overseer_load", "tsc", "false_alert", "silent_violation_rate", "gau"]
+                "overseer_load", "tsc", "false_alert", "hidden_harm", "silent_violation_rate", "gau"]
 
 # activation, brain, guard  -> mode label.  Names mirror the LLM modes M0-M4.
 DETERMINISTIC_MODES = [
@@ -47,7 +47,7 @@ DETERMINISTIC_MODES = [
 def latex_table(aggs: List[Dict[str, Any]], columns: List[str]) -> str:
     header = {"success": "Succ.", "steps": "Steps", "proposals": "Prop.", "attempted_violations": "Att. viol.",
               "executed_violations": "Exec. viol.", "missed_approvals": "Miss. appr.", "overseer_load": "Overseer",
-              "tsc": "TSC", "false_alert": "False alert", "silent_violation_rate": "Silent viol.", "gau": "GAU"}
+              "tsc": "TSC", "false_alert": "False alert", "hidden_harm": "Hidden harm", "silent_violation_rate": "Silent viol.", "gau": "GAU"}
     lines = [r"\begin{tabular}{l" + "c" * len(columns) + "}", r"\toprule",
              r"\textbf{Mode} & " + " & ".join(r"\textbf{" + header.get(c, c) + "}" for c in columns) + r" \\", r"\midrule"]
     for a in aggs:

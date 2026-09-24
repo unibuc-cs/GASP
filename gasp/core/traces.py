@@ -30,6 +30,9 @@ class TraceRecord:
     cited_unverified: bool
     requires_approval: bool
     approval_granted: bool
+    approval_waived: bool          # adaptive governor let a trusted role skip a soft approval
+    hidden_harm: bool              # executed without approval where the overseer would have said no
+    trust_after: float
     escalation: bool               # the guard escalated or the role asked for approval itself
     needs_approval_prob: Optional[float]
     off_target: bool

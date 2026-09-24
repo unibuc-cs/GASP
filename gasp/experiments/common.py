@@ -63,9 +63,12 @@ def manifest(extra: Dict[str, Any]) -> Dict[str, Any]:
 def run_mode(domain, scenarios: Iterable[Scenario], policy, config: EnvConfig, rule_set: RuleSet,
              trace_dir: Optional[Path] = None, repeats: int = 1) -> List[EpisodeResult]:
     results: List[EpisodeResult] = []
+    trust: Dict[str, float] = {}
     for sc in scenarios:
         for rep in range(repeats):
-            res = run_episode(domain, sc, policy, config, rule_set)
+            res = run_episode(domain, sc, policy, config, rule_set, initial_trust=trust if config.carry_trust else None)
+            if config.carry_trust:
+                trust.update(res.final_trust)
             res.mode = config.mode_name
             if repeats > 1:
                 res.scenario_id = f"{sc.scenario_id}"

@@ -97,6 +97,7 @@ class GuardDecision:
     requires_approval: bool = False
     approval_granted: bool = False
     supported: bool = True                # cited evidence exists, is verified, and matches the action's topic
+    approval_waived: bool = False         # an adaptive governor let a trusted role skip a soft approval
     transformed_action: Optional[TypedAction] = None
 
     def to_dict(self) -> Dict[str, Any]:

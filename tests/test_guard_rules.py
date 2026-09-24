@@ -248,3 +248,42 @@ def test_every_scenario_is_solvable_without_violations(domain, rules):
     for sc in scenarios:
         res = run_episode(domain, sc, policy, cfg, rules)
         assert res.success, sc.scenario_id
+
+
+# --- hidden context and the adaptive governor ------------------------------
+
+def test_hidden_context_denies_soft_but_not_hard_approvals(domain, rules):
+    st = make_state(domain, quality="complete", overseer_available=True, overseer_latency=1, hidden_denial=True)
+    g = GovernanceGuard(domain, rules, enabled=True)
+    soft = act("TrafficAgent", ActionType.OPEN_BUS_LANE, refs=["E1"], payload={"duration": 8})
+    hard = act("TrafficAgent", ActionType.CLOSE_ROAD, refs=["E1"])
+    g.check(st, soft)
+    g.check(st, hard)
+    st.step += 1
+    st.resolve_approvals()
+    assert st.approval_status(soft.key) == "denied"
+    assert st.approval_status(hard.key) == "approved"
+
+
+def test_adaptive_governor_waives_soft_approval_for_trusted_role_only(domain, rules):
+    st = make_state(domain, quality="complete")
+    g = GovernanceGuard(domain, rules, enabled=True, adaptive_threshold=0.7)
+    soft = act("TrafficAgent", ActionType.OPEN_BUS_LANE, refs=["E1"], payload={"duration": 8})
+    st.trust["TrafficAgent"] = 0.5
+    assert g.check(st, soft).outcome == GuardOutcome.ESCALATE
+    st2 = make_state(domain, quality="complete")
+    st2.trust["TrafficAgent"] = 0.9
+    d = g.check(st2, soft)
+    assert d.outcome == GuardOutcome.ALLOW and d.approval_waived
+    hard = act("TrafficAgent", ActionType.CLOSE_ROAD, refs=["E1"])
+    assert g.check(st2, hard).outcome == GuardOutcome.ESCALATE   # hard approvals are never waived
+
+
+def test_hidden_harm_only_without_human_approval(domain, rules):
+    scenarios = [s for s in make_scenarios(domain, 40, 5, {"hidden_denial_rate": 1.0}) if s.family == "traffic_accident"]
+    # static guard: soft approvals denied, no harm; adaptive with threshold 0: waived, harm whenever the bus lane opens
+    for th, expect_harm in ((None, False), (0.0, True)):
+        policy = make_policy(domain, rules, "procedural")
+        cfg = EnvConfig(activation="scenario", guarded=True, rule_set="R2", mode_name="t", adaptive_threshold=th)
+        harms = [run_episode(domain, sc, policy, cfg, rules).final_flags.get("hidden_harm", False) for sc in scenarios]
+        assert any(harms) == expect_harm
