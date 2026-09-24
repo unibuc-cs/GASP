@@ -97,9 +97,11 @@ def main() -> None:
                 done.add((r["model"], r["mode"], r["scenario_id"], r["repeat"]))
 
     started = time.time()
+    backend_notes: Dict[str, Any] = {}
     with rows_path.open("a", encoding="utf-8") as rows_f:
         for model_spec in models:
             backend = make_backend(model_spec, domain, rules)
+            backend_notes[model_spec["name"]] = backend
             for mode in modes:
                 m = MODES[mode]
                 policy = LLMRolePolicy(domain, backend, rules, include_rules=m["include_rules"], temperature=temperature,
@@ -138,6 +140,7 @@ def main() -> None:
     (out / "manifest.json").write_text(json.dumps(manifest({
         "config": cfg, "modes": modes, "repeats": repeats, "temperature": temperature, "n_scenarios": len(scenarios),
         "n_episodes": len(rows), "mode_definitions": MODES, "system_prompt_hashes": prompt_hashes,
+        "backend_adaptations": {name: getattr(b, "adaptations", []) for name, b in backend_notes.items()},
     }), indent=1), encoding="utf-8")
     print((out / "table_llm.md").read_text(encoding="utf-8"))
     if args.estimate:

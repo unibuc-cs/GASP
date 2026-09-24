@@ -1,0 +1,64 @@
+% Architecture of a governed agent society with the MAPE-K roles marked. Included from main.tex.
+\begin{tikzpicture}[
+  font=\footnotesize,
+  box/.style={draw, rounded corners=2pt, align=left, inner sep=4pt, minimum height=9mm},
+  tag/.style={draw, fill=black, text=white, font=\bfseries\tiny, inner sep=1.5pt, rounded corners=1pt},
+  arrow/.style={-{Latex[length=2mm]}, thick},
+  dashedarrow/.style={-{Latex[length=2mm]}, thick, dashed},
+  lbl/.style={font=\tiny, fill=white, inner sep=1pt}
+]
+% ---------------- runtime row ----------------
+\node[box, fill=green!8, text width=33mm] (state) at (0,0) {\textbf{Structured state} $s_t$\\
+  incident, outcome flags\\
+  \textbf{evidence store} $\mathcal{E}$: id, topic,\\ status, visibility\\
+  \textbf{memory notes} $\mathcal{M}$: source, expiry\\
+  approval requests};
+\node[tag, anchor=north east] at (state.north east) {K};
+
+\node[box, fill=violet!8, text width=38mm, anchor=west] (society) at ([xshift=12mm]state.east) {\textbf{Roles} $\pi_1,\dots,\pi_n$\\
+  observe $o^{(i)}_t=\Omega_i(s_t)$: own evidence,\\ notes, flags, last guard answer\\
+  propose $a=\langle r,\alpha,z,p,E,q\rangle$\\
+  (LLM, procedural or naive)};
+\node[tag, anchor=north east] at (society.north east) {P};
+\node[tag, anchor=north west] at (society.north west) {M};
+
+\node[box, fill=orange!12, text width=38mm, anchor=west] (guard) at ([xshift=12mm]society.east) {\textbf{Guard} $G(s_t,a,\mathcal{C})$\\
+  scope $\to$ provenance $\to$ public\\ communication $\to$ evidence $\to$\\ approval $\to$ sanitize\\
+  \emph{allow / deny / sanitize /}\\ \emph{request evidence / escalate}};
+\node[tag, anchor=north east] at (guard.north east) {A};
+\node[tag, anchor=north west] at (guard.north west) {P};
+
+\node[box, fill=green!8, text width=27mm, anchor=west] (exec) at ([xshift=12mm]guard.east) {\textbf{Execution}\\ tools, effects, events\\ $s_{t+1}\sim\mathcal{T}(s_t,\mathbf{a}_t,e_t)$};
+\node[tag, anchor=north east] at (exec.north east) {E};
+
+\node[box, fill=red!8, text width=32mm, anchor=south] (human) at ([yshift=9mm]guard.north) {\textbf{Human overseer}\\ answers after 1--3 steps; refuses\\ unsupported requests and\\ on hidden context};
+
+% ---------------- evaluation row ----------------
+\node[box, fill=blue!8, text width=33mm, anchor=north] (metrics) at ([yshift=-16mm]state.south) {\textbf{Metrics and statistics}\\ attempted / executed violations,\\ TSC, overseer load, silent\\ violations, hidden harm; paired tests};
+
+\node[box, fill=gray!10, text width=64mm, anchor=north west] (trace) at ([yshift=-16mm]society.south west) {\textbf{Typed trace}, one record per proposal: action, cited evidence, guard outcome and rule,\\ support, approval state, violation label, tokens};
+\node[tag, anchor=north east] at (trace.north east) {K};
+
+\node[box, fill=blue!8, text width=27mm, anchor=north] (adaptive) at ([yshift=-16mm]exec.south) {\textbf{Trust-adaptive}\\ \textbf{governor}\\ trust per role from the\\ trace; delegates soft approvals};
+
+% ---------------- arrows, runtime ----------------
+\draw[arrow] (state) -- node[lbl, above] {observations} (society);
+\draw[arrow] (society) -- node[lbl, above] {typed proposals} (guard);
+\draw[arrow] (guard) -- node[lbl, above, align=center] {allowed or\\ sanitized} (exec);
+\draw[arrow] ([xshift=3mm]guard.north) -- node[lbl, right] {escalate} ([xshift=3mm]human.south);
+\draw[arrow] ([xshift=-3mm]human.south) -- node[lbl, left] {approve / refuse} ([xshift=-3mm]guard.north);
+% feedback channel between the rows
+\coordinate (chan) at ($(state.south)!0.45!(metrics.north)$);
+\draw[arrow] (exec.south) -- (exec.south |- chan) -- node[lbl, above] {next state, evidence status, notes, approvals} (state.south |- chan) -- (state.south);
+
+% ---------------- arrows, evaluation ----------------
+\draw[dashedarrow] ([xshift=-8mm]society.south) -- node[lbl, left] {proposals} ([xshift=-8mm]society.south |- trace.north);
+\draw[dashedarrow] ([xshift=8mm]guard.south) -- node[lbl, right] {outcomes} ([xshift=8mm]guard.south |- trace.north);
+\draw[arrow] (trace.west) -- (metrics.east);
+\draw[dashedarrow] (trace.east) -- node[lbl, above] {trust} (adaptive.west);
+\draw[dashedarrow] (adaptive.north) -- node[lbl, right] {delegation} ([yshift=0mm]adaptive.north |- chan) -- ([xshift=6mm]guard.south east |- chan) -- node[lbl, right, pos=0.5] {} ([xshift=6mm]guard.south east);
+
+% ---------------- layer labels ----------------
+\node[font=\scriptsize\itshape, anchor=south west] at ([yshift=1mm]state.north west) {Runtime layer, every step};
+\node[font=\scriptsize\itshape, anchor=north west] at ([yshift=-1mm]metrics.south west) {Evaluation layer, every episode and every run};
+\end{tikzpicture}

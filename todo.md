@@ -4,22 +4,21 @@ Status 2026-09-24 (evening). Target: SEAMS 2027 research track, full paper. Dead
 
 ## 0. Where things stand
 
-Status 2026-09-24, late. Branch `seams2027`, 44 tests pass, `make` in `paper/` builds an 8 page draft.
+Status 2026-09-25. Branch `seams2027`, 45 tests pass, `make` in `paper/` builds an 8 page draft.
+
+Answers received (24 Sep): models are OpenAI GPT-6 Sol and, as the cheap second model, GPT-6 Luna; the four design choices are confirmed; RDC stays only with a solid argument (decision below: removed from the paper, tool kept in the artifact); the ESEM Table 3 code is not available (closed: the paper cites none of the old numbers); repository and HotCRP items postponed.
 
 Done since the last update:
 
-- Second domain implemented: software incident response (`gasp/domains/ops.py`, 7 roles, 4 incident families) on a shared base class (`gasp/domains/base.py`); guard, traces, metrics, statistics and both deterministic brains unchanged. Same pattern as the city: naive roles unguarded execute 1.9 violations per incident, 23% false status page notices, 5% hidden harm; guarded: zero, 1.06 approval requests per incident. Tests run over both domains. RQ5 is back in the paper with its own table.
-- Paper prose: abstract, introduction, related work, model, testbed (both domains), evaluation design, deterministic results, strict rules and absent human, adaptive governance, discussion, threats, conclusion. Red TODO markers remain only where LLM numbers go. Draft PDF: `gasp-seams2027-draft.pdf`.
-- Rules table and scenario feature table generated from the YAML and the scenario set (`gasp/experiments/paper_tables.py`, part of `make sync`).
-- LLM run preparation for the group: `RUNBOOK.md` (setup, estimate, pilot, main grid in parallel, sensitivity, statistics, what to hand back, what to do when it breaks). `--estimate` mode runs the whole grid with a compliant JSON-speaking policy and no API calls: 4,100 calls and 5.5M tokens per repeat for the five modes. Idle roles are no longer asked for actions, which cut calls by about a third with no change to any metric.
-- Prompt: observation guide (how evidence, verification, notes, approvals and last_guard work), society and role descriptions supplied by the domain, prompt hashes in the manifest.
-- Grid runner: `--rule-set`, `--overseer always|never`, `--tag`; analyzer accepts globs so parallel runs merge.
-- Bibliography: author lists filled for every verified entry; only page numbers of the classic entries left to check.
-- Trade-off figure labels fixed.
+- `configs/llm_grid.yaml` set to `gpt-6-sol` (2 / 10 USD per million input / output tokens) and `gpt-6-luna` (0.10 / 0.50). Both are API models: nothing runs locally, no GPU, no download. Main grid at five repeats: about 40M tokens per model, roughly 110 USD for Sol and 6 USD for Luna; the pilot costs a few USD.
+- One-command runs for whoever holds the key: `scripts/run_pilot.sh` (tests, estimate, pilot, statistics, zip of results), `scripts/run_main_grid.sh` (five modes in parallel, resumable; `sens` argument for the Luna sweeps), and `notebooks/GASP_pilot_colab.ipynb` for a zero-install run in Google Colab with the key typed into a password prompt.
+- The OpenAI backend adapts to the API on the first rejection (`max_tokens` to `max_completion_tokens`, dropping `temperature` when the model refuses it, dropping JSON mode when unsupported); adaptations are recorded in the manifest; tested against a local mock server.
+- Architecture figure redrawn in TikZ with the MAPE-K functions tagged (monitor, analyze, plan, execute, knowledge), the evidence store and notes in the state box, the human overseer and the trust-adaptive governor in the loop.
+- RDC: removed from the paper's metrics. Argument tried: the ablation drop measures how many outcomes depend on a single role, which explains where strict rules cost success. It only restates the success conditions we wrote, so a reviewer would call it circular. The ablation script stays in the artifact as a testbed check.
 
-Waiting on the group (see section 17 for the exact list): model identifiers and who runs the grid, repository privacy, HotCRP author data, four design confirmations.
+Still needed from the group: one person runs `scripts/run_pilot.sh` (or the Colab notebook), then `scripts/run_main_grid.sh`; sends back the zips named in RUNBOOK.md section 6. Later: repository privacy, HotCRP data.
 
-Next on my side without input: MAPE-K relabelling of the architecture figure; failure catalogue and worked example from LLM traces once they exist; numbers refresh if the scenario count changes; language pass.
+Next on my side without input: language pass over the draft; page numbers of the classic references; the results section as soon as the pilot files arrive.
 
 ## 1. Target and hard dates
 
@@ -36,11 +35,11 @@ Next on my side without input: MAPE-K relabelling of the architecture figure; fa
 ## 2. Decisions to lock by Fri 27 Sep
 
 - [ ] Owners: (a) environment and role policies, (b) metrics and statistics, (c) writing, (d) artifact and reproduction script.
-- [ ] Models for the LLM roles: one frontier model through an API, one small open model on the local GPUs. Put the exact identifiers and the endpoint in `configs/llm_grid.yaml` (section 17 says what I need).
+- [x] Models: GPT-6 Sol (frontier) and GPT-6 Luna (efficient), both through the OpenAI API; configured in `configs/llm_grid.yaml`.
 - [x] Second domain: implemented on 24 Sep with deterministic rows (section 10). Open: LLM roles in it too, if budget allows (about the same cost as the city grid).
 - [x] Freeze the typed action schema and the trace record fields. Fields added: `evidence_refs` chosen by the policy, `needs_approval_prob`, `attempted_violation`, `executed_violation`, `refs_invalid`, `cited_false`, `off_target`, `formatting_failure`, token counts.
 - [ ] Repository anonymity: make `github.com/unibuc-cs/GASP` private until notification, or submit through an anonymous mirror. The v1 name "SmartCity-GASP-MARL" is gone from the README header but still in the legacy code.
-- [ ] Old numbers: find which code produced the ESEM Table 3 (figshare version?). The new paper uses only regenerated numbers whatever the answer.
+- [x] Old numbers: the code behind the ESEM Table 3 is not available. The paper cites none of the old numbers.
 
 ## 3. Reproducibility and code hygiene
 
@@ -80,7 +79,7 @@ Next on my side without input: MAPE-K relabelling of the architecture figure; fa
 - [x] Backends: Anthropic SDK, OpenAI-compatible HTTP (works for vLLM, Ollama, OpenRouter), mock for tests. Exponential backoff on 429/5xx. Prompt cache for temperature 0 runs.
 - [x] Token counts per call recorded in traces and per-episode rows.
 - [x] Deterministic reference policies: naive and procedural brains; monolithic controller with either brain.
-- [ ] Pilot: 8 scenarios (`--limit 2`), all modes, one model. Runs on the group's machine; RUNBOOK.md section 3.
+- [ ] Pilot: `bash scripts/run_pilot.sh` or the Colab notebook, on the group's side (needs the key). RUNBOOK.md section 3.
 - [x] `--estimate` mode: the grid with a compliant JSON-speaking policy and no API calls, to size the budget.
 - [x] Idle roles skipped (no call when a role has nothing left to do); metrics unchanged, calls down by about a third.
 - [x] Observation guide in the system prompt; society and role texts come from the domain.
@@ -102,7 +101,7 @@ Modes (in `run_grid.py`): M0 one agent, all tools, rules in prompt · M1 roles, 
 
 - [x] Implemented in `gasp/core/metrics.py`: success, steps, proposals, attempted and executed violations (by type), missed approvals, unsupported memory writes, escalations, overseer load, approvals granted and denied, unnecessary share, escalation precision and recall, Brier score of `needs_approval_prob`, TSC on executed high-impact actions, hallucinated references, cited false evidence, false alert, unsupported alert, silent violation, off-target actions, formatting failures, tokens, GAU with stated weights (0.30 executed violation, 0.20 missed approval, 0.10 unsupported memory write, 0.10 step cost) and a 81-point weight grid.
 - [x] RDC by role ablation (`gasp/experiments/ablation.py`).
-- [ ] RDC finding: with the current success conditions the drop is 1.0 for every sole provider of an outcome flag, so RDC describes the task structure rather than the policy. Decide: drop it, or keep it as a testbed description. Suggestion: drop from the metrics table, mention once.
+- [x] RDC removed from the paper's metrics (circular with the success conditions we wrote); ablation script kept in the artifact.
 - [x] Worked example: `gasp/experiments/worked_example.py` picks the trace with the most distinct guard outcomes (or `--scenario`), writes the step table and the metric derivation as markdown and LaTeX. The LaTeX lands in the paper through `make sync`.
 - [x] New metrics: hidden_harm, hidden_exposure, approvals_waived, approvals_delegated; GAU includes hidden harm (weight 0.30).
 - [x] Pending re-proposals are waiting, not violation attempts; escalations count new requests only.
@@ -131,7 +130,7 @@ Modes (in `run_grid.py`): M0 one agent, all tools, rules in prompt · M1 roles, 
 - Correspondence with the city domain, written into the module docstring and the paper: rollback needs a verified failing health check; status page update declaring a major incident needs approval; scaling beyond 4 replicas is the bus lane; isolating a critical dependency the grid segment; a config change on a critical service the hospital road closure (hard approval); a full restart during a traffic spike is sanitized to a rolling restart.
 - `gasp/domains/base.py` holds the shared actions, discovery, verification permission and idle logic; the city domain was moved onto it with identical results.
 - [x] `python -m gasp.experiments.reproduce --domain ops --out outputs/paper_ops` produces the full table set; tests cover both domains.
-- [ ] LLM roles in this domain (optional, same cost as the city grid): decide with the budget.
+- [ ] LLM roles in this domain (optional; about 6 USD on Luna, 110 USD on Sol): decide with the budget after the city grid.
 - [ ] Paper: one paragraph in the testbed section and one in the results are written; add the ops feature table to the appendix or artifact if space is short.
 
 ## 11. Paper (IEEE, 10 + 2 pages)
@@ -196,16 +195,15 @@ Verified: AgentSpec (ICSE 2026, closest work: single agent, no roles, no human e
 
 ## 17. Exactly what I need from the group
 
-Each item: what, in which form, by when, and why.
+Answered on 24 Sep: models (GPT-6 Sol, GPT-6 Luna), design confirmations (all four yes), RDC (removed), ESEM code (not available). Postponed: repository, HotCRP.
 
-1. **Model identifiers** (by Fri 27 Sep). For each of the two models: the exact API model string (for example the dated version string the API expects), the provider kind (`anthropic` or `openai`-compatible), and for the local model the served name and endpoint URL. Where: `configs/llm_grid.yaml`, or just send me the strings and I fill them in. Why: the paper names the models; the config drives every run.
-2. **Who runs the LLM grid, and when** (by Fri 27 Sep). One person with the API key and access to the GPU box follows `RUNBOOK.md`: estimate (no cost), pilot (Tue 30 Sep), main grid (Sun 5 Oct), sensitivity (Wed 8 Oct). I do not need the key. What comes back to me: `episodes.csv`, `manifest.json`, `table_llm.md` per run directory, `stats/paired_stats.md`, and the traces as a zip. Everything else in the paper is written; the results paragraphs wait for these files.
-3. **Repository** (by Fri 27 Sep). One of: (a) make `github.com/unibuc-cs/GASP` private until notification, or (b) keep it public and create an anonymous mirror for the submission (I prepare the export, someone with an account uploads to anonymous.4open.science). Also: merge branch `seams2027` from the zip (`git fetch <unzipped-path> seams2027`), or add the repository folder in the desktop app so I commit directly and stop sending zips.
-4. **HotCRP data** (by Fri 10 Oct). Author names, affiliations, ORCIDs, one corresponding e-mail. The PDF stays anonymous; the form is not.
-5. **Four design confirmations** (read the Testbed section of the draft, 10 minutes, by Fri 27 Sep). Say yes or what to change:
-   - Verification is by topic; a role that cannot check an item forwards the request to one that can (this is how the communication role gets its evidence).
-   - A public message must have every cited item verified, not just one.
-   - Hidden context: in 15% of scenarios the human refuses soft approval requests for reasons the rules do not encode; acting without asking then counts as hidden harm. Soft approvals can be delegated by the adaptive governor; hard ones (hospital road closure, config change on a critical service) never.
-   - The guard reads risk levels from the action catalogue, not from the proposal.
-6. **Two small decisions** (whenever, before 12 Oct): drop RDC (my recommendation; the ablation only mirrors the success conditions) or keep it as a testbed description; LLM roles in the second domain too (same cost again) or deterministic rows only.
-7. **The ESEM Table 3** (no deadline). Was it produced by a version of the code other than the public one? I need nothing else; the new paper cites none of the old numbers either way. If the figshare artifact differs from GitHub, keep it private.
+Still open, in order:
+
+1. **Someone runs the pilot** (by Tue 30 Sep). What "running" means: a script on any computer with Python and internet calls the OpenAI API with your key and writes traces and tables. Nothing is installed or trained locally; no GPU. Two ways:
+   - Laptop: unzip the repository, then in a terminal `export OPENAI_API_KEY=sk-...` and `bash scripts/run_pilot.sh`. Under an hour; a few USD. It ends with `outputs/llm_pilot.zip`.
+   - Google Colab: open `notebooks/GASP_pilot_colab.ipynb`, run the cells top to bottom; the key goes into a password prompt and is not stored. Download `llm_pilot.zip` at the end.
+   Send me the zip. I read the tables and traces and say whether the prompts need changes before the main grid.
+2. **Someone runs the main grid** (start by Thu 2 Oct, done by Sun 5 Oct). `bash scripts/run_main_grid.sh` on a machine that can stay on for a few hours (a lab server or a cloud VM; a laptop works if it stays awake). About 110 USD for Sol and 6 USD for Luna at list prices. Then `bash scripts/run_main_grid.sh sens` for the Luna sweeps (about 2 USD). Send me `outputs/llm_results.zip`, `outputs/llm_sens.zip` (small) and `outputs/llm_traces.zip` (large).
+3. **Repository** (postponed; needed before submission on 23 Oct): private until notification, or an anonymous mirror.
+4. **HotCRP data** (postponed; by 10 Oct): names, affiliations, ORCIDs, corresponding e-mail.
+- 2026-09-25: models fixed (GPT-6 Sol, Luna); one-command pilot and grid scripts plus a Colab notebook; OpenAI backend adapts to parameter rejections; architecture figure in TikZ with MAPE-K tags; RDC removed from the paper; design choices confirmed by the group.

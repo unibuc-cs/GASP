@@ -1,4 +1,5 @@
-# LLM experiment grid. Fill in the two models the group picks.
+# LLM experiment grid. Both models are OpenAI API models; nothing runs locally and no GPU is needed.
+# The key is read from the environment variable OPENAI_API_KEY on the machine that runs the grid.
 domain: smartcity
 rule_set: R2
 max_steps: 16
@@ -6,13 +7,13 @@ repeats: 5
 temperature: 0.7
 modes: [M0, M1, M2, M3, M4]
 models:
-  # Frontier model through the Anthropic API (needs ANTHROPIC_API_KEY).
-  - name: frontier
-    kind: anthropic
-    model: claude-sonnet-4-5      # replace with the version the group settles on
-  # Small open model served locally with vLLM or Ollama on the lab GPUs (OpenAI-compatible endpoint).
-  - name: small
+  - name: sol            # frontier model: GPT-6 Sol, 2 USD / 10 USD per million input / output tokens
     kind: openai
-    model: qwen2.5-7b-instruct    # replace with the served model name
-    base_url: http://localhost:8000/v1
-    api_key_env: LOCAL_LLM_KEY    # any value if the server does not check keys
+    model: gpt-6-sol
+    base_url: https://api.openai.com/v1
+    api_key_env: OPENAI_API_KEY
+  - name: luna           # efficient model: GPT-6 Luna, 0.10 USD / 0.50 USD per million tokens; used for every sensitivity sweep
+    kind: openai
+    model: gpt-6-luna
+    base_url: https://api.openai.com/v1
+    api_key_env: OPENAI_API_KEY

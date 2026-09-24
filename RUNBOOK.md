@@ -1,24 +1,32 @@
 # Runbook: the LLM experiments
 
-Everything below runs without changing code. Budget, commands, what to check, and what to hand back.
+Both models are OpenAI API models (`gpt-6-sol`, `gpt-6-luna`). Nothing runs locally, no GPU is needed, and no model
+is downloaded: "running the experiment" means a Python script on any computer with internet that calls the OpenAI API
+with your key, records the answers as traces, and writes the tables. The key is read from the environment variable
+`OPENAI_API_KEY` and never leaves the machine.
+
+Three ways to run, pick one:
+
+| Way | Where | Good for |
+|---|---|---|
+| `bash scripts/run_pilot.sh` | any laptop with Python 3.10+ | the pilot (under an hour, a few USD) |
+| `notebooks/GASP_pilot_colab.ipynb` | Google Colab, no installation | the pilot, if installing Python is a hassle |
+| `bash scripts/run_main_grid.sh` | a machine that can stay on for hours (a lab server, a cloud VM) | the main grid and the sensitivity sweeps |
+
+Prices at list rates: GPT-6 Sol 2 / 10 USD per million input / output tokens; GPT-6 Luna 0.10 / 0.50. Main grid, five
+repeats: about 40M tokens per model, so roughly 110 USD for Sol and 6 USD for Luna. Pilot: a few USD in total.
 
 ## 1. Setup (10 minutes)
 
 ```bash
-git checkout seams2027
+git checkout seams2027                     # or unzip GASP-seams2027.zip
+export OPENAI_API_KEY=sk-...               # your key; never commit it
 python -m pip install -r requirements.txt
-python -m pip install anthropic            # only for the Anthropic backend
-python -m pytest tests -q                  # expect: 36 passed
-python -m gasp.experiments.reproduce --out outputs/paper   # 8 s; writes outputs/paper/scenarios.json (the shared scenario set)
+python -m pytest tests -q                  # expect: 44 passed
 ```
 
-Edit `configs/llm_grid.yaml`:
-
-- `models[].name`: a short label that will appear in tables (e.g. `sonnet`, `qwen7b`).
-- `models[].kind`: `anthropic` (needs `ANTHROPIC_API_KEY`) or `openai` (any OpenAI-compatible endpoint: OpenAI, OpenRouter, vLLM, Ollama with `/v1`).
-- `models[].model`: the exact model identifier the API expects.
-- `models[].base_url` and `api_key_env` for `openai` kinds. For a local vLLM server: `http://<host>:8000/v1`, any key.
-- Leave `temperature: 0.7`, `repeats: 5`, `max_steps: 16`, `rule_set: R2`.
+`configs/llm_grid.yaml` already names the two models. Leave `temperature: 0.7`, `repeats: 5`, `max_steps: 16`,
+`rule_set: R2`.
 
 ## 2. Estimate before spending (no API calls)
 
@@ -27,9 +35,15 @@ python -m gasp.experiments.run_grid --config configs/llm_grid.yaml --out outputs
     --scenarios outputs/paper/scenarios.json --estimate --repeats 1
 ```
 
-Prints calls and tokens for one repeat of the five modes with a perfectly compliant policy (measured: about 4,100 calls and 5.5M tokens for 400 episodes). Plan for 1.5x with a real model, times 5 repeats: roughly 30k calls and 40M tokens per model for the main grid. At typical frontier prices that is in the order of 150–200 USD per frontier model; a local model costs GPU time only.
+Prints calls and tokens for one repeat of the five modes with a perfectly compliant policy (measured: about 4,100 calls and 5.5M tokens for 400 episodes). Plan for 1.5x with a real model, times 5 repeats: roughly 30k calls and 40M tokens per model for the main grid, about 110 USD for Sol and 6 USD for Luna.
 
 ## 3. Pilot (30–60 minutes, a few USD)
+
+```bash
+bash scripts/run_pilot.sh        # or the cells of notebooks/GASP_pilot_colab.ipynb
+```
+
+which is the same as
 
 ```bash
 python -m gasp.experiments.run_grid --config configs/llm_grid.yaml --out outputs/llm_pilot \
@@ -47,7 +61,8 @@ Also check `outputs/llm_pilot/traces/*.jsonl` for two or three episodes: does th
 
 ## 4. Main grid (hours; resumable)
 
-Run modes in parallel processes, one output directory per mode, so nothing is written to the same file twice:
+`bash scripts/run_main_grid.sh` does all of this; `bash scripts/run_main_grid.sh sens` does the sensitivity sweeps on Luna.
+By hand, run modes in parallel processes, one output directory per mode, so nothing is written to the same file twice:
 
 ```bash
 for m in M0 M1 M2 M3 M4; do
@@ -58,16 +73,16 @@ done
 
 Each process appends one line per finished episode to `episodes.jsonl` and can be stopped and restarted at any time; finished episodes are skipped. Sequential speed is about 3 s per call, so one mode for one model takes 4–5 hours; five processes bring the whole grid to about that.
 
-Sensitivity (small model only, M2 and M3, one repeat is enough):
+Sensitivity (Luna only, M2 and M3, one repeat is enough):
 
 ```bash
 for rs in R1 R3; do
   python -m gasp.experiments.run_grid --config configs/llm_grid.yaml --out outputs/llm_sens/$rs \
-      --scenarios outputs/paper/scenarios.json --modes M2,M3 --models <small-model-name> --repeats 1 --rule-set $rs --tag $rs
+      --scenarios outputs/paper/scenarios.json --modes M2,M3 --models luna --repeats 1 --rule-set $rs --tag $rs
 done
 for ov in always never; do
   python -m gasp.experiments.run_grid --config configs/llm_grid.yaml --out outputs/llm_sens/ov_$ov \
-      --scenarios outputs/paper/scenarios.json --modes M2,M3 --models <small-model-name> --repeats 1 --overseer $ov --tag ov-$ov
+      --scenarios outputs/paper/scenarios.json --modes M2,M3 --models luna --repeats 1 --overseer $ov --tag ov-$ov
 done
 ```
 

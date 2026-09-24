@@ -71,10 +71,14 @@ class AnthropicBackend:
 
 
 class OpenAICompatibleBackend:
-    """Works with OpenAI, vLLM, Ollama (``/v1``), OpenRouter: anything speaking chat/completions."""
+    """Works with OpenAI, vLLM, Ollama (``/v1``), OpenRouter: anything speaking chat/completions.
+
+    Adapts to the server on the first 400 error: switches ``max_tokens`` to ``max_completion_tokens`` (newer
+    OpenAI models), drops ``temperature`` when the model does not accept it, drops ``response_format`` when
+    JSON mode is not supported.  Every adaptation is recorded in ``adaptations`` for the manifest."""
 
     def __init__(self, model: str, base_url: str = "https://api.openai.com/v1", api_key_env: str = "OPENAI_API_KEY",
-                 max_retries: int = 5, extra_headers: Optional[Dict[str, str]] = None):
+                 max_retries: int = 5, extra_headers: Optional[Dict[str, str]] = None, json_mode: bool = True):
         import requests  # type: ignore
         self.requests = requests
         self.model = model
@@ -83,17 +87,50 @@ class OpenAICompatibleBackend:
         self.api_key = os.environ.get(api_key_env, "")
         self.max_retries = max_retries
         self.extra_headers = extra_headers or {}
+        self.json_mode = json_mode
+        self.token_param = "max_tokens"
+        self.send_temperature = True
+        self.adaptations: List[str] = []
+
+    def _body(self, system: str, user: str, temperature: float, max_tokens: int) -> Dict[str, Any]:
+        body: Dict[str, Any] = {"model": self.model, self.token_param: max_tokens,
+                                "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}]}
+        if self.send_temperature:
+            body["temperature"] = temperature
+        if self.json_mode:
+            body["response_format"] = {"type": "json_object"}
+        return body
+
+    def _adapt(self, message: str) -> bool:
+        """Change one request parameter based on a 400 error message. Returns True if something changed."""
+
+        msg = message.lower()
+        if "max_tokens" in msg and self.token_param == "max_tokens":
+            self.token_param = "max_completion_tokens"
+            self.adaptations.append("max_tokens -> max_completion_tokens")
+            return True
+        if "temperature" in msg and self.send_temperature:
+            self.send_temperature = False
+            self.adaptations.append("temperature dropped (model default used)")
+            return True
+        if "response_format" in msg and self.json_mode:
+            self.json_mode = False
+            self.adaptations.append("response_format dropped (no JSON mode)")
+            return True
+        return False
 
     def complete(self, system: str, user: str, temperature: float, max_tokens: int) -> Tuple[str, Dict[str, int]]:
         headers = {"Content-Type": "application/json", **self.extra_headers}
         if self.api_key:
             headers["Authorization"] = f"Bearer {self.api_key}"
-        body = {"model": self.model, "temperature": temperature, "max_tokens": max_tokens,
-                "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}]}
         delay = 2.0
         for attempt in range(self.max_retries):
+            r = None
             try:
-                r = self.requests.post(f"{self.base_url}/chat/completions", headers=headers, json=body, timeout=120)
+                r = self.requests.post(f"{self.base_url}/chat/completions", headers=headers,
+                                       json=self._body(system, user, temperature, max_tokens), timeout=180)
+                if r.status_code == 400 and self._adapt(r.text):
+                    continue   # retry at once with the adapted request
                 if r.status_code >= 500 or r.status_code == 429:
                     raise RuntimeError(f"status {r.status_code}")
                 r.raise_for_status()
@@ -101,7 +138,9 @@ class OpenAICompatibleBackend:
                 text = data["choices"][0]["message"]["content"] or ""
                 u = data.get("usage", {})
                 return text, {"tokens_in": int(u.get("prompt_tokens", 0)), "tokens_out": int(u.get("completion_tokens", 0))}
-            except Exception:
+            except Exception as exc:
+                if r is not None and r.status_code == 400:
+                    raise RuntimeError(f"request rejected: {r.text[:300]}") from exc
                 if attempt == self.max_retries - 1:
                     raise
                 time.sleep(delay)
@@ -166,7 +205,8 @@ def make_backend(spec: Dict[str, Any], domain=None, rules: Optional[RuleSet] = N
         return AnthropicBackend(spec["model"], spec.get("api_key_env", "ANTHROPIC_API_KEY"))
     if kind == "openai":
         return OpenAICompatibleBackend(spec["model"], spec.get("base_url", "https://api.openai.com/v1"),
-                                       spec.get("api_key_env", "OPENAI_API_KEY"), extra_headers=spec.get("headers"))
+                                       spec.get("api_key_env", "OPENAI_API_KEY"), extra_headers=spec.get("headers"),
+                                       json_mode=bool(spec.get("json_mode", True)))
     if kind == "mock":
         return MockBackend(spec.get("answers", ['{"action_type": "noop"}']))
     if kind == "procedural-json":
