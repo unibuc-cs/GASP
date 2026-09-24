@@ -4,28 +4,22 @@ Status 2026-09-24 (evening). Target: SEAMS 2027 research track, full paper. Dead
 
 ## 0. Where things stand
 
-Status 2026-09-24, end of day. Branch `seams2027`, package `gasp/`, 36 tests pass, `make` in `paper/` builds the IEEE skeleton.
+Status 2026-09-24, late. Branch `seams2027`, 44 tests pass, `make` in `paper/` builds an 8 page draft.
 
-Done today, first half: new environment, guard with attempted vs executed violations, deterministic policies, LLM role policy with backends, metrics, statistics, reproduction script (see sections 3–8).
+Done since the last update:
 
-Done today, second half:
+- Second domain implemented: software incident response (`gasp/domains/ops.py`, 7 roles, 4 incident families) on a shared base class (`gasp/domains/base.py`); guard, traces, metrics, statistics and both deterministic brains unchanged. Same pattern as the city: naive roles unguarded execute 1.9 violations per incident, 23% false status page notices, 5% hidden harm; guarded: zero, 1.06 approval requests per incident. Tests run over both domains. RQ5 is back in the paper with its own table.
+- Paper prose: abstract, introduction, related work, model, testbed (both domains), evaluation design, deterministic results, strict rules and absent human, adaptive governance, discussion, threats, conclusion. Red TODO markers remain only where LLM numbers go. Draft PDF: `gasp-seams2027-draft.pdf`.
+- Rules table and scenario feature table generated from the YAML and the scenario set (`gasp/experiments/paper_tables.py`, part of `make sync`).
+- LLM run preparation for the group: `RUNBOOK.md` (setup, estimate, pilot, main grid in parallel, sensitivity, statistics, what to hand back, what to do when it breaks). `--estimate` mode runs the whole grid with a compliant JSON-speaking policy and no API calls: 4,100 calls and 5.5M tokens per repeat for the five modes. Idle roles are no longer asked for actions, which cut calls by about a third with no change to any metric.
+- Prompt: observation guide (how evidence, verification, notes, approvals and last_guard work), society and role descriptions supplied by the domain, prompt hashes in the manifest.
+- Grid runner: `--rule-set`, `--overseer always|never`, `--tag`; analyzer accepts globs so parallel runs merge.
+- Bibliography: author lists filled for every verified entry; only page numbers of the classic entries left to check.
+- Trade-off figure labels fixed.
 
-- Hidden context: in 15% of scenarios the overseer knows something the rules do not encode and refuses soft approval requests; acting without asking then causes "hidden harm". New metric, new flag, new tests. Unguarded naive roles: hidden harm in 7% of episodes; guarded: 0.
-- Soft vs hard approvals (road closures near a hospital are hard and never delegated).
-- Trust-adaptive governor: per role trust carried across incidents, soft approvals delegated to trusted roles. Sweep over thresholds, rule sets and hidden context rates (5/15/30%), tables and figures in `outputs/paper/adaptive`. Result under R3: static guard costs 14% success when the human is unavailable and puts two requests per incident on the human; delegation removes both and exposes the system to every hidden context case (16% of episodes). Trust earned by compliance says nothing about what the rules do not encode.
-- Worked example script: one trace to every metric, markdown and LaTeX (`gasp/experiments/worked_example.py`).
-- Re-proposing while an approval is pending no longer counts as a violation attempt.
-- Hidden context removed from observations (it had leaked); LLM prompt compacted: about 750 system + 200 observation tokens per call, so the main grid is about 25M tokens per model.
-- GAU includes hidden harm; weight grid has 243 points.
-- Paper skeleton: `paper/main.tex` (IEEEtran, all sections, RQs, contribution list, red TODO notes saying what goes where), `paper/references.bib` with the verified references, `paper/Makefile` that syncs tables and figures from the outputs and builds the PDF.
+Waiting on the group (see section 17 for the exact list): model identifiers and who runs the grid, repository privacy, HotCRP author data, four design confirmations.
 
-Needs the group (blocking):
-
-- API keys and model names for the pilot (`configs/llm_grid.yaml`); the pilot is one command once keys exist.
-- Owners for the writing and for the LLM runs.
-- Repository privacy decision.
-
-Next in line (no one blocked): prompt hashes in the manifest; redraw the trade-off figure for print; fill the three bib entries marked TODO; start writing Sections 3–5 from the skeleton notes; decide RDC.
+Next on my side without input: MAPE-K relabelling of the architecture figure; failure catalogue and worked example from LLM traces once they exist; numbers refresh if the scenario count changes; language pass.
 
 ## 1. Target and hard dates
 
@@ -42,8 +36,8 @@ Next in line (no one blocked): prompt hashes in the manifest; redraw the trade-o
 ## 2. Decisions to lock by Fri 27 Sep
 
 - [ ] Owners: (a) environment and role policies, (b) metrics and statistics, (c) writing, (d) artifact and reproduction script.
-- [ ] Models for the LLM roles: one frontier model through the API, one small open model on the local GPUs. Put the names and the endpoint in `configs/llm_grid.yaml`.
-- [ ] Second domain (incident response, section 10): decide on 10 Oct based on whether the smart-city grid is done. Not before.
+- [ ] Models for the LLM roles: one frontier model through an API, one small open model on the local GPUs. Put the exact identifiers and the endpoint in `configs/llm_grid.yaml` (section 17 says what I need).
+- [x] Second domain: implemented on 24 Sep with deterministic rows (section 10). Open: LLM roles in it too, if budget allows (about the same cost as the city grid).
 - [x] Freeze the typed action schema and the trace record fields. Fields added: `evidence_refs` chosen by the policy, `needs_approval_prob`, `attempted_violation`, `executed_violation`, `refs_invalid`, `cited_false`, `off_target`, `formatting_failure`, token counts.
 - [ ] Repository anonymity: make `github.com/unibuc-cs/GASP` private until notification, or submit through an anonymous mirror. The v1 name "SmartCity-GASP-MARL" is gone from the README header but still in the legacy code.
 - [ ] Old numbers: find which code produced the ESEM Table 3 (figshare version?). The new paper uses only regenerated numbers whatever the answer.
@@ -56,7 +50,7 @@ Next in line (no one blocked): prompt hashes in the manifest; redraw the trade-o
 - [x] Attempted vs executed violations split; tests assert executed = 0 under every rule set and both policy brains.
 - [x] Guard unit tests: one per rule and outcome, plus unguarded labelling, reproducibility, solvability.
 - [x] Manifest with git commit, Python version, seed, mode list, episode count; LLM manifest with config, temperature, repeats.
-- [ ] Add prompt hashes to the LLM manifest.
+- [x] Prompt hashes in the LLM manifest (per role and prompt variant).
 - [x] Fix the legacy `.gitignore` (was UTF-16, so bytecode had been committed). Done on the branch.
 - [ ] Check the main repository's `.gitignore` too when merging.
 
@@ -86,16 +80,19 @@ Next in line (no one blocked): prompt hashes in the manifest; redraw the trade-o
 - [x] Backends: Anthropic SDK, OpenAI-compatible HTTP (works for vLLM, Ollama, OpenRouter), mock for tests. Exponential backoff on 429/5xx. Prompt cache for temperature 0 runs.
 - [x] Token counts per call recorded in traces and per-episode rows.
 - [x] Deterministic reference policies: naive and procedural brains; monolithic controller with either brain.
-- [ ] Pilot: 8 scenarios (`--limit 2`), all modes, one model. Blocked on keys.
+- [ ] Pilot: 8 scenarios (`--limit 2`), all modes, one model. Runs on the group's machine; RUNBOOK.md section 3.
+- [x] `--estimate` mode: the grid with a compliant JSON-speaking policy and no API calls, to size the budget.
+- [x] Idle roles skipped (no call when a role has nothing left to do); metrics unchanged, calls down by about a third.
+- [x] Observation guide in the system prompt; society and role texts come from the domain.
 - [ ] Coordinator as an LLM that picks the active roles (only then measure activation precision and recall). Optional.
-- [ ] Budget check after the pilot: about 24k calls per model for the main grid at 1.5k tokens each; confirm and scale.
+- [ ] Budget check after the pilot. Measured with the compliant policy: 4,100 calls and 5.5M tokens per repeat for 400 episodes (M0–M4); plan 1.5x for a real model, times 5 repeats: roughly 30k calls and 40M tokens per model, in the order of 150–200 USD for a frontier model.
 
 ## 6. Experiment matrix
 
 Modes (in `run_grid.py`): M0 one agent, all tools, rules in prompt · M1 roles, no rules anywhere · M2 roles, rules in prompts only · M3 roles, guard, rules not in prompts · M4 rules in prompts and guard · M0g one agent with guard. Deterministic mirrors D0–D6 in `reproduce.py`.
 
 - [x] Deterministic grid at R2 (10 modes), rule-set table (R1–R3), overseer sweep (R2 and R3, forced on and off), GAU weight grid.
-- [ ] LLM pilot (blocked on keys).
+- [ ] LLM pilot (group's machine, RUNBOOK.md).
 - [ ] LLM main grid: models × M0–M4, 80 scenarios × 5 repeats.
 - [ ] LLM sensitivity: M2 vs M3 under R1/R3 and overseer availability, small model only.
 - [ ] Adaptive governor run (section 9).
@@ -125,14 +122,17 @@ Modes (in `run_grid.py`): M0 one agent, all tools, rules in prompt · M1 roles, 
 - Threshold by sweep on a separate 20-scenario tuning set (seed different from the evaluation set).
 - [x] Implemented inside guard and environment (`EnvConfig.adaptive_threshold`, trust carried across incidents, delegated approvals that never reach the human); sweep in `gasp/experiments/adaptive.py`; tests for hard vs soft, waiver only above threshold, harm only without human approval.
 - [x] Sweep run for R2 and R3 at hidden context rates 5/15/30%. Tables in `outputs/paper/adaptive/table_adaptive.md`, figures `tradeoff_*.png`.
-- [ ] Redraw the figure for print: one label per distinct point (thresholds 0.5–0.9 coincide for the naive brain).
+- [x] Figure relabelled: only the two ends are annotated; the caption lists the thresholds.
 - [ ] Paper text: present it as a measured trade-off, not a recommendation.
 
-## 10. Optional second domain: incident response for a web service
+## 10. Second domain: software incident response (done)
 
-- Roles: monitor, diagnoser, remediator, communicator, plus verifier, governor, overseer. Actions: query logs and metrics, restart service, roll back deployment, scale out, change config, update status page, write runbook memory, request verification, escalate. Rules: rollback needs a verified failing health check; status page update needs a verified incident; production config change needs approval; runbook writes need source and expiry; actions outside the affected service are denied. Families: bad deploy, traffic spike, dependency outage, disk full.
-- The v2 layout makes this a new file in `gasp/domains/` implementing the same interface as `smartcity.py`; guard, traces, metrics and statistics are shared.
-- [ ] Go or no-go on 10 Oct.
+- `gasp/domains/ops.py`: roles Monitor, Diagnoser, Deploy, Capacity, Dependency, Storage, Comms; families bad deploy, traffic spike, dependency outage, disk full; evidence health alerts, metrics, logs, deploy records, dependency status, disk usage, customer reports, a planted "data breach" post, a distractor warning.
+- Correspondence with the city domain, written into the module docstring and the paper: rollback needs a verified failing health check; status page update declaring a major incident needs approval; scaling beyond 4 replicas is the bus lane; isolating a critical dependency the grid segment; a config change on a critical service the hospital road closure (hard approval); a full restart during a traffic spike is sanitized to a rolling restart.
+- `gasp/domains/base.py` holds the shared actions, discovery, verification permission and idle logic; the city domain was moved onto it with identical results.
+- [x] `python -m gasp.experiments.reproduce --domain ops --out outputs/paper_ops` produces the full table set; tests cover both domains.
+- [ ] LLM roles in this domain (optional, same cost as the city grid): decide with the budget.
+- [ ] Paper: one paragraph in the testbed section and one in the results are written; add the ops feature table to the appendix or artifact if space is short.
 
 ## 11. Paper (IEEE, 10 + 2 pages)
 
@@ -159,7 +159,8 @@ Things the testbed section must now explain (new since the ESEM version): eviden
 Verified: AgentSpec (ICSE 2026, closest work: single agent, no roles, no human escalation as an outcome, no trace metrics) · Progent (2025) · GuardAgent (ICML 2025) · τ-bench (ICLR 2025) · Why Do Multi-Agent LLM Systems Fail? (NeurIPS 2025) · Safe Multi-Agent RL via Shielding (AAMAS 2021) · Compositional Shielding and RL for Multi-Agent Systems (AAMAS 2025) · Exploring the Potential of LLMs in Self-adaptive Systems (SEAMS 2024) · MAPER (SEAMS 2026) · Explanations for Human-on-the-loop (SEAMS 2020).
 
 - [x] Entries drafted in `paper/references.bib` for all of the above.
-- [ ] Fill the author lists marked TODO (compositional shielding AAMAS 2025; SEAMS 2024 LLM paper; MAPER) and check pages/DOIs of the classic entries.
+- [x] Author lists filled (Brorholt, Larsen, Schilling for compositional shielding; Li, Zhang, Li, Weyns, Jin, Tei for the SEAMS 2024 paper; Maia et al. for MAPER; Li, Adepu, Kang, Garlan for SEAMS 2020).
+- [ ] Check page numbers of the classic entries (Kephart and Chess, Salehie and Tahvildari, Calinescu et al., Sha, Falcone et al., Esteva et al., Hübner et al.).
 - [ ] Keep the agentic AI and MARL citations that still carry weight; drop padding surveys.
 
 ## 13. Artifact track (by 7 Dec)
@@ -171,8 +172,8 @@ Verified: AgentSpec (ICSE 2026, closest work: single agent, no roles, no human e
 ## 14. Timeline
 
 - Week 1, Thu 24 – Sun 27 Sep: decisions (section 2); ~~schema freeze; reproduction script; environment redesign; LLM wrapper~~ done 24 Sep; pilot as soon as keys exist.
-- Week 2, Mon 28 Sep – Sun 4 Oct: pilot and budget check; ~~adaptive governor; observation trimming; IEEE skeleton; worked example~~ done 24 Sep; write Sections 3–5 from the skeleton notes; redraw figures.
-- Week 3, Mon 5 – Sun 11 Oct: main grid; statistics and figures; sensitivity; go or no-go on the second domain Fri 10 Oct.
+- Week 2, Mon 28 Sep – Sun 4 Oct: group runs the pilot (by Tue 30 Sep) and the main grid (by Sun 5 Oct); ~~adaptive governor; observation trimming; IEEE skeleton; worked example; Sections 1–5 and the deterministic results~~ done 24 Sep; architecture figure relabelled.
+- Week 3, Mon 5 – Sun 11 Oct: LLM results text and figures; sensitivity runs; failure catalogue; optional LLM roles in the ops domain.
 - Week 4, Mon 12 – Sun 18 Oct: results text; full draft; related work; threats.
 - Week 5, Mon 19 – Fri 23 Oct: internal review 19–20; anonymity and format check 21; buffer 22; submit Fri 23 Oct AoE.
 - After: artifact description by 7 Dec; response letter and revision 3 Dec – 5 Jan if the decision is "revision".
@@ -190,4 +191,21 @@ Verified: AgentSpec (ICSE 2026, closest work: single agent, no roles, no human e
 
 - 2026-09-23: three ESEM reviews analyzed. Public repository run at 80 episodes does not reproduce the paper's Table 3. Venue decision: SEAMS 2027 (deadline 23 Oct) over AAMAS 2027 (deadline 8 Oct).
 - 2026-09-24: plan created. Built `gasp/` v2 on branch `seams2027`: environment, rule sets, guard, deterministic policies, LLM policy and backends, metrics, statistics, ablation, reproduction script, 33 tests. First deterministic table produced. Findings while building: (1) with parallel roles, "steps" is a poor cost measure; report proposals too; (2) the communication role needs a verified path to public facts, so verification requests are forwarded to roles that can check them; (3) a public message must have every citation verified, otherwise a true and an untrue claim can go out together; (4) the guard must use catalogue risk levels; (5) under lenient rules a naive society can get stuck waiting for verification it never asks for, which the forwarding mechanism fixed; (6) RDC by ablation mostly reflects task structure.
+- 2026-09-24 (late): second domain (software incident response) on a shared base class, same pattern as the city; paper prose for every section except the LLM results; rules and feature tables generated; runbook and estimate mode for the group's runs (about 4,100 calls and 5.5M tokens per repeat); idle roles skipped; bib authors filled. Draft PDF at 8 pages with placeholders.
 - 2026-09-24 (later): hidden context and soft/hard approvals; trust-adaptive governor with delegated approvals and the sweep (R2/R3 × 5/15/30%); worked example script; prompt compaction (about 950 tokens per call); hidden context leak fixed; pending re-proposals no longer count as attempts; IEEE skeleton compiles. Finding: under strict rules, delegating soft approvals to roles that earned trust by compliance removes the human load and the success loss but exposes every hidden context case; the trade-off is close to linear in the delegated share.
+
+## 17. Exactly what I need from the group
+
+Each item: what, in which form, by when, and why.
+
+1. **Model identifiers** (by Fri 27 Sep). For each of the two models: the exact API model string (for example the dated version string the API expects), the provider kind (`anthropic` or `openai`-compatible), and for the local model the served name and endpoint URL. Where: `configs/llm_grid.yaml`, or just send me the strings and I fill them in. Why: the paper names the models; the config drives every run.
+2. **Who runs the LLM grid, and when** (by Fri 27 Sep). One person with the API key and access to the GPU box follows `RUNBOOK.md`: estimate (no cost), pilot (Tue 30 Sep), main grid (Sun 5 Oct), sensitivity (Wed 8 Oct). I do not need the key. What comes back to me: `episodes.csv`, `manifest.json`, `table_llm.md` per run directory, `stats/paired_stats.md`, and the traces as a zip. Everything else in the paper is written; the results paragraphs wait for these files.
+3. **Repository** (by Fri 27 Sep). One of: (a) make `github.com/unibuc-cs/GASP` private until notification, or (b) keep it public and create an anonymous mirror for the submission (I prepare the export, someone with an account uploads to anonymous.4open.science). Also: merge branch `seams2027` from the zip (`git fetch <unzipped-path> seams2027`), or add the repository folder in the desktop app so I commit directly and stop sending zips.
+4. **HotCRP data** (by Fri 10 Oct). Author names, affiliations, ORCIDs, one corresponding e-mail. The PDF stays anonymous; the form is not.
+5. **Four design confirmations** (read the Testbed section of the draft, 10 minutes, by Fri 27 Sep). Say yes or what to change:
+   - Verification is by topic; a role that cannot check an item forwards the request to one that can (this is how the communication role gets its evidence).
+   - A public message must have every cited item verified, not just one.
+   - Hidden context: in 15% of scenarios the human refuses soft approval requests for reasons the rules do not encode; acting without asking then counts as hidden harm. Soft approvals can be delegated by the adaptive governor; hard ones (hospital road closure, config change on a critical service) never.
+   - The guard reads risk levels from the action catalogue, not from the proposal.
+6. **Two small decisions** (whenever, before 12 Oct): drop RDC (my recommendation; the ablation only mirrors the success conditions) or keep it as a testbed description; LLM roles in the second domain too (same cost again) or deterministic rows only.
+7. **The ESEM Table 3** (no deadline). Was it produced by a version of the code other than the public one? I need nothing else; the new paper cites none of the old numbers either way. If the figshare artifact differs from GitHub, keep it private.
