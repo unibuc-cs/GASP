@@ -1,0 +1,18 @@
+# LLM experiment grid. Fill in the two models the group picks.
+domain: smartcity
+rule_set: R2
+max_steps: 16
+repeats: 5
+temperature: 0.7
+modes: [M0, M1, M2, M3, M4]
+models:
+  # Frontier model through the Anthropic API (needs ANTHROPIC_API_KEY).
+  - name: frontier
+    kind: anthropic
+    model: claude-sonnet-4-5      # replace with the version the group settles on
+  # Small open model served locally with vLLM or Ollama on the lab GPUs (OpenAI-compatible endpoint).
+  - name: small
+    kind: openai
+    model: qwen2.5-7b-instruct    # replace with the served model name
+    base_url: http://localhost:8000/v1
+    api_key_env: LOCAL_LLM_KEY    # any value if the server does not check keys

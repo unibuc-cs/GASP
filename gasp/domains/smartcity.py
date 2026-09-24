@@ -320,7 +320,7 @@ class SmartCityDomain:
         at = action.action_type
         if at in (ActionType.WRITE_MEMORY, ActionType.ESCALATE, ActionType.NOOP, ActionType.QUERY_EVIDENCE, ActionType.REQUEST_VERIFICATION):
             return False
-        if cfg.get("all_high_risk") and action.risk_level == RiskLevel.HIGH:
+        if cfg.get("all_high_risk") and ACTION_SPECS[at].risk == RiskLevel.HIGH:
             return True
         thr = cfg.get("bus_lane_duration_threshold")
         if at == ActionType.OPEN_BUS_LANE and thr is not None and float(action.payload.get("duration", 0)) > float(thr):

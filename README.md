@@ -1,4 +1,34 @@
-# SmartCity-GASP-MARL
+# GASP: governed agent societies
+
+Two code bases live here.
+
+- `gasp/` (v2, current): evidence objects with ids and visibility, three rule sets, a runtime guard that
+  separates attempted from executed violations, deterministic and LLM role policies, typed JSONL traces,
+  trace metrics, paired statistics, role ablation. This is what the SEAMS 2027 submission uses.
+- `smartcity_gasp/` (v1, legacy): the prototype behind the ESEM 2026 submission. Kept for reference only.
+
+## v2 quick start
+
+```bash
+pip install -r requirements.txt
+python -m pytest tests -q                                   # guard rules, invariants, LLM parsing
+python -m gasp.experiments.reproduce --out outputs/paper    # every deterministic table, traces, manifest
+python -m gasp.experiments.run_grid --config configs/llm_grid.yaml --out outputs/llm \
+       --scenarios outputs/paper/scenarios.json --limit 2   # LLM pilot (needs API keys; resumable)
+python -m gasp.experiments.analyze --episodes outputs/llm/episodes.csv --out outputs/llm/stats \
+       --pairs M2:M3,M0:M3,M3:M4 --group model               # paired Wilcoxon, Cliff's delta, bootstrap CIs
+```
+
+Modes: M0 one agent with all tools and the rules in its prompt; M1 roles, no rules anywhere; M2 roles, rules
+in prompts only; M3 roles, runtime guard, rules not in prompts; M4 rules in prompts and guard. The deterministic
+reference rows (D0 to D6 in `reproduce.py`) mirror these with a naive brain (does not know the rules) and a
+procedural brain (follows them).
+
+Rule sets are data: `configs/rules/R1.yaml` (lenient), `R2.yaml` (default), `R3.yaml` (strict).
+
+---
+
+# v1 (legacy): SmartCity-GASP-MARL
 
 This repository is a compact research demo for **Governed Agent Societies** in a
 smart-city setting.  It implements a symbolic multi-agent environment, typed

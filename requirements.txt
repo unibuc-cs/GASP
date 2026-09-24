@@ -1,3 +1,7 @@
 numpy>=1.23
 # Optional for MARL training:
 # torch>=2.0
+PyYAML>=6.0
+scipy>=1.10
+requests>=2.28
+pytest>=7

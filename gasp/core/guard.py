@@ -131,7 +131,7 @@ class GovernanceGuard:
             rs.enabled("evidence")
             and spec.evidence_topics
             and not spec.public
-            and action.risk_level.value in rs.cfg("evidence").get("risk_levels", [])
+            and spec.risk.value in rs.cfg("evidence").get("risk_levels", [])   # the catalogue's risk, not what the policy claims
             and not report.supported
         ):
             return GuardDecision(GuardOutcome.REQUEST_EVIDENCE, False, "evidence", "unsupported_action", True,

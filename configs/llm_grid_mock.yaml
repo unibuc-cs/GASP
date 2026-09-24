@@ -1,0 +1,15 @@
+# Pipeline test without API calls: scripted answers.
+domain: smartcity
+rule_set: R2
+max_steps: 6
+repeats: 1
+temperature: 0.7
+modes: [M2, M3]
+models:
+  - name: mock
+    kind: mock
+    answers:
+      - '{"action_type": "query_evidence", "payload": {"topic": "incident"}, "evidence_refs": [], "needs_approval_prob": 0.0, "rationale": "look"}'
+      - '{"action_type": "broadcast_alert", "evidence_refs": ["E4"], "needs_approval_prob": 0.2, "rationale": "warn"}'
+      - 'not json'
+      - '{"action_type": "dispatch_ambulance", "evidence_refs": ["E1"], "needs_approval_prob": 0.0}'
