@@ -50,13 +50,13 @@ def features_table(feature_json: Path, label: str = "tab:features") -> str:
         ("Planted false report", f"{data['false_report'].get('True', 0)} of {total}"),
         ("Distractor evidence", f"{data['distractor'].get('True', 0)} of {total}"),
     ]
-    for key, label in (("hospital_access_risk", "Hospital access at risk"), ("pollution_zone_active", "Pollution zone active"),
-                       ("critical_service", "Critical service affected"), ("traffic_spike_active", "Traffic spike active")):
+    for key, name in (("hospital_access_risk", "Hospital access at risk"), ("pollution_zone_active", "Pollution zone active"),
+                      ("critical_service", "Critical service affected"), ("traffic_spike_active", "Traffic spike active")):
         if key in data:
-            rows.append((label, f"{data[key].get('True', 0)} of {total}"))
-    for key, label in (("congestion", "Congestion 1 / 2 / 3"), ("error_rate", "Error rate level 1 / 2 / 3")):
+            rows.append((name, f"{data[key].get('True', 0)} of {total}"))
+    for key, name in (("congestion", "Congestion 1 / 2 / 3"), ("error_rate", "Error rate level 1 / 2 / 3")):
         if key in data:
-            rows.append((label, " / ".join(str(data[key].get(k, 0)) for k in ("1", "2", "3"))))
+            rows.append((name, " / ".join(str(data[key].get(k, 0)) for k in ("1", "2", "3"))))
     lines = [r"\begin{table}[t]", r"\centering",
              r"\caption{Scenario set used in every run: " + str(total) + r" scenarios, stratified by family, generated from seed 2027. Hidden context (the overseer would refuse soft requests) is drawn independently with probability 0.15 and is not shown to any role.}",
              r"\label{" + label + r"}", r"\footnotesize",
