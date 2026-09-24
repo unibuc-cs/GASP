@@ -36,6 +36,22 @@ class ActionType(str, Enum):
     BROADCAST_ALERT = "broadcast_alert"
     SEND_TARGETED_NOTICE = "send_targeted_notice"
 
+    # Software operations domain (incident response for a web service).
+    ACKNOWLEDGE_INCIDENT = "acknowledge_incident"
+    CONFIRM_ROOT_CAUSE = "confirm_root_cause"
+    ROLL_BACK_DEPLOYMENT = "roll_back_deployment"
+    RESTART_SERVICE = "restart_service"
+    ROLLING_RESTART = "rolling_restart"
+    SCALE_OUT = "scale_out"
+    ENABLE_RATE_LIMIT = "enable_rate_limit"
+    ISOLATE_DEPENDENCY = "isolate_dependency"
+    ENABLE_FALLBACK_MODE = "enable_fallback_mode"
+    CLEAR_DISK = "clear_disk"
+    EXPAND_VOLUME = "expand_volume"
+    CHANGE_CONFIG = "change_config"
+    UPDATE_STATUS_PAGE = "update_status_page"
+    NOTIFY_CUSTOMERS = "notify_customers"
+
 
 COMMON_ACTIONS = [
     ActionType.NOOP,

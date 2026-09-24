@@ -1,0 +1,53 @@
+{
+ "family": {
+  "bad_deploy": 20,
+  "traffic_spike": 20,
+  "dependency_outage": 20,
+  "disk_full": 20
+ },
+ "severity": {
+  "1": 24,
+  "2": 31,
+  "3": 25
+ },
+ "evidence_quality": {
+  "missing": 23,
+  "partial": 27,
+  "conflicting": 17,
+  "complete": 13
+ },
+ "overseer_available": {
+  "True": 57,
+  "False": 23
+ },
+ "overseer_latency": {
+  "2": 23,
+  "3": 35,
+  "1": 22
+ },
+ "false_report": {
+  "False": 62,
+  "True": 18
+ },
+ "distractor": {
+  "False": 63,
+  "True": 17
+ },
+ "critical_service": {
+  "True": 50,
+  "False": 30
+ },
+ "error_rate": {
+  "2": 25,
+  "3": 33,
+  "1": 22
+ },
+ "hidden_denial": {
+  "False": 73,
+  "True": 7
+ },
+ "traffic_spike_active": {
+  "False": 32,
+  "True": 48
+ }
+}

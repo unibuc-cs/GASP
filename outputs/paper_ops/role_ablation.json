@@ -1,0 +1,50 @@
+{
+ "D2-roles-naive-noguard": {
+  "success_drop_by_role": {
+   "MonitorAgent": 1.0,
+   "DiagnoserAgent": 1.0,
+   "DeployAgent": 1.0,
+   "CapacityAgent": 1.0,
+   "DependencyAgent": 1.0,
+   "StorageAgent": 1.0,
+   "CommsAgent": 1.0
+  },
+  "rdc": 0.14285714285714285
+ },
+ "D3-roles-naive-guard": {
+  "success_drop_by_role": {
+   "MonitorAgent": 1.0,
+   "DiagnoserAgent": 1.0,
+   "DeployAgent": 1.0,
+   "CapacityAgent": 1.0,
+   "DependencyAgent": 1.0,
+   "StorageAgent": 1.0,
+   "CommsAgent": 1.0
+  },
+  "rdc": 0.14285714285714285
+ },
+ "D4-roles-procedural-noguard": {
+  "success_drop_by_role": {
+   "MonitorAgent": 1.0,
+   "DiagnoserAgent": 1.0,
+   "DeployAgent": 1.0,
+   "CapacityAgent": 1.0,
+   "DependencyAgent": 1.0,
+   "StorageAgent": 1.0,
+   "CommsAgent": 1.0
+  },
+  "rdc": 0.14285714285714285
+ },
+ "D5-roles-procedural-guard": {
+  "success_drop_by_role": {
+   "MonitorAgent": 1.0,
+   "DiagnoserAgent": 1.0,
+   "DeployAgent": 1.0,
+   "CapacityAgent": 1.0,
+   "DependencyAgent": 1.0,
+   "StorageAgent": 1.0,
+   "CommsAgent": 1.0
+  },
+  "rdc": 0.14285714285714285
+ }
+}

@@ -9,6 +9,7 @@ sync:
 	cp ../$(OUT)/table_main.tex tables/table_main.tex
 	cp ../$(OUT)/worked_example/worked_example.tex tables/worked_example.tex
 	cp ../$(OUT)/adaptive/tradeoff_R3_15.png figures/tradeoff_R3_15.png
+	cp ../outputs/paper_ops/table_main.tex tables/table_main_ops.tex
 
 pdf:
 	latexmk -pdf -interaction=nonstopmode -halt-on-error main.tex > /dev/null

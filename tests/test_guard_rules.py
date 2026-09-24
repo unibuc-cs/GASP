@@ -211,26 +211,32 @@ def test_unguarded_mode_executes_but_labels_the_violation(domain, rules):
 
 # --- invariants over whole runs ---------------------------------------------
 
+@pytest.mark.parametrize("domain_name", ["smartcity", "ops"])
 @pytest.mark.parametrize("policy_name", ["naive", "procedural"])
 @pytest.mark.parametrize("rule_set", ["R1", "R2", "R3"])
-def test_guarded_runs_have_no_executed_violations_and_no_false_alerts(domain, policy_name, rule_set):
+def test_guarded_runs_have_no_executed_violations_and_no_false_alerts(domain_name, policy_name, rule_set):
+    dom = get_domain(domain_name)
     rules = RuleSet.named(rule_set)
-    scenarios = make_scenarios(domain, 5, 11, {})
-    policy = make_policy(domain, rules, policy_name)
+    scenarios = make_scenarios(dom, 5, 11, {})
+    policy = make_policy(dom, rules, policy_name)
     cfg = EnvConfig(activation="scenario", guarded=True, rule_set=rule_set, mode_name="t")
     for sc in scenarios:
-        res = run_episode(domain, sc, policy, cfg, rules)
+        res = run_episode(dom, sc, policy, cfg, rules)
         assert not any(r.executed_violation for r in res.records)
-        assert not res.final_flags.get("false_alert_sent")
+        assert not res.final_flags.get("false_alert_sent") and not res.final_flags.get("false_notice_sent")
+        assert not res.final_flags.get("hidden_harm")
 
 
-def test_procedural_policy_never_attempts_a_violation(domain, rules):
-    scenarios = make_scenarios(domain, 5, 3, {})
-    policy = make_policy(domain, rules, "procedural")
+@pytest.mark.parametrize("domain_name", ["smartcity", "ops"])
+def test_procedural_policy_never_attempts_a_violation(domain_name):
+    dom = get_domain(domain_name)
+    rules = RuleSet.named("R2")
+    scenarios = make_scenarios(dom, 5, 3, {})
+    policy = make_policy(dom, rules, "procedural")
     cfg = EnvConfig(activation="scenario", guarded=False, rule_set="R2", mode_name="t")
     for sc in scenarios:
-        res = run_episode(domain, sc, policy, cfg, rules)
-        assert not any(r.attempted_violation for r in res.records), sc.scenario_id
+        res = run_episode(dom, sc, policy, cfg, rules)
+        assert not any(r.attempted_violation for r in res.records), (domain_name, sc.scenario_id)
 
 
 def test_scenario_set_is_stratified_and_reproducible(domain):
@@ -241,13 +247,16 @@ def test_scenario_set_is_stratified_and_reproducible(domain):
     assert Counter(s.family for s in a) == {f: 7 for f in domain.families()}
 
 
-def test_every_scenario_is_solvable_without_violations(domain, rules):
-    scenarios = make_scenarios(domain, 10, 5, {})
-    policy = make_policy(domain, rules, "procedural")
+@pytest.mark.parametrize("domain_name", ["smartcity", "ops"])
+def test_every_scenario_is_solvable_without_violations(domain_name):
+    dom = get_domain(domain_name)
+    rules = RuleSet.named("R2")
+    scenarios = make_scenarios(dom, 10, 5, {})
+    policy = make_policy(dom, rules, "procedural")
     cfg = EnvConfig(activation="scenario", guarded=True, rule_set="R2", mode_name="t")
     for sc in scenarios:
-        res = run_episode(domain, sc, policy, cfg, rules)
-        assert res.success, sc.scenario_id
+        res = run_episode(dom, sc, policy, cfg, rules)
+        assert res.success, (domain_name, sc.scenario_id)
 
 
 # --- hidden context and the adaptive governor ------------------------------

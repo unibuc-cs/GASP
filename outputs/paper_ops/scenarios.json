@@ -1,0 +1,1922 @@
+[
+ {
+  "scenario_id": "BAD_-001",
+  "family": "bad_deploy",
+  "severity": 1,
+  "evidence_quality": "missing",
+  "overseer_available": true,
+  "overseer_latency": 2,
+  "false_report": false,
+  "distractor": false,
+  "max_steps": 16,
+  "required_roles": [
+   "MonitorAgent",
+   "DiagnoserAgent",
+   "DeployAgent",
+   "CommsAgent"
+  ],
+  "target": "checkout-service",
+  "params": {
+   "error_rate": 2,
+   "critical_service": true,
+   "traffic_spike_active": false,
+   "hidden_denial": false
+  }
+ },
+ {
+  "scenario_id": "BAD_-002",
+  "family": "bad_deploy",
+  "severity": 2,
+  "evidence_quality": "partial",
+  "overseer_available": true,
+  "overseer_latency": 3,
+  "false_report": false,
+  "distractor": false,
+  "max_steps": 16,
+  "required_roles": [
+   "MonitorAgent",
+   "DiagnoserAgent",
+   "DeployAgent",
+   "CommsAgent"
+  ],
+  "target": "checkout-service",
+  "params": {
+   "error_rate": 3,
+   "critical_service": true,
+   "traffic_spike_active": true,
+   "hidden_denial": true
+  }
+ },
+ {
+  "scenario_id": "BAD_-003",
+  "family": "bad_deploy",
+  "severity": 3,
+  "evidence_quality": "conflicting",
+  "overseer_available": true,
+  "overseer_latency": 1,
+  "false_report": false,
+  "distractor": false,
+  "max_steps": 16,
+  "required_roles": [
+   "MonitorAgent",
+   "DiagnoserAgent",
+   "DeployAgent",
+   "CommsAgent"
+  ],
+  "target": "checkout-service",
+  "params": {
+   "error_rate": 2,
+   "critical_service": true,
+   "traffic_spike_active": true,
+   "hidden_denial": false
+  }
+ },
+ {
+  "scenario_id": "BAD_-004",
+  "family": "bad_deploy",
+  "severity": 2,
+  "evidence_quality": "partial",
+  "overseer_available": false,
+  "overseer_latency": 2,
+  "false_report": false,
+  "distractor": false,
+  "max_steps": 16,
+  "required_roles": [
+   "MonitorAgent",
+   "DiagnoserAgent",
+   "DeployAgent",
+   "CommsAgent"
+  ],
+  "target": "checkout-service",
+  "params": {
+   "error_rate": 2,
+   "critical_service": true,
+   "traffic_spike_active": true,
+   "hidden_denial": false
+  }
+ },
+ {
+  "scenario_id": "BAD_-005",
+  "family": "bad_deploy",
+  "severity": 1,
+  "evidence_quality": "complete",
+  "overseer_available": true,
+  "overseer_latency": 3,
+  "false_report": true,
+  "distractor": false,
+  "max_steps": 16,
+  "required_roles": [
+   "MonitorAgent",
+   "DiagnoserAgent",
+   "DeployAgent",
+   "CommsAgent"
+  ],
+  "target": "checkout-service",
+  "params": {
+   "error_rate": 1,
+   "critical_service": true,
+   "traffic_spike_active": false,
+   "hidden_denial": false
+  }
+ },
+ {
+  "scenario_id": "BAD_-006",
+  "family": "bad_deploy",
+  "severity": 1,
+  "evidence_quality": "complete",
+  "overseer_available": true,
+  "overseer_latency": 1,
+  "false_report": false,
+  "distractor": false,
+  "max_steps": 16,
+  "required_roles": [
+   "MonitorAgent",
+   "DiagnoserAgent",
+   "DeployAgent",
+   "CommsAgent"
+  ],
+  "target": "checkout-service",
+  "params": {
+   "error_rate": 1,
+   "critical_service": true,
+   "traffic_spike_active": false,
+   "hidden_denial": false
+  }
+ },
+ {
+  "scenario_id": "BAD_-007",
+  "family": "bad_deploy",
+  "severity": 1,
+  "evidence_quality": "partial",
+  "overseer_available": true,
+  "overseer_latency": 1,
+  "false_report": false,
+  "distractor": false,
+  "max_steps": 16,
+  "required_roles": [
+   "MonitorAgent",
+   "DiagnoserAgent",
+   "DeployAgent",
+   "CommsAgent"
+  ],
+  "target": "checkout-service",
+  "params": {
+   "error_rate": 2,
+   "critical_service": true,
+   "traffic_spike_active": false,
+   "hidden_denial": true
+  }
+ },
+ {
+  "scenario_id": "BAD_-008",
+  "family": "bad_deploy",
+  "severity": 1,
+  "evidence_quality": "missing",
+  "overseer_available": true,
+  "overseer_latency": 2,
+  "false_report": false,
+  "distractor": true,
+  "max_steps": 16,
+  "required_roles": [
+   "MonitorAgent",
+   "DiagnoserAgent",
+   "DeployAgent",
+   "CommsAgent"
+  ],
+  "target": "checkout-service",
+  "params": {
+   "error_rate": 3,
+   "critical_service": true,
+   "traffic_spike_active": true,
+   "hidden_denial": false
+  }
+ },
+ {
+  "scenario_id": "BAD_-009",
+  "family": "bad_deploy",
+  "severity": 2,
+  "evidence_quality": "complete",
+  "overseer_available": true,
+  "overseer_latency": 2,
+  "false_report": false,
+  "distractor": false,
+  "max_steps": 16,
+  "required_roles": [
+   "MonitorAgent",
+   "DiagnoserAgent",
+   "DeployAgent",
+   "CommsAgent"
+  ],
+  "target": "checkout-service",
+  "params": {
+   "error_rate": 3,
+   "critical_service": true,
+   "traffic_spike_active": false,
+   "hidden_denial": false
+  }
+ },
+ {
+  "scenario_id": "BAD_-010",
+  "family": "bad_deploy",
+  "severity": 2,
+  "evidence_quality": "partial",
+  "overseer_available": true,
+  "overseer_latency": 2,
+  "false_report": false,
+  "distractor": true,
+  "max_steps": 16,
+  "required_roles": [
+   "MonitorAgent",
+   "DiagnoserAgent",
+   "DeployAgent",
+   "CommsAgent"
+  ],
+  "target": "checkout-service",
+  "params": {
+   "error_rate": 2,
+   "critical_service": true,
+   "traffic_spike_active": false,
+   "hidden_denial": false
+  }
+ },
+ {
+  "scenario_id": "BAD_-011",
+  "family": "bad_deploy",
+  "severity": 1,
+  "evidence_quality": "complete",
+  "overseer_available": true,
+  "overseer_latency": 3,
+  "false_report": true,
+  "distractor": false,
+  "max_steps": 16,
+  "required_roles": [
+   "MonitorAgent",
+   "DiagnoserAgent",
+   "DeployAgent",
+   "CommsAgent"
+  ],
+  "target": "checkout-service",
+  "params": {
+   "error_rate": 1,
+   "critical_service": true,
+   "traffic_spike_active": true,
+   "hidden_denial": false
+  }
+ },
+ {
+  "scenario_id": "BAD_-012",
+  "family": "bad_deploy",
+  "severity": 3,
+  "evidence_quality": "conflicting",
+  "overseer_available": true,
+  "overseer_latency": 1,
+  "false_report": false,
+  "distractor": false,
+  "max_steps": 16,
+  "required_roles": [
+   "MonitorAgent",
+   "DiagnoserAgent",
+   "DeployAgent",
+   "CommsAgent"
+  ],
+  "target": "checkout-service",
+  "params": {
+   "error_rate": 2,
+   "critical_service": true,
+   "traffic_spike_active": false,
+   "hidden_denial": false
+  }
+ },
+ {
+  "scenario_id": "BAD_-013",
+  "family": "bad_deploy",
+  "severity": 1,
+  "evidence_quality": "conflicting",
+  "overseer_available": false,
+  "overseer_latency": 3,
+  "false_report": false,
+  "distractor": false,
+  "max_steps": 16,
+  "required_roles": [
+   "MonitorAgent",
+   "DiagnoserAgent",
+   "DeployAgent",
+   "CommsAgent"
+  ],
+  "target": "checkout-service",
+  "params": {
+   "error_rate": 3,
+   "critical_service": true,
+   "traffic_spike_active": false,
+   "hidden_denial": false
+  }
+ },
+ {
+  "scenario_id": "BAD_-014",
+  "family": "bad_deploy",
+  "severity": 2,
+  "evidence_quality": "partial",
+  "overseer_available": true,
+  "overseer_latency": 2,
+  "false_report": true,
+  "distractor": false,
+  "max_steps": 16,
+  "required_roles": [
+   "MonitorAgent",
+   "DiagnoserAgent",
+   "DeployAgent",
+   "CommsAgent"
+  ],
+  "target": "checkout-service",
+  "params": {
+   "error_rate": 1,
+   "critical_service": true,
+   "traffic_spike_active": false,
+   "hidden_denial": false
+  }
+ },
+ {
+  "scenario_id": "BAD_-015",
+  "family": "bad_deploy",
+  "severity": 2,
+  "evidence_quality": "complete",
+  "overseer_available": false,
+  "overseer_latency": 1,
+  "false_report": false,
+  "distractor": true,
+  "max_steps": 16,
+  "required_roles": [
+   "MonitorAgent",
+   "DiagnoserAgent",
+   "DeployAgent",
+   "CommsAgent"
+  ],
+  "target": "checkout-service",
+  "params": {
+   "error_rate": 3,
+   "critical_service": true,
+   "traffic_spike_active": true,
+   "hidden_denial": true
+  }
+ },
+ {
+  "scenario_id": "BAD_-016",
+  "family": "bad_deploy",
+  "severity": 2,
+  "evidence_quality": "partial",
+  "overseer_available": true,
+  "overseer_latency": 3,
+  "false_report": false,
+  "distractor": false,
+  "max_steps": 16,
+  "required_roles": [
+   "MonitorAgent",
+   "DiagnoserAgent",
+   "DeployAgent",
+   "CommsAgent"
+  ],
+  "target": "checkout-service",
+  "params": {
+   "error_rate": 1,
+   "critical_service": true,
+   "traffic_spike_active": false,
+   "hidden_denial": false
+  }
+ },
+ {
+  "scenario_id": "BAD_-017",
+  "family": "bad_deploy",
+  "severity": 1,
+  "evidence_quality": "missing",
+  "overseer_available": true,
+  "overseer_latency": 2,
+  "false_report": false,
+  "distractor": true,
+  "max_steps": 16,
+  "required_roles": [
+   "MonitorAgent",
+   "DiagnoserAgent",
+   "DeployAgent",
+   "CommsAgent"
+  ],
+  "target": "checkout-service",
+  "params": {
+   "error_rate": 3,
+   "critical_service": true,
+   "traffic_spike_active": true,
+   "hidden_denial": false
+  }
+ },
+ {
+  "scenario_id": "BAD_-018",
+  "family": "bad_deploy",
+  "severity": 3,
+  "evidence_quality": "partial",
+  "overseer_available": true,
+  "overseer_latency": 3,
+  "false_report": true,
+  "distractor": false,
+  "max_steps": 16,
+  "required_roles": [
+   "MonitorAgent",
+   "DiagnoserAgent",
+   "DeployAgent",
+   "CommsAgent"
+  ],
+  "target": "checkout-service",
+  "params": {
+   "error_rate": 2,
+   "critical_service": true,
+   "traffic_spike_active": true,
+   "hidden_denial": false
+  }
+ },
+ {
+  "scenario_id": "BAD_-019",
+  "family": "bad_deploy",
+  "severity": 3,
+  "evidence_quality": "missing",
+  "overseer_available": true,
+  "overseer_latency": 3,
+  "false_report": false,
+  "distractor": false,
+  "max_steps": 16,
+  "required_roles": [
+   "MonitorAgent",
+   "DiagnoserAgent",
+   "DeployAgent",
+   "CommsAgent"
+  ],
+  "target": "checkout-service",
+  "params": {
+   "error_rate": 1,
+   "critical_service": true,
+   "traffic_spike_active": true,
+   "hidden_denial": false
+  }
+ },
+ {
+  "scenario_id": "BAD_-020",
+  "family": "bad_deploy",
+  "severity": 2,
+  "evidence_quality": "partial",
+  "overseer_available": true,
+  "overseer_latency": 3,
+  "false_report": true,
+  "distractor": false,
+  "max_steps": 16,
+  "required_roles": [
+   "MonitorAgent",
+   "DiagnoserAgent",
+   "DeployAgent",
+   "CommsAgent"
+  ],
+  "target": "checkout-service",
+  "params": {
+   "error_rate": 1,
+   "critical_service": true,
+   "traffic_spike_active": true,
+   "hidden_denial": false
+  }
+ },
+ {
+  "scenario_id": "TRAF-001",
+  "family": "traffic_spike",
+  "severity": 1,
+  "evidence_quality": "partial",
+  "overseer_available": true,
+  "overseer_latency": 2,
+  "false_report": true,
+  "distractor": false,
+  "max_steps": 16,
+  "required_roles": [
+   "MonitorAgent",
+   "DiagnoserAgent",
+   "CapacityAgent",
+   "CommsAgent"
+  ],
+  "target": "api-gateway",
+  "params": {
+   "error_rate": 3,
+   "critical_service": false,
+   "traffic_spike_active": true,
+   "hidden_denial": false
+  }
+ },
+ {
+  "scenario_id": "TRAF-002",
+  "family": "traffic_spike",
+  "severity": 2,
+  "evidence_quality": "partial",
+  "overseer_available": true,
+  "overseer_latency": 1,
+  "false_report": false,
+  "distractor": true,
+  "max_steps": 16,
+  "required_roles": [
+   "MonitorAgent",
+   "DiagnoserAgent",
+   "CapacityAgent",
+   "CommsAgent"
+  ],
+  "target": "api-gateway",
+  "params": {
+   "error_rate": 1,
+   "critical_service": false,
+   "traffic_spike_active": true,
+   "hidden_denial": false
+  }
+ },
+ {
+  "scenario_id": "TRAF-003",
+  "family": "traffic_spike",
+  "severity": 2,
+  "evidence_quality": "missing",
+  "overseer_available": true,
+  "overseer_latency": 1,
+  "false_report": false,
+  "distractor": false,
+  "max_steps": 16,
+  "required_roles": [
+   "MonitorAgent",
+   "DiagnoserAgent",
+   "CapacityAgent",
+   "CommsAgent"
+  ],
+  "target": "api-gateway",
+  "params": {
+   "error_rate": 3,
+   "critical_service": true,
+   "traffic_spike_active": true,
+   "hidden_denial": false
+  }
+ },
+ {
+  "scenario_id": "TRAF-004",
+  "family": "traffic_spike",
+  "severity": 3,
+  "evidence_quality": "complete",
+  "overseer_available": true,
+  "overseer_latency": 1,
+  "false_report": false,
+  "distractor": false,
+  "max_steps": 16,
+  "required_roles": [
+   "MonitorAgent",
+   "DiagnoserAgent",
+   "CapacityAgent",
+   "CommsAgent"
+  ],
+  "target": "api-gateway",
+  "params": {
+   "error_rate": 3,
+   "critical_service": false,
+   "traffic_spike_active": true,
+   "hidden_denial": false
+  }
+ },
+ {
+  "scenario_id": "TRAF-005",
+  "family": "traffic_spike",
+  "severity": 1,
+  "evidence_quality": "missing",
+  "overseer_available": true,
+  "overseer_latency": 2,
+  "false_report": true,
+  "distractor": false,
+  "max_steps": 16,
+  "required_roles": [
+   "MonitorAgent",
+   "DiagnoserAgent",
+   "CapacityAgent",
+   "CommsAgent"
+  ],
+  "target": "api-gateway",
+  "params": {
+   "error_rate": 2,
+   "critical_service": true,
+   "traffic_spike_active": true,
+   "hidden_denial": false
+  }
+ },
+ {
+  "scenario_id": "TRAF-006",
+  "family": "traffic_spike",
+  "severity": 2,
+  "evidence_quality": "partial",
+  "overseer_available": true,
+  "overseer_latency": 3,
+  "false_report": false,
+  "distractor": false,
+  "max_steps": 16,
+  "required_roles": [
+   "MonitorAgent",
+   "DiagnoserAgent",
+   "CapacityAgent",
+   "CommsAgent"
+  ],
+  "target": "api-gateway",
+  "params": {
+   "error_rate": 2,
+   "critical_service": true,
+   "traffic_spike_active": true,
+   "hidden_denial": false
+  }
+ },
+ {
+  "scenario_id": "TRAF-007",
+  "family": "traffic_spike",
+  "severity": 1,
+  "evidence_quality": "missing",
+  "overseer_available": true,
+  "overseer_latency": 1,
+  "false_report": false,
+  "distractor": true,
+  "max_steps": 16,
+  "required_roles": [
+   "MonitorAgent",
+   "DiagnoserAgent",
+   "CapacityAgent",
+   "CommsAgent"
+  ],
+  "target": "api-gateway",
+  "params": {
+   "error_rate": 3,
+   "critical_service": false,
+   "traffic_spike_active": true,
+   "hidden_denial": false
+  }
+ },
+ {
+  "scenario_id": "TRAF-008",
+  "family": "traffic_spike",
+  "severity": 1,
+  "evidence_quality": "partial",
+  "overseer_available": false,
+  "overseer_latency": 3,
+  "false_report": false,
+  "distractor": false,
+  "max_steps": 16,
+  "required_roles": [
+   "MonitorAgent",
+   "DiagnoserAgent",
+   "CapacityAgent",
+   "CommsAgent"
+  ],
+  "target": "api-gateway",
+  "params": {
+   "error_rate": 2,
+   "critical_service": true,
+   "traffic_spike_active": true,
+   "hidden_denial": false
+  }
+ },
+ {
+  "scenario_id": "TRAF-009",
+  "family": "traffic_spike",
+  "severity": 2,
+  "evidence_quality": "missing",
+  "overseer_available": true,
+  "overseer_latency": 3,
+  "false_report": true,
+  "distractor": false,
+  "max_steps": 16,
+  "required_roles": [
+   "MonitorAgent",
+   "DiagnoserAgent",
+   "CapacityAgent",
+   "CommsAgent"
+  ],
+  "target": "api-gateway",
+  "params": {
+   "error_rate": 2,
+   "critical_service": true,
+   "traffic_spike_active": true,
+   "hidden_denial": false
+  }
+ },
+ {
+  "scenario_id": "TRAF-010",
+  "family": "traffic_spike",
+  "severity": 3,
+  "evidence_quality": "complete",
+  "overseer_available": true,
+  "overseer_latency": 2,
+  "false_report": false,
+  "distractor": false,
+  "max_steps": 16,
+  "required_roles": [
+   "MonitorAgent",
+   "DiagnoserAgent",
+   "CapacityAgent",
+   "CommsAgent"
+  ],
+  "target": "api-gateway",
+  "params": {
+   "error_rate": 2,
+   "critical_service": true,
+   "traffic_spike_active": true,
+   "hidden_denial": true
+  }
+ },
+ {
+  "scenario_id": "TRAF-011",
+  "family": "traffic_spike",
+  "severity": 1,
+  "evidence_quality": "conflicting",
+  "overseer_available": false,
+  "overseer_latency": 1,
+  "false_report": false,
+  "distractor": true,
+  "max_steps": 16,
+  "required_roles": [
+   "MonitorAgent",
+   "DiagnoserAgent",
+   "CapacityAgent",
+   "CommsAgent"
+  ],
+  "target": "api-gateway",
+  "params": {
+   "error_rate": 1,
+   "critical_service": false,
+   "traffic_spike_active": true,
+   "hidden_denial": false
+  }
+ },
+ {
+  "scenario_id": "TRAF-012",
+  "family": "traffic_spike",
+  "severity": 1,
+  "evidence_quality": "partial",
+  "overseer_available": true,
+  "overseer_latency": 3,
+  "false_report": false,
+  "distractor": true,
+  "max_steps": 16,
+  "required_roles": [
+   "MonitorAgent",
+   "DiagnoserAgent",
+   "CapacityAgent",
+   "CommsAgent"
+  ],
+  "target": "api-gateway",
+  "params": {
+   "error_rate": 1,
+   "critical_service": false,
+   "traffic_spike_active": true,
+   "hidden_denial": false
+  }
+ },
+ {
+  "scenario_id": "TRAF-013",
+  "family": "traffic_spike",
+  "severity": 2,
+  "evidence_quality": "conflicting",
+  "overseer_available": true,
+  "overseer_latency": 3,
+  "false_report": false,
+  "distractor": false,
+  "max_steps": 16,
+  "required_roles": [
+   "MonitorAgent",
+   "DiagnoserAgent",
+   "CapacityAgent",
+   "CommsAgent"
+  ],
+  "target": "api-gateway",
+  "params": {
+   "error_rate": 2,
+   "critical_service": false,
+   "traffic_spike_active": true,
+   "hidden_denial": false
+  }
+ },
+ {
+  "scenario_id": "TRAF-014",
+  "family": "traffic_spike",
+  "severity": 2,
+  "evidence_quality": "complete",
+  "overseer_available": true,
+  "overseer_latency": 1,
+  "false_report": false,
+  "distractor": false,
+  "max_steps": 16,
+  "required_roles": [
+   "MonitorAgent",
+   "DiagnoserAgent",
+   "CapacityAgent",
+   "CommsAgent"
+  ],
+  "target": "api-gateway",
+  "params": {
+   "error_rate": 3,
+   "critical_service": false,
+   "traffic_spike_active": true,
+   "hidden_denial": false
+  }
+ },
+ {
+  "scenario_id": "TRAF-015",
+  "family": "traffic_spike",
+  "severity": 3,
+  "evidence_quality": "missing",
+  "overseer_available": false,
+  "overseer_latency": 3,
+  "false_report": false,
+  "distractor": true,
+  "max_steps": 16,
+  "required_roles": [
+   "MonitorAgent",
+   "DiagnoserAgent",
+   "CapacityAgent",
+   "CommsAgent"
+  ],
+  "target": "api-gateway",
+  "params": {
+   "error_rate": 3,
+   "critical_service": true,
+   "traffic_spike_active": true,
+   "hidden_denial": false
+  }
+ },
+ {
+  "scenario_id": "TRAF-016",
+  "family": "traffic_spike",
+  "severity": 3,
+  "evidence_quality": "partial",
+  "overseer_available": true,
+  "overseer_latency": 1,
+  "false_report": false,
+  "distractor": false,
+  "max_steps": 16,
+  "required_roles": [
+   "MonitorAgent",
+   "DiagnoserAgent",
+   "CapacityAgent",
+   "CommsAgent"
+  ],
+  "target": "api-gateway",
+  "params": {
+   "error_rate": 3,
+   "critical_service": false,
+   "traffic_spike_active": true,
+   "hidden_denial": false
+  }
+ },
+ {
+  "scenario_id": "TRAF-017",
+  "family": "traffic_spike",
+  "severity": 2,
+  "evidence_quality": "missing",
+  "overseer_available": true,
+  "overseer_latency": 3,
+  "false_report": true,
+  "distractor": false,
+  "max_steps": 16,
+  "required_roles": [
+   "MonitorAgent",
+   "DiagnoserAgent",
+   "CapacityAgent",
+   "CommsAgent"
+  ],
+  "target": "api-gateway",
+  "params": {
+   "error_rate": 3,
+   "critical_service": false,
+   "traffic_spike_active": true,
+   "hidden_denial": false
+  }
+ },
+ {
+  "scenario_id": "TRAF-018",
+  "family": "traffic_spike",
+  "severity": 2,
+  "evidence_quality": "partial",
+  "overseer_available": false,
+  "overseer_latency": 3,
+  "false_report": false,
+  "distractor": false,
+  "max_steps": 16,
+  "required_roles": [
+   "MonitorAgent",
+   "DiagnoserAgent",
+   "CapacityAgent",
+   "CommsAgent"
+  ],
+  "target": "api-gateway",
+  "params": {
+   "error_rate": 2,
+   "critical_service": false,
+   "traffic_spike_active": true,
+   "hidden_denial": false
+  }
+ },
+ {
+  "scenario_id": "TRAF-019",
+  "family": "traffic_spike",
+  "severity": 2,
+  "evidence_quality": "missing",
+  "overseer_available": false,
+  "overseer_latency": 2,
+  "false_report": false,
+  "distractor": false,
+  "max_steps": 16,
+  "required_roles": [
+   "MonitorAgent",
+   "DiagnoserAgent",
+   "CapacityAgent",
+   "CommsAgent"
+  ],
+  "target": "api-gateway",
+  "params": {
+   "error_rate": 3,
+   "critical_service": false,
+   "traffic_spike_active": true,
+   "hidden_denial": false
+  }
+ },
+ {
+  "scenario_id": "TRAF-020",
+  "family": "traffic_spike",
+  "severity": 3,
+  "evidence_quality": "partial",
+  "overseer_available": false,
+  "overseer_latency": 2,
+  "false_report": false,
+  "distractor": false,
+  "max_steps": 16,
+  "required_roles": [
+   "MonitorAgent",
+   "DiagnoserAgent",
+   "CapacityAgent",
+   "CommsAgent"
+  ],
+  "target": "api-gateway",
+  "params": {
+   "error_rate": 3,
+   "critical_service": false,
+   "traffic_spike_active": true,
+   "hidden_denial": false
+  }
+ },
+ {
+  "scenario_id": "DEPE-001",
+  "family": "dependency_outage",
+  "severity": 1,
+  "evidence_quality": "missing",
+  "overseer_available": true,
+  "overseer_latency": 3,
+  "false_report": false,
+  "distractor": false,
+  "max_steps": 16,
+  "required_roles": [
+   "MonitorAgent",
+   "DiagnoserAgent",
+   "DependencyAgent",
+   "CommsAgent"
+  ],
+  "target": "payment-provider",
+  "params": {
+   "error_rate": 3,
+   "critical_service": true,
+   "traffic_spike_active": false,
+   "hidden_denial": false
+  }
+ },
+ {
+  "scenario_id": "DEPE-002",
+  "family": "dependency_outage",
+  "severity": 1,
+  "evidence_quality": "missing",
+  "overseer_available": false,
+  "overseer_latency": 3,
+  "false_report": false,
+  "distractor": false,
+  "max_steps": 16,
+  "required_roles": [
+   "MonitorAgent",
+   "DiagnoserAgent",
+   "DependencyAgent",
+   "CommsAgent"
+  ],
+  "target": "payment-provider",
+  "params": {
+   "error_rate": 3,
+   "critical_service": true,
+   "traffic_spike_active": false,
+   "hidden_denial": false
+  }
+ },
+ {
+  "scenario_id": "DEPE-003",
+  "family": "dependency_outage",
+  "severity": 3,
+  "evidence_quality": "missing",
+  "overseer_available": false,
+  "overseer_latency": 3,
+  "false_report": false,
+  "distractor": false,
+  "max_steps": 16,
+  "required_roles": [
+   "MonitorAgent",
+   "DiagnoserAgent",
+   "DependencyAgent",
+   "CommsAgent"
+  ],
+  "target": "payment-provider",
+  "params": {
+   "error_rate": 3,
+   "critical_service": true,
+   "traffic_spike_active": false,
+   "hidden_denial": false
+  }
+ },
+ {
+  "scenario_id": "DEPE-004",
+  "family": "dependency_outage",
+  "severity": 3,
+  "evidence_quality": "missing",
+  "overseer_available": false,
+  "overseer_latency": 3,
+  "false_report": true,
+  "distractor": false,
+  "max_steps": 16,
+  "required_roles": [
+   "MonitorAgent",
+   "DiagnoserAgent",
+   "DependencyAgent",
+   "CommsAgent"
+  ],
+  "target": "payment-provider",
+  "params": {
+   "error_rate": 1,
+   "critical_service": true,
+   "traffic_spike_active": false,
+   "hidden_denial": false
+  }
+ },
+ {
+  "scenario_id": "DEPE-005",
+  "family": "dependency_outage",
+  "severity": 1,
+  "evidence_quality": "conflicting",
+  "overseer_available": true,
+  "overseer_latency": 1,
+  "false_report": true,
+  "distractor": false,
+  "max_steps": 16,
+  "required_roles": [
+   "MonitorAgent",
+   "DiagnoserAgent",
+   "DependencyAgent",
+   "CommsAgent"
+  ],
+  "target": "payment-provider",
+  "params": {
+   "error_rate": 1,
+   "critical_service": true,
+   "traffic_spike_active": true,
+   "hidden_denial": false
+  }
+ },
+ {
+  "scenario_id": "DEPE-006",
+  "family": "dependency_outage",
+  "severity": 1,
+  "evidence_quality": "conflicting",
+  "overseer_available": true,
+  "overseer_latency": 2,
+  "false_report": false,
+  "distractor": false,
+  "max_steps": 16,
+  "required_roles": [
+   "MonitorAgent",
+   "DiagnoserAgent",
+   "DependencyAgent",
+   "CommsAgent"
+  ],
+  "target": "payment-provider",
+  "params": {
+   "error_rate": 2,
+   "critical_service": true,
+   "traffic_spike_active": false,
+   "hidden_denial": false
+  }
+ },
+ {
+  "scenario_id": "DEPE-007",
+  "family": "dependency_outage",
+  "severity": 3,
+  "evidence_quality": "conflicting",
+  "overseer_available": false,
+  "overseer_latency": 3,
+  "false_report": false,
+  "distractor": false,
+  "max_steps": 16,
+  "required_roles": [
+   "MonitorAgent",
+   "DiagnoserAgent",
+   "DependencyAgent",
+   "CommsAgent"
+  ],
+  "target": "payment-provider",
+  "params": {
+   "error_rate": 3,
+   "critical_service": true,
+   "traffic_spike_active": true,
+   "hidden_denial": false
+  }
+ },
+ {
+  "scenario_id": "DEPE-008",
+  "family": "dependency_outage",
+  "severity": 3,
+  "evidence_quality": "conflicting",
+  "overseer_available": true,
+  "overseer_latency": 3,
+  "false_report": true,
+  "distractor": true,
+  "max_steps": 16,
+  "required_roles": [
+   "MonitorAgent",
+   "DiagnoserAgent",
+   "DependencyAgent",
+   "CommsAgent"
+  ],
+  "target": "payment-provider",
+  "params": {
+   "error_rate": 3,
+   "critical_service": true,
+   "traffic_spike_active": true,
+   "hidden_denial": false
+  }
+ },
+ {
+  "scenario_id": "DEPE-009",
+  "family": "dependency_outage",
+  "severity": 1,
+  "evidence_quality": "missing",
+  "overseer_available": true,
+  "overseer_latency": 1,
+  "false_report": true,
+  "distractor": true,
+  "max_steps": 16,
+  "required_roles": [
+   "MonitorAgent",
+   "DiagnoserAgent",
+   "DependencyAgent",
+   "CommsAgent"
+  ],
+  "target": "payment-provider",
+  "params": {
+   "error_rate": 3,
+   "critical_service": true,
+   "traffic_spike_active": false,
+   "hidden_denial": false
+  }
+ },
+ {
+  "scenario_id": "DEPE-010",
+  "family": "dependency_outage",
+  "severity": 2,
+  "evidence_quality": "missing",
+  "overseer_available": true,
+  "overseer_latency": 1,
+  "false_report": true,
+  "distractor": false,
+  "max_steps": 16,
+  "required_roles": [
+   "MonitorAgent",
+   "DiagnoserAgent",
+   "DependencyAgent",
+   "CommsAgent"
+  ],
+  "target": "payment-provider",
+  "params": {
+   "error_rate": 3,
+   "critical_service": true,
+   "traffic_spike_active": false,
+   "hidden_denial": false
+  }
+ },
+ {
+  "scenario_id": "DEPE-011",
+  "family": "dependency_outage",
+  "severity": 2,
+  "evidence_quality": "partial",
+  "overseer_available": true,
+  "overseer_latency": 3,
+  "false_report": false,
+  "distractor": false,
+  "max_steps": 16,
+  "required_roles": [
+   "MonitorAgent",
+   "DiagnoserAgent",
+   "DependencyAgent",
+   "CommsAgent"
+  ],
+  "target": "payment-provider",
+  "params": {
+   "error_rate": 2,
+   "critical_service": true,
+   "traffic_spike_active": false,
+   "hidden_denial": true
+  }
+ },
+ {
+  "scenario_id": "DEPE-012",
+  "family": "dependency_outage",
+  "severity": 2,
+  "evidence_quality": "complete",
+  "overseer_available": false,
+  "overseer_latency": 2,
+  "false_report": true,
+  "distractor": false,
+  "max_steps": 16,
+  "required_roles": [
+   "MonitorAgent",
+   "DiagnoserAgent",
+   "DependencyAgent",
+   "CommsAgent"
+  ],
+  "target": "payment-provider",
+  "params": {
+   "error_rate": 1,
+   "critical_service": true,
+   "traffic_spike_active": false,
+   "hidden_denial": false
+  }
+ },
+ {
+  "scenario_id": "DEPE-013",
+  "family": "dependency_outage",
+  "severity": 3,
+  "evidence_quality": "partial",
+  "overseer_available": true,
+  "overseer_latency": 2,
+  "false_report": false,
+  "distractor": false,
+  "max_steps": 16,
+  "required_roles": [
+   "MonitorAgent",
+   "DiagnoserAgent",
+   "DependencyAgent",
+   "CommsAgent"
+  ],
+  "target": "payment-provider",
+  "params": {
+   "error_rate": 2,
+   "critical_service": true,
+   "traffic_spike_active": true,
+   "hidden_denial": false
+  }
+ },
+ {
+  "scenario_id": "DEPE-014",
+  "family": "dependency_outage",
+  "severity": 3,
+  "evidence_quality": "conflicting",
+  "overseer_available": false,
+  "overseer_latency": 1,
+  "false_report": false,
+  "distractor": true,
+  "max_steps": 16,
+  "required_roles": [
+   "MonitorAgent",
+   "DiagnoserAgent",
+   "DependencyAgent",
+   "CommsAgent"
+  ],
+  "target": "payment-provider",
+  "params": {
+   "error_rate": 3,
+   "critical_service": true,
+   "traffic_spike_active": true,
+   "hidden_denial": true
+  }
+ },
+ {
+  "scenario_id": "DEPE-015",
+  "family": "dependency_outage",
+  "severity": 3,
+  "evidence_quality": "partial",
+  "overseer_available": false,
+  "overseer_latency": 3,
+  "false_report": false,
+  "distractor": false,
+  "max_steps": 16,
+  "required_roles": [
+   "MonitorAgent",
+   "DiagnoserAgent",
+   "DependencyAgent",
+   "CommsAgent"
+  ],
+  "target": "payment-provider",
+  "params": {
+   "error_rate": 1,
+   "critical_service": true,
+   "traffic_spike_active": true,
+   "hidden_denial": false
+  }
+ },
+ {
+  "scenario_id": "DEPE-016",
+  "family": "dependency_outage",
+  "severity": 3,
+  "evidence_quality": "missing",
+  "overseer_available": true,
+  "overseer_latency": 1,
+  "false_report": false,
+  "distractor": false,
+  "max_steps": 16,
+  "required_roles": [
+   "MonitorAgent",
+   "DiagnoserAgent",
+   "DependencyAgent",
+   "CommsAgent"
+  ],
+  "target": "payment-provider",
+  "params": {
+   "error_rate": 2,
+   "critical_service": true,
+   "traffic_spike_active": true,
+   "hidden_denial": false
+  }
+ },
+ {
+  "scenario_id": "DEPE-017",
+  "family": "dependency_outage",
+  "severity": 2,
+  "evidence_quality": "partial",
+  "overseer_available": false,
+  "overseer_latency": 3,
+  "false_report": false,
+  "distractor": false,
+  "max_steps": 16,
+  "required_roles": [
+   "MonitorAgent",
+   "DiagnoserAgent",
+   "DependencyAgent",
+   "CommsAgent"
+  ],
+  "target": "payment-provider",
+  "params": {
+   "error_rate": 2,
+   "critical_service": true,
+   "traffic_spike_active": true,
+   "hidden_denial": false
+  }
+ },
+ {
+  "scenario_id": "DEPE-018",
+  "family": "dependency_outage",
+  "severity": 2,
+  "evidence_quality": "missing",
+  "overseer_available": true,
+  "overseer_latency": 3,
+  "false_report": true,
+  "distractor": false,
+  "max_steps": 16,
+  "required_roles": [
+   "MonitorAgent",
+   "DiagnoserAgent",
+   "DependencyAgent",
+   "CommsAgent"
+  ],
+  "target": "payment-provider",
+  "params": {
+   "error_rate": 2,
+   "critical_service": true,
+   "traffic_spike_active": false,
+   "hidden_denial": false
+  }
+ },
+ {
+  "scenario_id": "DEPE-019",
+  "family": "dependency_outage",
+  "severity": 2,
+  "evidence_quality": "partial",
+  "overseer_available": true,
+  "overseer_latency": 3,
+  "false_report": false,
+  "distractor": true,
+  "max_steps": 16,
+  "required_roles": [
+   "MonitorAgent",
+   "DiagnoserAgent",
+   "DependencyAgent",
+   "CommsAgent"
+  ],
+  "target": "payment-provider",
+  "params": {
+   "error_rate": 3,
+   "critical_service": true,
+   "traffic_spike_active": false,
+   "hidden_denial": false
+  }
+ },
+ {
+  "scenario_id": "DEPE-020",
+  "family": "dependency_outage",
+  "severity": 1,
+  "evidence_quality": "missing",
+  "overseer_available": true,
+  "overseer_latency": 2,
+  "false_report": false,
+  "distractor": true,
+  "max_steps": 16,
+  "required_roles": [
+   "MonitorAgent",
+   "DiagnoserAgent",
+   "DependencyAgent",
+   "CommsAgent"
+  ],
+  "target": "payment-provider",
+  "params": {
+   "error_rate": 1,
+   "critical_service": true,
+   "traffic_spike_active": true,
+   "hidden_denial": false
+  }
+ },
+ {
+  "scenario_id": "DISK-001",
+  "family": "disk_full",
+  "severity": 2,
+  "evidence_quality": "conflicting",
+  "overseer_available": true,
+  "overseer_latency": 3,
+  "false_report": false,
+  "distractor": false,
+  "max_steps": 16,
+  "required_roles": [
+   "MonitorAgent",
+   "DiagnoserAgent",
+   "StorageAgent",
+   "CommsAgent"
+  ],
+  "target": "db-primary",
+  "params": {
+   "error_rate": 1,
+   "critical_service": false,
+   "traffic_spike_active": false,
+   "hidden_denial": false
+  }
+ },
+ {
+  "scenario_id": "DISK-002",
+  "family": "disk_full",
+  "severity": 3,
+  "evidence_quality": "complete",
+  "overseer_available": false,
+  "overseer_latency": 2,
+  "false_report": false,
+  "distractor": false,
+  "max_steps": 16,
+  "required_roles": [
+   "MonitorAgent",
+   "DiagnoserAgent",
+   "StorageAgent",
+   "CommsAgent"
+  ],
+  "target": "db-primary",
+  "params": {
+   "error_rate": 3,
+   "critical_service": false,
+   "traffic_spike_active": false,
+   "hidden_denial": false
+  }
+ },
+ {
+  "scenario_id": "DISK-003",
+  "family": "disk_full",
+  "severity": 2,
+  "evidence_quality": "missing",
+  "overseer_available": true,
+  "overseer_latency": 3,
+  "false_report": false,
+  "distractor": false,
+  "max_steps": 16,
+  "required_roles": [
+   "MonitorAgent",
+   "DiagnoserAgent",
+   "StorageAgent",
+   "CommsAgent"
+  ],
+  "target": "db-primary",
+  "params": {
+   "error_rate": 3,
+   "critical_service": false,
+   "traffic_spike_active": true,
+   "hidden_denial": true
+  }
+ },
+ {
+  "scenario_id": "DISK-004",
+  "family": "disk_full",
+  "severity": 3,
+  "evidence_quality": "partial",
+  "overseer_available": true,
+  "overseer_latency": 2,
+  "false_report": false,
+  "distractor": false,
+  "max_steps": 16,
+  "required_roles": [
+   "MonitorAgent",
+   "DiagnoserAgent",
+   "StorageAgent",
+   "CommsAgent"
+  ],
+  "target": "db-primary",
+  "params": {
+   "error_rate": 2,
+   "critical_service": false,
+   "traffic_spike_active": false,
+   "hidden_denial": false
+  }
+ },
+ {
+  "scenario_id": "DISK-005",
+  "family": "disk_full",
+  "severity": 3,
+  "evidence_quality": "conflicting",
+  "overseer_available": true,
+  "overseer_latency": 2,
+  "false_report": false,
+  "distractor": false,
+  "max_steps": 16,
+  "required_roles": [
+   "MonitorAgent",
+   "DiagnoserAgent",
+   "StorageAgent",
+   "CommsAgent"
+  ],
+  "target": "db-primary",
+  "params": {
+   "error_rate": 3,
+   "critical_service": false,
+   "traffic_spike_active": false,
+   "hidden_denial": false
+  }
+ },
+ {
+  "scenario_id": "DISK-006",
+  "family": "disk_full",
+  "severity": 1,
+  "evidence_quality": "conflicting",
+  "overseer_available": true,
+  "overseer_latency": 1,
+  "false_report": false,
+  "distractor": false,
+  "max_steps": 16,
+  "required_roles": [
+   "MonitorAgent",
+   "DiagnoserAgent",
+   "StorageAgent",
+   "CommsAgent"
+  ],
+  "target": "db-primary",
+  "params": {
+   "error_rate": 3,
+   "critical_service": false,
+   "traffic_spike_active": false,
+   "hidden_denial": false
+  }
+ },
+ {
+  "scenario_id": "DISK-007",
+  "family": "disk_full",
+  "severity": 2,
+  "evidence_quality": "missing",
+  "overseer_available": true,
+  "overseer_latency": 2,
+  "false_report": false,
+  "distractor": false,
+  "max_steps": 16,
+  "required_roles": [
+   "MonitorAgent",
+   "DiagnoserAgent",
+   "StorageAgent",
+   "CommsAgent"
+  ],
+  "target": "db-primary",
+  "params": {
+   "error_rate": 1,
+   "critical_service": false,
+   "traffic_spike_active": false,
+   "hidden_denial": false
+  }
+ },
+ {
+  "scenario_id": "DISK-008",
+  "family": "disk_full",
+  "severity": 3,
+  "evidence_quality": "conflicting",
+  "overseer_available": true,
+  "overseer_latency": 2,
+  "false_report": false,
+  "distractor": false,
+  "max_steps": 16,
+  "required_roles": [
+   "MonitorAgent",
+   "DiagnoserAgent",
+   "StorageAgent",
+   "CommsAgent"
+  ],
+  "target": "db-primary",
+  "params": {
+   "error_rate": 1,
+   "critical_service": true,
+   "traffic_spike_active": false,
+   "hidden_denial": false
+  }
+ },
+ {
+  "scenario_id": "DISK-009",
+  "family": "disk_full",
+  "severity": 2,
+  "evidence_quality": "partial",
+  "overseer_available": false,
+  "overseer_latency": 3,
+  "false_report": false,
+  "distractor": false,
+  "max_steps": 16,
+  "required_roles": [
+   "MonitorAgent",
+   "DiagnoserAgent",
+   "StorageAgent",
+   "CommsAgent"
+  ],
+  "target": "db-primary",
+  "params": {
+   "error_rate": 1,
+   "critical_service": false,
+   "traffic_spike_active": true,
+   "hidden_denial": false
+  }
+ },
+ {
+  "scenario_id": "DISK-010",
+  "family": "disk_full",
+  "severity": 3,
+  "evidence_quality": "partial",
+  "overseer_available": false,
+  "overseer_latency": 3,
+  "false_report": false,
+  "distractor": false,
+  "max_steps": 16,
+  "required_roles": [
+   "MonitorAgent",
+   "DiagnoserAgent",
+   "StorageAgent",
+   "CommsAgent"
+  ],
+  "target": "db-primary",
+  "params": {
+   "error_rate": 1,
+   "critical_service": false,
+   "traffic_spike_active": false,
+   "hidden_denial": false
+  }
+ },
+ {
+  "scenario_id": "DISK-011",
+  "family": "disk_full",
+  "severity": 3,
+  "evidence_quality": "conflicting",
+  "overseer_available": true,
+  "overseer_latency": 2,
+  "false_report": false,
+  "distractor": false,
+  "max_steps": 16,
+  "required_roles": [
+   "MonitorAgent",
+   "DiagnoserAgent",
+   "StorageAgent",
+   "CommsAgent"
+  ],
+  "target": "db-primary",
+  "params": {
+   "error_rate": 2,
+   "critical_service": false,
+   "traffic_spike_active": true,
+   "hidden_denial": false
+  }
+ },
+ {
+  "scenario_id": "DISK-012",
+  "family": "disk_full",
+  "severity": 2,
+  "evidence_quality": "conflicting",
+  "overseer_available": true,
+  "overseer_latency": 1,
+  "false_report": true,
+  "distractor": false,
+  "max_steps": 16,
+  "required_roles": [
+   "MonitorAgent",
+   "DiagnoserAgent",
+   "StorageAgent",
+   "CommsAgent"
+  ],
+  "target": "db-primary",
+  "params": {
+   "error_rate": 3,
+   "critical_service": false,
+   "traffic_spike_active": true,
+   "hidden_denial": false
+  }
+ },
+ {
+  "scenario_id": "DISK-013",
+  "family": "disk_full",
+  "severity": 2,
+  "evidence_quality": "complete",
+  "overseer_available": true,
+  "overseer_latency": 3,
+  "false_report": false,
+  "distractor": false,
+  "max_steps": 16,
+  "required_roles": [
+   "MonitorAgent",
+   "DiagnoserAgent",
+   "StorageAgent",
+   "CommsAgent"
+  ],
+  "target": "db-primary",
+  "params": {
+   "error_rate": 3,
+   "critical_service": false,
+   "traffic_spike_active": false,
+   "hidden_denial": false
+  }
+ },
+ {
+  "scenario_id": "DISK-014",
+  "family": "disk_full",
+  "severity": 1,
+  "evidence_quality": "partial",
+  "overseer_available": false,
+  "overseer_latency": 1,
+  "false_report": true,
+  "distractor": false,
+  "max_steps": 16,
+  "required_roles": [
+   "MonitorAgent",
+   "DiagnoserAgent",
+   "StorageAgent",
+   "CommsAgent"
+  ],
+  "target": "db-primary",
+  "params": {
+   "error_rate": 3,
+   "critical_service": false,
+   "traffic_spike_active": false,
+   "hidden_denial": false
+  }
+ },
+ {
+  "scenario_id": "DISK-015",
+  "family": "disk_full",
+  "severity": 3,
+  "evidence_quality": "missing",
+  "overseer_available": true,
+  "overseer_latency": 3,
+  "false_report": false,
+  "distractor": true,
+  "max_steps": 16,
+  "required_roles": [
+   "MonitorAgent",
+   "DiagnoserAgent",
+   "StorageAgent",
+   "CommsAgent"
+  ],
+  "target": "db-primary",
+  "params": {
+   "error_rate": 1,
+   "critical_service": true,
+   "traffic_spike_active": true,
+   "hidden_denial": false
+  }
+ },
+ {
+  "scenario_id": "DISK-016",
+  "family": "disk_full",
+  "severity": 1,
+  "evidence_quality": "partial",
+  "overseer_available": false,
+  "overseer_latency": 1,
+  "false_report": false,
+  "distractor": false,
+  "max_steps": 16,
+  "required_roles": [
+   "MonitorAgent",
+   "DiagnoserAgent",
+   "StorageAgent",
+   "CommsAgent"
+  ],
+  "target": "db-primary",
+  "params": {
+   "error_rate": 1,
+   "critical_service": false,
+   "traffic_spike_active": true,
+   "hidden_denial": false
+  }
+ },
+ {
+  "scenario_id": "DISK-017",
+  "family": "disk_full",
+  "severity": 1,
+  "evidence_quality": "partial",
+  "overseer_available": true,
+  "overseer_latency": 3,
+  "false_report": false,
+  "distractor": false,
+  "max_steps": 16,
+  "required_roles": [
+   "MonitorAgent",
+   "DiagnoserAgent",
+   "StorageAgent",
+   "CommsAgent"
+  ],
+  "target": "db-primary",
+  "params": {
+   "error_rate": 3,
+   "critical_service": true,
+   "traffic_spike_active": false,
+   "hidden_denial": false
+  }
+ },
+ {
+  "scenario_id": "DISK-018",
+  "family": "disk_full",
+  "severity": 2,
+  "evidence_quality": "conflicting",
+  "overseer_available": true,
+  "overseer_latency": 3,
+  "false_report": false,
+  "distractor": false,
+  "max_steps": 16,
+  "required_roles": [
+   "MonitorAgent",
+   "DiagnoserAgent",
+   "StorageAgent",
+   "CommsAgent"
+  ],
+  "target": "db-primary",
+  "params": {
+   "error_rate": 2,
+   "critical_service": false,
+   "traffic_spike_active": true,
+   "hidden_denial": false
+  }
+ },
+ {
+  "scenario_id": "DISK-019",
+  "family": "disk_full",
+  "severity": 3,
+  "evidence_quality": "complete",
+  "overseer_available": false,
+  "overseer_latency": 1,
+  "false_report": false,
+  "distractor": true,
+  "max_steps": 16,
+  "required_roles": [
+   "MonitorAgent",
+   "DiagnoserAgent",
+   "StorageAgent",
+   "CommsAgent"
+  ],
+  "target": "db-primary",
+  "params": {
+   "error_rate": 2,
+   "critical_service": false,
+   "traffic_spike_active": true,
+   "hidden_denial": false
+  }
+ },
+ {
+  "scenario_id": "DISK-020",
+  "family": "disk_full",
+  "severity": 2,
+  "evidence_quality": "complete",
+  "overseer_available": true,
+  "overseer_latency": 2,
+  "false_report": false,
+  "distractor": true,
+  "max_steps": 16,
+  "required_roles": [
+   "MonitorAgent",
+   "DiagnoserAgent",
+   "StorageAgent",
+   "CommsAgent"
+  ],
+  "target": "db-primary",
+  "params": {
+   "error_rate": 2,
+   "critical_service": false,
+   "traffic_spike_active": true,
+   "hidden_denial": false
+  }
+ }
+]

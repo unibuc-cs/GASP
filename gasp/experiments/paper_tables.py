@@ -37,7 +37,7 @@ def rules_table() -> str:
     return "\n".join(lines) + "\n"
 
 
-def features_table(feature_json: Path) -> str:
+def features_table(feature_json: Path, label: str = "tab:features") -> str:
     data = json.loads(feature_json.read_text(encoding="utf-8"))
     total = sum(data["family"].values())
     rows = [
@@ -49,13 +49,17 @@ def features_table(feature_json: Path) -> str:
         ("Overseer latency 1 / 2 / 3 steps", " / ".join(str(data["overseer_latency"].get(k, 0)) for k in ("1", "2", "3"))),
         ("Planted false report", f"{data['false_report'].get('True', 0)} of {total}"),
         ("Distractor evidence", f"{data['distractor'].get('True', 0)} of {total}"),
-        ("Hospital access at risk", f"{data['hospital_access_risk'].get('True', 0)} of {total}"),
-        ("Pollution zone active", f"{data['pollution_zone_active'].get('True', 0)} of {total}"),
-        ("Congestion 1 / 2 / 3", " / ".join(str(data["congestion"].get(k, 0)) for k in ("1", "2", "3"))),
     ]
+    for key, label in (("hospital_access_risk", "Hospital access at risk"), ("pollution_zone_active", "Pollution zone active"),
+                       ("critical_service", "Critical service affected"), ("traffic_spike_active", "Traffic spike active")):
+        if key in data:
+            rows.append((label, f"{data[key].get('True', 0)} of {total}"))
+    for key, label in (("congestion", "Congestion 1 / 2 / 3"), ("error_rate", "Error rate level 1 / 2 / 3")):
+        if key in data:
+            rows.append((label, " / ".join(str(data[key].get(k, 0)) for k in ("1", "2", "3"))))
     lines = [r"\begin{table}[t]", r"\centering",
              r"\caption{Scenario set used in every run: " + str(total) + r" scenarios, stratified by family, generated from seed 2027. Hidden context (the overseer would refuse soft requests) is drawn independently with probability 0.15 and is not shown to any role.}",
-             r"\label{tab:features}", r"\footnotesize",
+             r"\label{" + label + r"}", r"\footnotesize",
              r"\begin{tabular}{@{}p{0.55\linewidth}p{0.42\linewidth}@{}}", r"\toprule",
              r"\textbf{Feature} & \textbf{Count} \\", r"\midrule"]
     for k, v in rows:
@@ -68,10 +72,13 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--paper-out", type=Path, default=Path("outputs/paper"))
     ap.add_argument("--dest", type=Path, default=Path("paper/tables"))
+    ap.add_argument("--ops-out", type=Path, default=Path("outputs/paper_ops"))
     args = ap.parse_args()
     args.dest.mkdir(parents=True, exist_ok=True)
     (args.dest / "table_rules.tex").write_text(rules_table(), encoding="utf-8")
     (args.dest / "table_features.tex").write_text(features_table(args.paper_out / "feature_table.json"), encoding="utf-8")
+    if (args.ops_out / "feature_table.json").exists():
+        (args.dest / "table_features_ops.tex").write_text(features_table(args.ops_out / "feature_table.json", "tab:features-ops"), encoding="utf-8")
     print("wrote", args.dest / "table_rules.tex", "and", args.dest / "table_features.tex")
 
 

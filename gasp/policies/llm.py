@@ -178,18 +178,6 @@ def make_backend(spec: Dict[str, Any], domain=None, rules: Optional[RuleSet] = N
 # Prompting
 # ---------------------------------------------------------------------------
 
-ROLE_JOBS = {
-    "TrafficAgent": "You manage traffic: reroute, signal priority, bus lanes, road closures. Secure the route to the incident.",
-    "EmergencyAgent": "You run emergency response: dispatch ambulances and coordinate priority for them.",
-    "EnergyAgent": "You run the power grid: restore power, isolate segments, send repair crews.",
-    "WaterAgent": "You run water infrastructure: close flooded underpasses, send repair crews.",
-    "PollutionAgent": "You handle air quality: restrict traffic in affected zones, send targeted notices.",
-    "PublicTransportAgent": "You run public transport: add capacity, reroute lines.",
-    "PublicWorksAgent": "You run public works: repair crews, road closures.",
-    "CitizenCommsAgent": "You handle public communication: alerts and notices to residents. You cannot check field facts yourself; rely on verified reports or on confirmation notes other roles write to shared memory, or ask for verification.",
-    "DirectController": "You are the single controller of the whole city operations centre and can perform any action.",
-}
-
 OBSERVATION_GUIDE = """How the operations centre works:
 - The observation lists the evidence you can see. Each item has an id (E1, E4, M2, ...), a topic, a kind, a claim, a target and a status: unverified, verified, conflicting or refuted. Memory notes (ids M...) are written by other roles and count as evidence with the status of their source.
 - request_verification asks the verifier to check one item. You can only get items checked on the topics you work on; for other items the request is forwarded to a role that can, and you see the result later. Items listed under verification_requests were forwarded to you: check them when you have nothing more urgent.
@@ -214,8 +202,8 @@ Cite only evidence ids you can see. Use noop when there is nothing useful to do 
 
 def system_prompt(domain, role: str, rules: Optional[RuleSet], include_rules: bool) -> str:
     actions = domain.role_actions.get(role, [])
-    lines = [f"You are the {role} in a city operations centre run by several specialised roles that act in parallel, one action per step.",
-             ROLE_JOBS.get(role, ""),
+    lines = [f"You are the {role} in {domain.society_description}.",
+             domain.role_jobs.get(role, ""),
              "Your allowed actions:"]
     for a in actions:
         spec = domain.action_specs[a]

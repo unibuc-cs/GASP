@@ -1,0 +1,22 @@
+\begin{table}[t]
+\centering
+\caption{Scenario set used in every run: 80 scenarios, stratified by family, generated from seed 2027. Hidden context (the overseer would refuse soft requests) is drawn independently with probability 0.15 and is not shown to any role.}
+\label{Error rate level 1 / 2 / 3}
+\footnotesize
+\begin{tabular}{@{}p{0.55\linewidth}p{0.42\linewidth}@{}}
+\toprule
+\textbf{Feature} & \textbf{Count} \\
+\midrule
+Family & bad deploy 20, traffic spike 20, dependency outage 20, disk full 20 \\
+Severity 1 / 2 / 3 & 24 / 31 / 25 \\
+Evidence quality complete / partial / missing / conflicting & 13 / 27 / 23 / 17 \\
+Overseer available & 57 of 80 \\
+Overseer latency 1 / 2 / 3 steps & 22 / 23 / 35 \\
+Planted false report & 18 of 80 \\
+Distractor evidence & 17 of 80 \\
+Critical service affected & 50 of 80 \\
+Traffic spike active & 48 of 80 \\
+Error rate level 1 / 2 / 3 & 22 / 25 / 33 \\
+\bottomrule
+\end{tabular}
+\end{table}

@@ -43,11 +43,11 @@ The paper makes four contributions.
 \begin{enumerate}
     \item A model of \emph{governed agent societies}: roles as policies over structured state, evidence and memory, with the guard inside the transition function and a mapping onto MAPE-K (Section~\ref{sec:model}).
     \item A trace schema and assurance metrics for governed execution: attempted and executed violations, trace support coverage, escalation precision and recall, overseer load, silent violation rate, hallucinated evidence, and hidden harm (Section~\ref{sec:design}).
-    \item An evaluation in a smart-city operations testbed that compares prompted and enforced governance for LLM-driven roles across models, rule sets and human availability, with paired statistics (Section~\ref{sec:results}).
+    \item An evaluation in a smart-city operations testbed that compares prompted and enforced governance for LLM-driven roles across models, rule sets and human availability, with paired statistics, and a second instantiation in software incident response that reuses guard, traces and metrics unchanged (Section~\ref{sec:results}).
     \item An open testbed, trace dataset and one-command reproduction (Section~\ref{sec:artifact}).
 \end{enumerate}
 
-We ask: \RQ{1} Does runtime enforcement reduce executed violations and missed approvals beyond rules placed in prompts, for LLM-driven roles? \RQ{2} What does governance cost in task success, steps, tokens and overseer load? \RQ{3} Which failures does task success hide, and which trace metrics expose them? \RQ{4} Do the effects hold across models, evidence quality, human availability and rule strictness?
+We ask: \RQ{1} Does runtime enforcement reduce executed violations and missed approvals beyond rules placed in prompts, for LLM-driven roles? \RQ{2} What does governance cost in task success, steps, tokens and overseer load? \RQ{3} Which failures does task success hide, and which trace metrics expose them? \RQ{4} Do the effects hold across models, evidence quality, human availability and rule strictness? \RQ{5} Does the framework transfer to a software operations domain without changing guard, traces or metrics?
 
 %=====================================================================
 \section{Background and Related Work}
@@ -125,6 +125,9 @@ Table~\ref{tab:features} gives the scenario set: 20 scenarios per family, genera
 
 \input{tables/table_features.tex}
 
+\paragraph{A second domain: software incident response}
+To test the claim that only the domain module changes, we wrote a second domain with the same interface: the on-call team of a web platform, with seven roles (monitoring, diagnosis, releases, capacity, dependencies, storage, customer communication) and four incident families (a bad deployment, a traffic spike, a dependency outage, a full disk). The correspondence is deliberate. Health-check alerts, metrics, deploy records and customer reports play the parts of incident reports, sensors and residents' reports; a roll-back needs a verified failing health check as an emergency dispatch needs a verified incident; a status page update declaring a major incident needs approval as a city-wide alert does; scaling out beyond four replicas is the bus lane, isolating a critical dependency the grid segment, and a configuration change on a critical service the road closure that cuts hospital access (a hard approval). A full restart during a traffic spike is sanitized to a rolling restart, as a reroute through a pollution zone is sanitized to a signal priority change. The guard, the trace schema, the metrics, the statistics and both deterministic brains run on this domain without modification; the domain module is about 360 lines, most of them the action catalogue and the evidence pool.
+
 \paragraph{Role policies}
 Three policy classes drive the roles. \emph{LLM roles}: one chat completion per role and step; the system prompt gives the role's job, its catalogue with risk levels and evidence topics, an explanation of the observation, the output schema and, in the rules variant, the rule set in plain words; the user message is the observation as JSON; the answer is one JSON object with the fields of a typed action, including the cited evidence ids and $q$. An invalid answer gets one retry with the parser's complaint; a second failure becomes a noop and is counted as a formatting failure. \emph{Naive roles} do not know the rules: they act as soon as they see anything on topic, cite everything they see, share sloppy notes, and change course only when the guard pushes back, using the guard's reason in their observation. \emph{Procedural roles} follow the rules: verify, share a note with a verified source, ask for approval, then act, with a fallback when the human refuses. The procedural roles double as a reachability check: they reach every scenario's goal with zero attempted violations, so any success lost under the guard is the policy's, not the rules'.
 
@@ -179,6 +182,18 @@ Under R3, where every high-risk action needs approval, the guard costs success: 
 \paragraph{\RQ{4} Robustness}
 \todo{per family and per model; R1/R3 and overseer sweeps on the small model; GAU weight grid: how often each mode ranks first.}
 
+\paragraph{\RQ{5} Transfer to software operations}
+Table~\ref{tab:ops} repeats the deterministic rows in the incident response domain. % NUM outputs/paper_ops/table_main.md
+The pattern is the same. Roles that ignore the rules resolve every incident in 1.2 steps and execute 1.9 violations per incident, one in two of them an action that needed the on-call lead's approval; 23\% of their episodes post an untrue status page message, taken from a planted social-media post about a data breach, and 5\% act against hidden context. Under the guard, zero executed violations, zero false notices, 4.5 steps, and 1.06 approval requests per incident, more than in the city because more remediation actions need a person. The compliant brain attempts no violation in either domain. Nothing in the guard, the metrics or the statistics was touched between the two tables.
+
+\begin{table*}[t]
+\centering
+\caption{Deterministic reference rows in the software incident response domain, 80 scenarios (20 per family), rule set R2, same columns as Table~\ref{tab:main}. Same guard, trace schema and metrics code as the city domain.}
+\label{tab:ops}
+\footnotesize
+\input{tables/table_main_ops.tex}
+\end{table*}
+
 \paragraph{Trust-adaptive governance}
 % NUM outputs/paper/adaptive/table_adaptive.md, R3 at 15%
 Figure~\ref{fig:tradeoff} shows the trade-off under R3 with hidden context in 15\% of the scenarios. The static guard puts two requests per incident on the human and resolves 86\% of the incidents, with no hidden harm. Delegating every soft approval to roles that have earned trust removes the human's load, restores 100\% success, and exposes the society to every hidden-context scenario: hidden harm in 16\% of the episodes. Intermediate thresholds lie on the line between the two ends; the naive roles never earn enough trust for thresholds above 0.3, so for them delegation does nothing. Trust earned by compliance carries no information about what the rules do not encode, which is exactly what the human was there for. The figure is a measured trade-off, not a recommendation; where the line should be cut depends on what a hidden harm and an unresolved incident cost.
@@ -204,12 +219,12 @@ Instantiating the framework for a new system takes four artefacts: an action cat
 The approval step looks like a bottleneck and, under strict rules and an unavailable human, it is: success drops to a half. The adaptive governor shows what removing it costs. The rules capture what the designers foresaw; the human catches the rest, and no amount of compliance with the rules predicts the rest. Systems that want to reduce human load should reduce the \emph{unnecessary} share of approval requests, which the trace measures, rather than delegate on trust.
 
 \paragraph{Threats to validity}
-\emph{Construct}: the testbed is symbolic and its rules are ours; hidden context is a coin flip with a fixed rate, and its harm is binary. The metrics measure conformance to the given rules, not the quality of the rules. \emph{Internal}: the naive roles' reactions to the guard are hand-written; a different reactive policy would change the cost side, not the violation side. LLM nondeterminism is handled by repeats and paired tests; prompts are fixed and published. \emph{External}: one domain, \todo{N} models, a deterministic human. The framework transfers when the four artefacts above can be written; whether the numbers transfer is an open question. \emph{Conclusion}: all comparisons are paired, corrected for multiple testing and reported with intervals; seeds, scenario sets and manifests are in the artifact.
+\emph{Construct}: the testbed is symbolic and its rules are ours; hidden context is a coin flip with a fixed rate, and its harm is binary. The metrics measure conformance to the given rules, not the quality of the rules. \emph{Internal}: the naive roles' reactions to the guard are hand-written; a different reactive policy would change the cost side, not the violation side. LLM nondeterminism is handled by repeats and paired tests; prompts are fixed and published. \emph{External}: two domains that we built to correspond, \todo{N} models, a deterministic human. The framework transfers when the four artefacts above can be written; whether the numbers transfer is an open question. \emph{Conclusion}: all comparisons are paired, corrected for multiple testing and reported with intervals; seeds, scenario sets and manifests are in the artifact.
 
 %=====================================================================
 \section{Conclusion}
 \label{sec:conclusion}
-Governed agent societies put the rules where the actions are: in a guard inside the transition function that checks provenance, asks a person when the rules say so, and leaves a trace of everything it decided. \todo{one sentence with the LLM headline.} The traces show that success and governance are different things, and that a system can have the first without the second; the guard gives the second at a measured price in steps and human attention. Next steps are a second domain, software operations, with the same guard and metrics, and learning role policies from the traces the guard produces.
+Governed agent societies put the rules where the actions are: in a guard inside the transition function that checks provenance, asks a person when the rules say so, and leaves a trace of everything it decided. \todo{one sentence with the LLM headline.} The traces show that success and governance are different things, and that a system can have the first without the second; the guard gives the second at a measured price in steps and human attention. Next steps are LLM roles in the incident response domain and learning role policies from the traces the guard produces.
 
 \section*{Artifact}
 \label{sec:artifact}

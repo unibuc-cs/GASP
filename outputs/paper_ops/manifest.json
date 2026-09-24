@@ -1,0 +1,29 @@
+{
+ "gasp_version": "2.0.0-dev",
+ "git_commit": "4fbdffccb7be638769a72e58e14700e94e5a1729",
+ "python": "3.11.15",
+ "platform": "Linux-6.18.44-fc-v37-x86_64-with-glibc2.39",
+ "timestamp": "2026-09-24T21:53:01",
+ "per_family": 20,
+ "seed": 2027,
+ "max_steps": 16,
+ "domain": "ops",
+ "modes": [
+  "D0-direct-naive-noguard",
+  "D0g-direct-naive-guard",
+  "D1-all-naive-noguard",
+  "D1g-all-naive-guard",
+  "D2-roles-naive-noguard",
+  "D3-roles-naive-guard",
+  "D4-roles-procedural-noguard",
+  "D5-roles-procedural-guard",
+  "D6-direct-procedural-noguard",
+  "D6g-direct-procedural-guard"
+ ],
+ "rule_sets": [
+  "R1",
+  "R2",
+  "R3"
+ ],
+ "n_episodes": 2720
+}

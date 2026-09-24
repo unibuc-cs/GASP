@@ -1,10 +1,17 @@
+# default rule set, the seven rules of the paper.
 id: R2
 description: default rule set, the seven rules of the paper.
 rules:
-  scope: {enabled: true}
-  evidence: {enabled: true, risk_levels: [high]}
-  public_comm: {enabled: true}
-  memory_provenance: {enabled: true}
+  scope:
+    enabled: true
+  evidence:
+    enabled: true
+    risk_levels:
+    - high
+  public_comm:
+    enabled: true
+  memory_provenance:
+    enabled: true
   approval:
     enabled: true
     bus_lane_duration_threshold: 5
@@ -12,4 +19,10 @@ rules:
     isolate_grid_when_power_bad: true
     broadcast_severity_threshold: 3
     all_high_risk: false
-  pollution_zone: {enabled: true}
+    scale_out_replicas_threshold: 4
+    change_config_critical_service: true
+    isolate_critical_dependency: true
+    status_page_severity_threshold: 3
+    clear_disk_purge: true
+  pollution_zone:
+    enabled: true

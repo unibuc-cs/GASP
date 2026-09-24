@@ -26,6 +26,11 @@ procedural brain (follows them).
 
 Rule sets are data: `configs/rules/R1.yaml` (lenient), `R2.yaml` (default), `R3.yaml` (strict).
 
+Two domains implement the same interface (`gasp/domains/base.py`): `smartcity` (city operations centre) and `ops`
+(software incident response). `--domain ops` on `reproduce.py` runs everything for the second domain; the guard,
+traces, metrics, statistics and both deterministic brains are shared. See `RUNBOOK.md` for the LLM experiments
+and `paper/` for the SEAMS draft (`make` builds it).
+
 ---
 
 # v1 (legacy): SmartCity-GASP-MARL

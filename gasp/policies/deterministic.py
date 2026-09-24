@@ -22,16 +22,6 @@ from gasp.core.rules import RuleSet
 from gasp.core.state import State
 
 
-GOAL_FLAG = {
-    "TrafficAgent": "route_secured",
-    "EmergencyAgent": "ambulance_dispatched",
-    "EnergyAgent": "power_restored",
-    "WaterAgent": "water_hazard_closed",
-    "PollutionAgent": "pollution_mitigated",
-    "PublicTransportAgent": "transport_capacity_added",
-    "PublicWorksAgent": "repair_crew_dispatched",
-    "CitizenCommsAgent": "public_alert_sent",
-}
 
 
 def _evidence(obs: Dict[str, Any]) -> List[Dict[str, Any]]:
@@ -61,37 +51,30 @@ class _Brain:
     def can_verify(self, role: str, topic: str) -> bool:
         if role == "DirectController":
             return True
-        return role in self.domain_topic_visibility().get(topic, [])
+        return role in self.domain.topic_visibility.get(topic, [])
 
-    def domain_topic_visibility(self) -> Dict[str, List[str]]:
-        from gasp.domains.smartcity import TOPIC_VISIBILITY
-        return TOPIC_VISIBILITY
+    def goal_flag(self, role: str) -> str:
+        return self.domain.goal_flags.get(role, "")
 
     def spec(self, action_type: ActionType):
         return self.domain.action_specs[action_type]
 
     def requires_approval_obs(self, obs: Dict[str, Any], action: TypedAction) -> bool:
-        """Approval requirement as the policy can compute it from its observation (rules known only)."""
+        """Approval requirement as the policy can compute it from its observation (rules known only).
+        Uses the domain's own rule with a state built from the observation, so it works for any domain."""
 
         if not (self.rules_known and self.rules.enabled("approval")):
             return False
-        cfg = self.rules.cfg("approval")
+        from types import SimpleNamespace
         sc = obs["scenario"]
-        at = action.action_type
-        spec = self.spec(at)
-        if cfg.get("all_high_risk") and spec.risk.value == "high":
-            return True
-        thr = cfg.get("bus_lane_duration_threshold")
-        if at == ActionType.OPEN_BUS_LANE and thr is not None and float(action.payload.get("duration", 8)) > float(thr):
-            return True
-        if at == ActionType.CLOSE_ROAD and cfg.get("close_road_hospital_risk") and sc.get("hospital_access_risk"):
-            return True
-        if at == ActionType.ISOLATE_GRID_SEGMENT and cfg.get("isolate_grid_when_power_bad") and sc.get("power_bad"):
-            return True
-        bthr = cfg.get("broadcast_severity_threshold")
-        if at == ActionType.BROADCAST_ALERT and bthr is not None and int(sc.get("severity", 1)) >= int(bthr):
-            return True
-        return False
+        fake_state = SimpleNamespace(scenario=SimpleNamespace(params=dict(sc), severity=int(sc.get("severity", 1)), target=sc.get("target")),
+                                     flags=dict(obs.get("flags", {})), approvals={})
+        fake_state.is_approved = lambda key: False
+        payload = dict(action.payload or {})
+        if not payload:
+            payload = dict(self.domain.default_payload(None, action.action_type))
+        probe = TypedAction(role=action.role, action_type=action.action_type, target=action.target, payload=payload)
+        return self.domain.approval_kind(fake_state, probe, self.rules.cfg("approval")) is not None
 
     def goals_for(self, role: str, family: str, virtual_role: Optional[str] = None):
         vrole = virtual_role or role
@@ -145,7 +128,7 @@ class ProceduralPolicy(_Brain):
         primary, fallback = goals[0]
         owner = self.domain.incident_owner[fam]
         primary_topic = self.domain.primary_topic[fam]
-        achieved = bool(obs["flags"].get(GOAL_FLAG.get(vrole, ""), False))
+        achieved = bool(obs["flags"].get(self.goal_flag(vrole), False))
 
         # Owner writes the confirmation note once its own action is done (or first, if the note is all that is missing).
         if vrole == owner and achieved and not self.note_exists(obs) and self.rules_known:
@@ -252,7 +235,7 @@ class NaivePolicy(_Brain):
         primary, fallback = goals[0]
         owner = self.domain.incident_owner[fam]
         primary_topic = self.domain.primary_topic[fam]
-        achieved = bool(obs["flags"].get(GOAL_FLAG.get(vrole, ""), False))
+        achieved = bool(obs["flags"].get(self.goal_flag(vrole), False))
 
         # Sloppy note: the owner shares what it did, citing whatever it has, without expiry.  If the
         # guard rejects the note, it learns from the reason and retries with a verified source and an expiry.
@@ -376,7 +359,7 @@ class DirectControllerPolicy:
         order.sort(key=lambda r: (0 if r == owner else (2 if r == "CitizenCommsAgent" else 1)))
         for vrole in order:
             flags = dict(obs["flags"])
-            if flags.get(GOAL_FLAG[vrole], False):
+            if flags.get(self.brain.goal_flag(vrole), False):
                 if vrole == owner and not self.brain.note_exists(obs) and self.brain.rules_known:
                     a = self.brain.act(role, obs, state, virtual_role=vrole)
                     if a.action_type != ActionType.NOOP:
