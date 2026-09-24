@@ -1,5 +1,7 @@
 \documentclass[10pt,conference]{IEEEtran}
 % SEAMS 2027 research track: 10 pages of content + 2 pages of references, double anonymous.
+% Numbers in the text come from outputs/paper/*.md (seed 2027, 20 scenarios per family). Refresh them if the
+% scenario set changes: `make sync` copies tables and figures, the prose numbers are marked with % NUM comments.
 \usepackage{graphicx}
 \usepackage{booktabs}
 \usepackage{amsmath}
@@ -18,8 +20,7 @@
 \maketitle
 
 \begin{abstract}
-\todo{Rewrite once the LLM results exist. Keep to 150--200 words: problem, framework, testbed, the two or three headline numbers, artifact.}
-Agentic systems built from several LLM-driven roles act through tools, share memory, and take actions with real consequences, yet they are mostly described as prompt pipelines and evaluated on final outputs. We model such systems as governed agent societies: multi-role decision processes in which a runtime guard sits inside the transition function, evidence is a first-class object that actions must cite, and every proposal produces a typed trace record. The guard maps onto the analyze and plan steps of a MAPE-K loop with a human on the loop. We instantiate the model in a smart-city operations testbed with eight service roles, four incident families, planted false reports, and approvals that take time and can be refused, and we evaluate LLM-driven roles under five governance modes, from a single agent with the rules in its prompt to roles with rules both in prompts and enforced at runtime. \todo{headline numbers}. Trace metrics expose what final success hides: episodes that succeed while broadcasting unverified or untrue alerts, actions taken without required approval, and evidence cited that does not exist. A trust-adaptive governor quantifies the trade-off between human approval load and the harm of acting where rules are silent. The testbed, traces and scripts are available as an artifact.
+Agentic systems built from several LLM-driven roles act through tools, share memory and take actions with consequences, yet they are mostly described as prompt pipelines and judged on their final output. We model such systems as governed agent societies: multi-role decision processes in which evidence is an object that actions must cite, a runtime guard sits inside the transition function, a human answers approval requests after a delay and can refuse, and every proposal leaves a typed trace record. The guard plays the analyze and plan steps of a MAPE-K loop with a human on the loop. We instantiate the model in a smart-city operations testbed with eight service roles, four incident families, planted false reports and hidden context that only the human knows, and we compare five ways of governing LLM-driven roles, from one agent with the rules in its prompt to roles with the rules both in their prompts and enforced at runtime. \todo{one sentence with the two or three LLM headline numbers}. With rule-following deterministic roles as a reference, roles that ignore the rules reach the same task success as governed ones while executing two rule violations per incident and broadcasting an untrue public alert in a quarter of the episodes with a false report; the guard removes both at a cost of about three extra steps and 0.6 approval requests per incident. Trace metrics expose what task success hides, and a trust-adaptive governor quantifies the trade-off between human approval load and the harm of acting where the rules are silent. Testbed, traces and scripts are available as an artifact.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -29,44 +30,46 @@ agentic AI, multi-agent systems, self-adaptive systems, runtime governance, runt
 %=====================================================================
 \section{Introduction}
 \label{sec:intro}
-\todo{Open with one concrete failure taken from a trace: a communication role broadcasting a city-wide alert on a social-media report that a field crew later refutes. Then the general point in two sentences.}
 
-Recent agentic systems use large language models to plan, retrieve evidence, invoke tools, update memory, and coordinate specialised roles over extended horizons~\cite{yao2023react,wu2023autogen,li2023camel}. Many of them are implemented as prompt pipelines or orchestration graphs, yet their behaviour unfolds as sequential, multi-role execution under partial information and operational constraints. A system may reach an acceptable final outcome while following a weak or unsafe trajectory: a tool call may rest on unsupported evidence, a memory update may preserve an unverified claim, a public-facing action may occur without required approval. These are failures of governed execution, not only of output quality, and final-output evaluation does not see them~\cite{cemri2025mast}.
+A city operations centre receives a social-media report of a second accident with casualties. The communication role of an agentic system, built to warn residents quickly, cites the report and broadcasts a city-wide alert. Two steps later a traffic camera refutes the report. The incident itself is resolved on time: the ambulance is dispatched, the route is cleared, an alert went out. By every outcome measure the system succeeded. It also told a city something untrue, and nothing in its final state says so.
 
-\todo{Why this is a self-adaptive systems problem: the society adapts its workflow at runtime (verification requests, escalation, sanitisation, fallbacks), under uncertainty in evidence and in human availability; the guard is a runtime assurance mechanism; verifier, governor and overseer are analyze and plan; the trace is the knowledge base.}
+Systems of this kind are now common: several LLM-driven roles plan, retrieve evidence, call tools, write to shared memory and coordinate over many steps~\cite{yao2023react,wu2023autogen,li2023camel}. They are implemented as prompt pipelines or orchestration graphs, and their behaviour is judged on task completion. But their behaviour unfolds as multi-role execution under partial information and operational constraints, and a system can reach an acceptable outcome along a trajectory that breaks the rules it was given: an action rests on evidence nobody checked, a memory note preserves an unverified claim, an action that needed a human's approval executes without one. These are failures of governed execution, not of output quality, and studies of multi-agent LLM systems find most failures in exactly this territory~\cite{cemri2025mast}.
 
-\todo{Prompted vs enforced governance: putting rules into prompts is what practitioners do today; enforcing them at runtime is what AgentSpec-style work does for single agents~\cite{wang2026agentspec}. Nobody has measured the difference for multi-role societies with human escalation, nor what it costs in human attention.}
+We see this as a self-adaptive systems problem. The society has to adapt its workflow at runtime: request verification when evidence is weak, escalate when a rule requires a human, fall back when the human refuses, and coordinate through shared memory when a role cannot see what another role knows. It does so under uncertainty about the evidence, about the availability of the human, and, with LLM-driven roles, about its own components. The mechanism that governs it is a runtime assurance mechanism in the tradition of the Simplex architecture and of shields~\cite{sha2001simplex,alshiekh2018safe}: a small, inspectable checker between a complex decision maker and the world. What the checker needs to know here is not a state invariant but provenance: which evidence supports the action, whether that evidence was verified, and whether a human was asked.
 
-This paper makes four contributions.
+Practitioners today put the rules into the prompts. Recent work enforces them at runtime for a single agent~\cite{wang2026agentspec}. Nobody has measured the difference between prompted and enforced governance for a society of roles with human escalation, nor what enforcement costs in task success, steps, and human attention. This paper does that, and it does it with traces rather than outcomes.
+
+The paper makes four contributions.
 \begin{enumerate}
-    \item A model of \emph{governed agent societies}: roles as policies over structured state, evidence and memory, with the guard inside the transition function, and a mapping of its parts onto MAPE-K (Section~\ref{sec:model}).
-    \item A trace schema and a set of assurance metrics for governed execution: attempted and executed violations, trace support coverage, escalation precision and recall, overseer load, silent violation rate, hallucinated evidence, hidden harm (Section~\ref{sec:design}).
-    \item An evaluation with LLM-driven roles in a smart-city operations testbed, comparing prompted and enforced governance across models, rule sets and overseer availability, with paired statistics (Section~\ref{sec:results}).
-    \item An open testbed, trace dataset and reproduction scripts (Section~\ref{sec:artifact}).
+    \item A model of \emph{governed agent societies}: roles as policies over structured state, evidence and memory, with the guard inside the transition function and a mapping onto MAPE-K (Section~\ref{sec:model}).
+    \item A trace schema and assurance metrics for governed execution: attempted and executed violations, trace support coverage, escalation precision and recall, overseer load, silent violation rate, hallucinated evidence, and hidden harm (Section~\ref{sec:design}).
+    \item An evaluation in a smart-city operations testbed that compares prompted and enforced governance for LLM-driven roles across models, rule sets and human availability, with paired statistics (Section~\ref{sec:results}).
+    \item An open testbed, trace dataset and one-command reproduction (Section~\ref{sec:artifact}).
 \end{enumerate}
 
-We ask: \RQ{1} Does runtime enforcement reduce executed violations and missed approvals beyond rules placed in prompts, for LLM-driven roles? \RQ{2} What does governance cost in task success, steps, tokens and overseer load? \RQ{3} Which failures does final success hide, and which trace metrics expose them? \RQ{4} Do the effects hold across models, evidence quality, overseer availability and rule strictness? \RQ{5} \todo{only if the second domain happens} Does the framework transfer to a software operations domain without changing guard, traces or metrics?
+We ask: \RQ{1} Does runtime enforcement reduce executed violations and missed approvals beyond rules placed in prompts, for LLM-driven roles? \RQ{2} What does governance cost in task success, steps, tokens and overseer load? \RQ{3} Which failures does task success hide, and which trace metrics expose them? \RQ{4} Do the effects hold across models, evidence quality, human availability and rule strictness?
 
 %=====================================================================
 \section{Background and Related Work}
 \label{sec:related}
 
-\paragraph{Self-adaptive systems and MAPE-K}
-\todo{Kephart and Chess~\cite{kephart2003autonomic}; Salehie and Tahvildari~\cite{salehie2009}; Weyns~\cite{weyns2020}; assurance for self-adaptive systems~\cite{calinescu2018entrust}; LLMs in self-adaptive systems~\cite{li2024llmsas,maper2026}; human on the loop~\cite{li2020explanations}. Two or three sentences each on how the guard, roles and traces map onto these.}
+\paragraph{Self-adaptive systems}
+The MAPE-K loop~\cite{kephart2003autonomic} separates monitoring, analysis, planning and execution over shared knowledge; self-adaptive software research has built on it for two decades~\cite{salehie2009,weyns2020}, with a strong line of work on assurance at runtime~\cite{calinescu2018entrust} and on the human on the loop~\cite{li2020explanations}. Two recent SEAMS papers bring LLMs into the loop: as a reasoning component for situations not foreseen at design time~\cite{maper2026}, and as a general enabler across the loop~\cite{li2024llmsas}. We take the opposite direction: the LLMs are the components being managed, and the loop governs them.
 
 \paragraph{Runtime assurance and enforcement}
-\todo{Simplex architecture~\cite{sha2001simplex}; shields for RL~\cite{alshiekh2018safe} and for multi-agent RL~\cite{elsayedaly2021shielding,compositional2025shielding}; runtime enforcement monitors~\cite{falcone2011enforcement}. The guard is in this family; what is new is evidence and provenance as part of the enforced property, human escalation as an outcome, and the trace as the evaluation object.}
+The Simplex architecture~\cite{sha2001simplex} pairs a high-performance controller with a simple safety controller and a decision module; shields~\cite{alshiekh2018safe} do the same for reinforcement learning, and have been extended to multi-agent settings~\cite{elsayedaly2021shielding,compositional2025shielding}. Runtime enforcement monitors~\cite{falcone2011enforcement} formalise what a monitor may do to a stream of events. Our guard belongs to this family. What differs is the property: it is not a state invariant but a condition on provenance and process, namely that an action cites verified evidence, that a note names its source, that a human was asked when the rules say so. The guard also has an outcome that shields do not: escalate to a person, and wait.
 
 \paragraph{Guardrails for LLM agents}
-AgentSpec~\cite{wang2026agentspec} defines a rule language and enforces it at runtime for a single LLM agent; GuardAgent~\cite{xiang2025guardagent} and Progent~\cite{shi2025progent} check or constrain tool calls. \todo{Differences: several roles with different visibility, memory notes as evidence, approvals with latency and denial, metrics on traces rather than blocked/allowed counts.}
+AgentSpec~\cite{wang2026agentspec} gives a rule language and a runtime enforcer for a single LLM agent; GuardAgent~\cite{xiang2025guardagent} and Progent~\cite{shi2025progent} check or constrain tool calls. We differ in three ways. Our roles have different visibility, so a rule such as ``public communication requires verified evidence'' can only be met through coordination, either a verified note written by another role or a verification request forwarded to a role that can check the fact. Approval is an outcome with a delay and the possibility of refusal, not a static permission. And we evaluate the mechanism on trace metrics rather than on how many actions were blocked.
 
 \paragraph{Evaluating agents on traces}
-$\tau$-bench~\cite{yao2025taubench} scores tool agents on compliance with domain policies; the MAST taxonomy~\cite{cemri2025mast} classifies failures of multi-agent LLM systems from their traces. \todo{We turn trace inspection into metrics and compare governance mechanisms with them.}
+$\tau$-bench~\cite{yao2025taubench} scores tool-using agents on compliance with written domain policies, and the MAST taxonomy~\cite{cemri2025mast} classifies failures of multi-agent LLM systems from their traces. Both argue that outcomes miss most of what goes wrong. We turn trace inspection into metrics and use them to compare governance mechanisms.
 
 \paragraph{Normative multi-agent systems}
-\todo{Two sentences: electronic institutions and organisational models~\cite{esteva2001ei,hubner2007moise} regulate agent societies by norms and roles; our guard is a lightweight runtime instance of that idea for LLM-driven roles, with evidence and human oversight built in.}
+Electronic institutions and organisational models~\cite{esteva2001ei,hubner2007moise} regulate agent societies through roles, norms and enforcement, long before LLMs. Our guard is a small runtime instance of that idea for LLM-driven roles, with evidence and human oversight built into the norms.
 
-Agentic architectures and memory~\cite{yao2023react,wu2023autogen,li2023camel,park2023generative,packer2023memgpt,shinn2023reflexion} \todo{one paragraph, shortened from the ESEM version.}
+\paragraph{Agentic architectures}
+ReAct, AutoGen and CAMEL~\cite{yao2023react,wu2023autogen,li2023camel} established role decomposition and tool use; generative agents, MemGPT and Reflexion~\cite{park2023generative,packer2023memgpt,shinn2023reflexion} made memory and reflection central. In all of them memory updates are unconditioned writes. Here a memory note is evidence with a source, a status inherited from that source, and an expiry, and writing one is a governed action.
 
 %=====================================================================
 \section{Governed Agent Societies}
@@ -75,116 +78,142 @@ Agentic architectures and memory~\cite{yao2023react,wu2023autogen,li2023camel,pa
 \paragraph{Process model}
 An agentic workflow is a \emph{Governed Agent Society Process}
 \[
-\mathcal{G} = (\mathcal{I}, \mathcal{S}, \{\mathcal{O}_i\}, \{\mathcal{A}_i\}, \mathcal{E}, \mathcal{M}, \mathcal{C}, G, \mathcal{T}, \rho),
+\mathcal{G} = (\mathcal{I}, \mathcal{S}, \{\Omega_i\}, \{\mathcal{A}_i\}, \mathcal{E}, \mathcal{M}, \mathcal{C}, G, \mathcal{T}, \rho).
 \]
-with roles $\mathcal{I}$, state space $\mathcal{S}$, role observations $\mathcal{O}_i$ and typed actions $\mathcal{A}_i$, an evidence store $\mathcal{E}$ whose items have an identity, a topic, a status and a visibility, a memory store $\mathcal{M}$ of notes that inherit the status of their source, an active rule set $\mathcal{C}$, a guard $G$, a transition operator $\mathcal{T}$ and an initial distribution $\rho$. \todo{Trim the ESEM text; drop reward $\mathcal{R}$ and discount $\gamma$ from the headline tuple, mention learning as future work in one sentence.}
+$\mathcal{I}$ is the set of roles. $\mathcal{S}$ is the state space; a state holds the incident, the outcome flags of every service, the evidence store $\mathcal{E}$, the memory store $\mathcal{M}$ and the open approval requests. Each evidence item has an identity, a topic, a kind, a claim, a target, a status (unverified, verified, conflicting, refuted) and a visibility, the set of roles that see it. Memory notes live in $\mathcal{M}$; a note cites a source item, inherits the source's status, is visible to every role and expires. $\Omega_i$ maps the state to the observation of role $i$: its visible evidence, the shared notes, the outcome flags of its own service, the guard's answer to its previous proposal and the state of its approval requests. $\mathcal{A}_i$ is the action catalogue of the role; every action type carries a risk level and the evidence topics that can support it. $\mathcal{C}$ is the active rule set, $G$ the guard, $\mathcal{T}$ the transition operator and $\rho$ the scenario distribution.
 
-At step $t$ every active role $i$ observes $o_t^{(i)} = \Omega_i(s_t)$ (its visible evidence, the shared notes, the flags of its service, the guard's answer to its previous proposal, open approval requests) and proposes a typed action $a = \langle r, \alpha, z, p, E, q \rangle$: role, action type, target, payload, cited evidence ids and a self-reported probability $q$ that the action needs approval. The guard maps the proposal to an outcome in \{allow, deny, sanitize, request evidence, escalate\}, and the state moves by $s_{t+1} \sim \mathcal{T}(s_t, \mathbf{a}_t, e_t)$ where $e_t$ carries the guard outcomes and any human answer.
+At step $t$ every active role proposes a typed action $a = \langle r, \alpha, z, p, E, q\rangle$: the role, the action type, the target, a payload, the ids of the evidence it cites, and a self-reported probability $q$ that the action needs human approval. The guard maps the proposal to one of allow, deny, sanitize, request evidence or escalate; only an allowed or sanitized proposal reaches the transition operator. The next state depends on the executed actions and on events $e_t$ from outside the society: verification results, the human's answers, the passing of time on approval requests. Learning is not part of this paper; roles are policies, whatever produces them.
 
 \paragraph{The guard}
-Rules run in a fixed order: scope, memory provenance, public communication, evidence, approval, domain-specific sanitisation (Table~\ref{tab:rules}). \todo{Table with the R2 rules, their outcome and the violation label. Say that R1 and R3 are configurations of the same rules.} A proposal is \emph{supported} when it cites at least one verified item on the action's topic, cites nothing refuted, and, for public communication, cites nothing unverified. Approval requests reach the human after a latency, are refused when the request is unsupported or the human is unavailable, and a refusal holds for the episode. The guard reads the risk level of an action from the catalogue, never from the proposal.
+$G$ runs the active rules in a fixed order and returns the first outcome that is not allow (Table~\ref{tab:rules}). Scope denies a role acting outside the incident's service scope. Memory provenance denies a note whose source is not verified or that has no expiry. Public communication and evidence both ask for evidence: a proposal is \emph{supported} when it cites at least one verified item on the action's topic, cites nothing refuted, and, for public communication, cites nothing unverified either, so that a true and an untrue claim cannot go out together. Approval escalates: the request reaches the human after a latency of one to three steps and is granted when the human is available and the request was supported. A refusal holds for the rest of the episode, so the guard denies further proposals of the same action and the role has to find another way. Sanitization rewrites a proposal into a compliant one, here a reroute through an active pollution zone into a signal priority change. The guard reads an action's risk level from the catalogue, never from the proposal, so a role that under-declares risk gains nothing.
 
-\paragraph{One property}
-Under the guard, no executed action violates an active rule: violations can only appear as proposals, which the trace records. This is why the paper reports \emph{attempted} and \emph{executed} violations separately, and why executed violations must be exactly zero in every guarded run (a non-zero count is a bug, and the tests assert it).
+\input{tables/table_rules.tex}
 
-\paragraph{MAPE-K mapping}
-\todo{Figure~\ref{fig:arch} relabelled: Monitor = observations and evidence; Analyze = verifier (support check) and metrics; Plan = governor (rules, escalation) and role policies; Execute = execution interface; Knowledge = evidence store, memory notes, rule set, trace. Human on the loop through the overseer.}
+\paragraph{Prompted and enforced rules}
+The same rule set can reach the roles in two ways: as text in their prompts, or as the guard's configuration. In unguarded modes the guard still runs, but only to label: the proposal executes as proposed and the trace records the rule it broke. This gives every mode two counts. \emph{Attempted} violations are proposals that would break an active rule; \emph{executed} violations are attempted violations that reached the world. Under the guard, no executed action violates an active rule, so executed violations are zero by construction; a non-zero count in a guarded run is a bug, and the artifact's tests assert it. Re-proposing an action whose approval is pending is waiting, not an attempt, and is not counted.
 
-\begin{figure}[t]
+\paragraph{Mapping onto MAPE-K}
+Figure~\ref{fig:arch} shows the runtime and evaluation layers. Monitoring is the observation function and the evidence store; analysis is the support check and the trace metrics; planning is the role policies together with the governor's decisions, including the decision to ask a person; execution is the tool interface; knowledge is the evidence store, the notes, the rule set and the trace. The human overseer is on the loop, not in it: the society runs without them until a rule says otherwise.
+
+\begin{figure*}[t]
 \centering
-\includegraphics[width=\linewidth]{figures/architecture.pdf}
-\caption{Runtime and evaluation architecture. \todo{relabel with MAPE-K terms; move evidence store into the state box.}}
+\includegraphics[width=0.9\textwidth]{figures/architecture.pdf}
+\caption{Runtime and evaluation architecture of a governed agent society. Roles observe structured state and memory, propose typed actions, and high-impact proposals pass through the guard before reaching tools, people or the public. Every proposal produces one trace record. \todo{relabel the boxes with the MAPE-K terms and add the evidence store to the state box.}}
 \label{fig:arch}
-\end{figure}
+\end{figure*}
 
-\paragraph{Trust-adaptive governor}
-\todo{Definition: per-role trust from supported compliant actions (+0.1) and attempted violations (-0.3), carried across incidents; soft approvals delegated when trust is at or above a threshold; hard approvals never. Motivation: earned autonomy in self-adaptive systems; what it costs is measured in Section~\ref{sec:results}.}
+\paragraph{Trust-adaptive governance}
+A static guard asks the human every time a rule says so. A self-adaptive variant lets roles earn autonomy: the governor keeps a trust score per role, raised by supported and compliant executed actions ($+0.1$) and lowered by attempted violations ($-0.3$), carried across incidents. When a role's trust is at or above a threshold, its \emph{soft} approval requests are granted by the governor itself and never reach the human; \emph{hard} approvals, here a road closure that would cut hospital access, are never delegated. We measure what this costs in Section~\ref{sec:results}.
 
 %=====================================================================
 \section{Testbed}
 \label{sec:testbed}
 
-\paragraph{Smart-city operations society}
-\todo{Eight service roles and their action catalogues; four incident families with their required roles and success conditions (all need a public alert, so at least three roles must act); one paragraph on why symbolic state.}
+\paragraph{Society}
+The domain is a city operations centre with eight service roles: traffic, emergency response, energy, water, air quality, public transport, public works and citizen communication. Each has a catalogue of three to four service actions plus the shared actions query evidence, request verification, escalate, write memory and noop. Four incident families require three or four roles each: a traffic accident near a hospital (traffic, emergency, communication), a power outage in a critical district (energy, emergency, traffic, communication), a flooded underpass (water, traffic, public works, communication) and a pollution spike near a school (air quality, traffic, public transport, communication). Every family's success condition includes a public alert, so no society can finish with one role. The state is symbolic: outcome flags such as route secured or power restored, plus the evidence store, the notes and the approval requests. This keeps every guard decision inspectable in the trace.
 
 \paragraph{Evidence}
-\todo{Items E1--E5, F1, D1 with topics, kinds, visibility. Quality levels: complete, partial, missing, conflicting. Verification by topic permission; forwarded requests; memory notes as evidence with inherited status. Planted false report in 25\% of scenarios; distractor in 30\%; hidden context (the overseer would refuse a soft request) in 15\%.}
+A scenario starts with a primary report (E1: an incident report or a sensor reading), a congestion sensor (E3, verified), a residents' report (E4, unverified, visible to the communication role only) and a family-specific second item (E5). Evidence quality sets what is available at the start: complete (E1 verified), partial (E1 unverified), missing (E1 and E5 absent until a role queries the topic), or conflicting (E1 plus a contradicting E2; verifying either resolves both). In about a quarter of the scenarios a planted false report F1 claims a second incident elsewhere; verification refutes it. In about a third a distractor report about an unrelated pothole is visible to two roles.
 
-\paragraph{Scenario generation}
-\todo{Stratified 20 per family, seed in the manifest; Table with the feature distributions (from feature\_table.json).}
+Verification is by topic: a role can have items checked on the topics it works on. The communication role works on none of the field topics, so it has two ways to a verified basis for an alert: a note written by the role that owns the incident, or a verification request that the environment forwards to a role that can check the item, which sees it under its pending requests and answers when idle. Both paths take steps and both leave traces.
+
+\paragraph{The human}
+The overseer is available in 80\% of the scenarios and answers after one to three steps. A request is refused when the human is unavailable, when the request cites no verified evidence, or, in 15\% of the scenarios, because of \emph{hidden context}: the human knows something the rules do not encode, a planned event on the bus lane, a crew inside the grid segment. No role sees this flag. An approval-required action executed without human approval in such a scenario causes \emph{hidden harm}, a failure that no rule would have caught and that only asking a person prevents.
+
+\paragraph{Scenarios}
+Table~\ref{tab:features} gives the scenario set: 20 scenarios per family, generated from one seed, saved to disk and reused by every mode, so that comparisons are paired. The horizon is 16 steps.
+
+\input{tables/table_features.tex}
 
 \paragraph{Role policies}
-\todo{LLM roles: prompt structure, the two variants, JSON output, retry, formatting failures. Deterministic references: naive (does not know the rules; adapts only to guard feedback) and procedural (compliant), used as the reachability check and as the lower/upper reference rows.}
+Three policy classes drive the roles. \emph{LLM roles}: one chat completion per role and step; the system prompt gives the role's job, its catalogue with risk levels and evidence topics, an explanation of the observation, the output schema and, in the rules variant, the rule set in plain words; the user message is the observation as JSON; the answer is one JSON object with the fields of a typed action, including the cited evidence ids and $q$. An invalid answer gets one retry with the parser's complaint; a second failure becomes a noop and is counted as a formatting failure. \emph{Naive roles} do not know the rules: they act as soon as they see anything on topic, cite everything they see, share sloppy notes, and change course only when the guard pushes back, using the guard's reason in their observation. \emph{Procedural roles} follow the rules: verify, share a note with a verified source, ask for approval, then act, with a fallback when the human refuses. The procedural roles double as a reachability check: they reach every scenario's goal with zero attempted violations, so any success lost under the guard is the policy's, not the rules'.
 
 %=====================================================================
 \section{Evaluation Design}
 \label{sec:design}
 
 \paragraph{Modes}
-M0 one agent with all tools and the rules in its prompt; M1 roles without rules; M2 roles with rules in prompts only; M3 roles with the guard and no rules in prompts; M4 rules in prompts and the guard. \todo{one sentence on what each pair isolates: M2 vs M3 prompted vs enforced; M0 vs M3 monolith vs society; M3 vs M4 whether knowing the rules reduces the friction of enforcement.}
+M0: one agent with every tool and the rules in its prompt. M1: roles without rules anywhere. M2: roles with the rules in their prompts only. M3: roles with the guard and no rules in their prompts. M4: rules in prompts and the guard. M2 against M3 isolates prompted from enforced governance; M0 against M3 a monolith from a governed society; M3 against M4 whether knowing the rules reduces the friction of enforcement. The deterministic rows D0 to D6 mirror these modes with the naive and procedural brains.
 
 \paragraph{Metrics}
-\todo{Definitions with formulas, from metrics.py's docstring: attempted/executed violations, missed approvals, escalation precision and recall, overseer load and unnecessary share, Brier score of $q$, TSC, hallucinated references, false alert, silent violation rate, hidden harm, GAU with its weights and the weight grid.}
+All metrics come from trace records and final flags. Per episode: success; steps; proposals (role actions other than noop); attempted and executed violations, by rule; missed approvals (executed actions that required approval and had none); escalations and \emph{overseer load}, the number of distinct approval requests that reached the human, with the share that did not need approval; escalation precision and recall over the actions that required approval; the Brier score of $q$ against the rule's label; \emph{trace support coverage} (TSC), the share of executed high-impact actions with verified supporting evidence; \emph{hallucinated references}, the share of cited ids that do not exist or are not visible to the role; false alert and hidden harm as flags; \emph{silent violation}, success together with at least one executed violation; and governance-adjusted utility
+\[
+\mathrm{GAU} = \mathrm{succ} - 0.3\,V_{\mathrm{exec}} - 0.2\,A_{\mathrm{miss}} - 0.1\,M_{\mathrm{bad}} - 0.1\,\tfrac{\mathrm{steps}}{16} - 0.3\,H,
+\]
+with $V_{\mathrm{exec}}$ executed violations, $A_{\mathrm{miss}}$ missed approvals, $M_{\mathrm{bad}}$ unsupported memory writes and $H$ hidden harm. The weights order the failures by severity; a grid over 243 weight settings checks that the ranking of modes does not hinge on them. Table~\ref{tab:worked} follows one guarded episode and derives every metric from its trace.
 
-\paragraph{Worked example}
-Table~\ref{tab:worked} follows one guarded episode and derives every metric from its trace.
-\input{tables/worked_example.tex} \todo{keep the table from tables/worked\_example.tex, shorten the derivation list to the metrics used in the results.}
-
+\input{tables/worked_example.tex}
 
 \paragraph{Statistics}
-The scenario is the unit of analysis; repeats are averaged first. Modes see the same scenarios, so comparisons are paired: Wilcoxon signed-rank tests (no normality assumption; many differences are zero), Cliff's $\delta$ as effect size, 95\% bootstrap confidence intervals (10\,000 resamples) for every mean and mean difference, Holm correction across the metrics of one comparison. \todo{Primary comparisons and hypotheses stated before the results.}
+The scenario is the unit of analysis; repeats of one scenario are averaged first. Modes see the same scenarios, so comparisons are paired: Wilcoxon signed-rank tests (no normality assumption; many differences are zero), Cliff's $\delta$ as effect size, 95\% bootstrap confidence intervals with 10\,000 resamples for every mean and mean difference, and Holm correction across the metrics of one comparison. Primary comparisons: M2 vs M3, M0 vs M3, M3 vs M4. The hypotheses: enforcement reduces executed violations and missed approvals to zero; prompting reduces them without removing them; enforcement costs steps and overseer load and little or no success under R2.
 
 %=====================================================================
 \section{Results}
 \label{sec:results}
 
 \paragraph{Deterministic reference rows}
-Table~\ref{tab:main} \todo{these are the deterministic rows; the LLM table replaces or joins them once the grid has run.}
+Table~\ref{tab:main} gives the deterministic rows under R2. % NUM outputs/paper/table_main.md seed 2027
+Roles that ignore the rules (D2) resolve every incident in 1.25 steps: all three or four roles act at once, on whatever they see. They also execute 2.1 rule violations per incident, 84\% of their executed high-impact actions have no verified evidence, and in 24\% of the episodes, almost every episode with a planted false report, the public alert repeats an untrue claim. Every one of their successful episodes contains an executed violation. The same roles under the guard (D3) still resolve every incident, in 4.5 steps and 11.5 proposals instead of 4.2, with zero executed violations, zero false alerts, full trace support, and 0.64 approval requests per incident on the human. The guard blocks 3.9 proposals per incident to get there. A single agent with every tool (D0) is not faster than the society under the guard (4.0 steps against 4.5) and is worse on every governance measure, including hidden harm in 7\% of the episodes, because it acts on soft-approval actions without asking. Rule-following roles (D4, D5) need no guard: the guard never fires on them, and their rows are identical with and without it. Governance-adjusted utility orders the modes accordingly: 0.33 for the unguarded naive society, 0.97 with the guard, 0.97 for the compliant society.
+
 \begin{table*}[t]
 \centering
-\caption{Deterministic reference rows, 80 scenarios (20 per family), rule set R2. Naive roles do not know the rules; procedural roles follow them. Att.\ viol.\ = attempted, Exec.\ viol.\ = executed violations per episode; Overseer = approval requests reaching the human per episode; Silent viol.\ = share of successful episodes with an executed violation.}
+\caption{Deterministic reference rows, 80 scenarios (20 per family), rule set R2. Naive roles do not know the rules; procedural roles follow them. Att.\ viol.\ and Exec.\ viol.\ are attempted and executed violations per episode; Overseer is the number of approval requests reaching the human per episode; Silent viol.\ is the share of successful episodes with an executed violation; Hidden harm the share of episodes with an approval-required action executed where the human would have refused.}
 \label{tab:main}
 \footnotesize
 \input{tables/table_main.tex}
 \end{table*}
 
-\paragraph{RQ1 Enforcement vs prompting}
-\todo{LLM results M2 vs M3 vs M4 per model; paired stats table.}
+\paragraph{Strict rules and an absent human}
+% NUM outputs/paper/table_rulesets.md, table_overseer.md
+Under R3, where every high-risk action needs approval, the guard costs success: the compliant society resolves 86\% of the incidents with two approval requests per incident, because a refused request has no fallback for closing an underpass or restricting traffic in a school zone. With the human never available, success falls to 50\%. The naive society without the guard keeps its 100\% success under R3 and executes three violations per incident, one of them a missed approval in every third episode, and suffers hidden harm in every scenario that has hidden context. Under the lenient R1 the guard has little to enforce: one attempted violation per incident, all of them public alerts on unverified reports, and one blocked proposal is all it takes to remove them.
 
-\paragraph{RQ2 Cost}
-\todo{success, steps, proposals, tokens, overseer load; the R3 and overseer-unavailable rows where success drops.}
+\paragraph{\RQ{1} Enforcement against prompting}
+\todo{LLM results: M2 vs M3 vs M4 per model, paired statistics table from outputs/llm/stats/paired\_stats.md. Say whether prompting alone leaves executed violations, which rules the models break most, and whether knowing the rules (M4) reduces the number of blocked proposals compared with M3.}
 
-\paragraph{RQ3 What success hides}
-\todo{silent violation rate, false alerts, unsupported alerts, hallucinated references, hidden harm; the failure catalogue from traces.}
+\paragraph{\RQ{2} Cost}
+\todo{success, steps, proposals, tokens, overseer load per model; the M0 comparison; formatting failures.}
 
-\paragraph{RQ4 Robustness}
-\todo{per model, per family, R1/R3, overseer availability sweep; GAU weight grid: how often each mode ranks first.}
+\paragraph{\RQ{3} What success hides}
+\todo{silent violation rate, false alerts, unsupported alerts, hallucinated references, hidden harm per mode and model; two or three concrete traces from the failure catalogue.}
 
-\paragraph{Adaptive governor}
-Figure~\ref{fig:tradeoff} \todo{describe: under R3 the static guard costs 14\% success when the human is unavailable and puts two requests per incident on the human; delegating soft approvals to trusted roles removes both and exposes the system to every hidden-context case (16\% of episodes). Trust earned by compliance carries no information about what the rules do not encode.}
+\paragraph{\RQ{4} Robustness}
+\todo{per family and per model; R1/R3 and overseer sweeps on the small model; GAU weight grid: how often each mode ranks first.}
+
+\paragraph{Trust-adaptive governance}
+% NUM outputs/paper/adaptive/table_adaptive.md, R3 at 15%
+Figure~\ref{fig:tradeoff} shows the trade-off under R3 with hidden context in 15\% of the scenarios. The static guard puts two requests per incident on the human and resolves 86\% of the incidents, with no hidden harm. Delegating every soft approval to roles that have earned trust removes the human's load, restores 100\% success, and exposes the society to every hidden-context scenario: hidden harm in 16\% of the episodes. Intermediate thresholds lie on the line between the two ends; the naive roles never earn enough trust for thresholds above 0.3, so for them delegation does nothing. Trust earned by compliance carries no information about what the rules do not encode, which is exactly what the human was there for. The figure is a measured trade-off, not a recommendation; where the line should be cut depends on what a hidden harm and an unresolved incident cost.
+
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.9\linewidth]{figures/tradeoff_R3_15.png}
-\caption{Overseer load against hidden harm for static and trust-adaptive governance, rule set R3, hidden context in 15\% of scenarios. \todo{redraw for print: one label per distinct point.}}
+\includegraphics[width=0.92\linewidth]{figures/tradeoff_R3_15.png}
+\caption{Overseer load against hidden harm for static and trust-adaptive governance, rule set R3, hidden context in 15\% of scenarios. Points on each line are thresholds 0.9, 0.7, 0.5, 0.3 and 0.0 from right to left; for the procedural roles the four lowest coincide.}
 \label{fig:tradeoff}
 \end{figure}
 
 %=====================================================================
 \section{Discussion}
 \label{sec:discussion}
-\todo{How an engineer instantiates the framework: action catalogue with risk and evidence topics, rule set as data, roles with visibility, traces, metrics; what the metrics told us that success did not; the overseer load trade-off; limits of prompted governance.}
+
+\paragraph{For engineers}
+Instantiating the framework for a new system takes four artefacts: an action catalogue with risk levels and evidence topics, a rule set as data, roles with their visibility, and the trace schema. The guard, the metrics and the statistics do not change. The evaluation then answers questions an outcome metric cannot: how often did the system succeed by breaking a rule, how much human attention did it consume, how much of it was needed, and how often did it cite evidence that was not there.
+
+\paragraph{Prompted rules are not enforced rules}
+\todo{write from the LLM results: how far prompting gets, where it fails, and why enforcement plus prompting (M4) is the combination to deploy.}
+
+\paragraph{The human is not a rule}
+The approval step looks like a bottleneck and, under strict rules and an unavailable human, it is: success drops to a half. The adaptive governor shows what removing it costs. The rules capture what the designers foresaw; the human catches the rest, and no amount of compliance with the rules predicts the rest. Systems that want to reduce human load should reduce the \emph{unnecessary} share of approval requests, which the trace measures, rather than delegate on trust.
 
 \paragraph{Threats to validity}
-\todo{Construct: symbolic testbed, rules chosen by us, hidden context modelled as a coin flip. Internal: the naive policy's reactions are ours; LLM nondeterminism handled by repeats. External: one domain (two if RQ5), few models, deterministic overseer. Conclusion: paired tests with Holm, intervals reported, seeds and manifests published.}
+\emph{Construct}: the testbed is symbolic and its rules are ours; hidden context is a coin flip with a fixed rate, and its harm is binary. The metrics measure conformance to the given rules, not the quality of the rules. \emph{Internal}: the naive roles' reactions to the guard are hand-written; a different reactive policy would change the cost side, not the violation side. LLM nondeterminism is handled by repeats and paired tests; prompts are fixed and published. \emph{External}: one domain, \todo{N} models, a deterministic human. The framework transfers when the four artefacts above can be written; whether the numbers transfer is an open question. \emph{Conclusion}: all comparisons are paired, corrected for multiple testing and reported with intervals; seeds, scenario sets and manifests are in the artifact.
 
 %=====================================================================
 \section{Conclusion}
 \label{sec:conclusion}
-\todo{Three sentences.}
+Governed agent societies put the rules where the actions are: in a guard inside the transition function that checks provenance, asks a person when the rules say so, and leaves a trace of everything it decided. \todo{one sentence with the LLM headline.} The traces show that success and governance are different things, and that a system can have the first without the second; the guard gives the second at a measured price in steps and human attention. Next steps are a second domain, software operations, with the same guard and metrics, and learning role policies from the traces the guard produces.
 
 \section*{Artifact}
 \label{sec:artifact}
-\todo{Anonymous link. Testbed, rule sets, prompts, scenario sets, JSONL traces, one-command reproduction, statistics scripts, manifests.}
+The testbed, rule sets, prompts, scenario sets, JSONL traces, one-command reproduction of every table and the statistics scripts are available at \todo{anonymous link}. Every reported number carries a manifest with the code version, seed and configuration.
 
 \bibliographystyle{IEEEtran}
 \bibliography{references}

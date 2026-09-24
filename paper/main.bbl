@@ -38,6 +38,15 @@ M.~Cemri, M.~Z. Pan, S.~Yang \emph{et~al.}, ``Why do multi-agent {LLM} systems
   fail?'' in \emph{Advances in Neural Information Processing Systems
   (NeurIPS)}, 2025, arXiv:2503.13657.
 
+\bibitem{sha2001simplex}
+L.~Sha, ``Using simplicity to control complexity,'' \emph{IEEE Software},
+  vol.~18, no.~4, pp. 20--28, 2001.
+
+\bibitem{alshiekh2018safe}
+M.~Alshiekh, R.~Bloem, R.~Ehlers, B.~K{\"o}nighofer, S.~Niekum, and U.~Topcu,
+  ``Safe reinforcement learning via shielding,'' in \emph{Proceedings of the
+  AAAI Conference on Artificial Intelligence}, vol.~32, 2018, pp. 2669--2678.
+
 \bibitem{wang2026agentspec}
 H.~Wang, C.~M. Poskitt, and J.~Sun, ``{AgentSpec}: Customizable runtime
   enforcement for safe and reliable {LLM} agents,'' in \emph{Proceedings of the
@@ -63,32 +72,24 @@ R.~Calinescu, D.~Weyns, S.~Gerasimou, M.~U. Iftikhar, I.~Habli, and T.~Kelly,
   cases,'' \emph{IEEE Transactions on Software Engineering}, vol.~44, no.~11,
   pp. 1039--1069, 2018.
 
-\bibitem{li2024llmsas}
-TODO, ``Exploring the potential of large language models in self-adaptive
-  systems,'' in \emph{Proceedings of the 19th International Symposium on
-  Software Engineering for Adaptive and Self-Managing Systems (SEAMS)}, 2024,
-  tODO authors.
-
-\bibitem{maper2026}
-------, ``{MAPER}: Extending {MAPE-K} with {LLM}-based reasoning to manage
-  unanticipated situations in self-adaptive systems,'' in \emph{Proceedings of
-  the 21st International Symposium on Software Engineering for Adaptive and
-  Self-Managing Systems (SEAMS)}, 2026, tODO authors.
-
 \bibitem{li2020explanations}
 N.~Li, S.~Adepu, E.~Kang, and D.~Garlan, ``Explanations for human-on-the-loop:
   A probabilistic model checking approach,'' in \emph{Proceedings of the 15th
   International Symposium on Software Engineering for Adaptive and
-  Self-Managing Systems (SEAMS)}, 2020, tODO confirm author list.
+  Self-Managing Systems (SEAMS)}, 2020, pp. 181--187.
 
-\bibitem{sha2001simplex}
-L.~Sha, ``Using simplicity to control complexity,'' \emph{IEEE Software},
-  vol.~18, no.~4, pp. 20--28, 2001.
+\bibitem{maper2026}
+P.~Maia, L.~Vieira, G.~L.~B. de~Oliveira, M.~Chagas, A.~Bandeira, and C.~Rocha,
+  ``{MAPER}: Extending {MAPE-K} with {LLM}-based reasoning to manage
+  unanticipated situations in self-adaptive systems,'' in \emph{Proceedings of
+  the 21st International Symposium on Software Engineering for Adaptive and
+  Self-Managing Systems (SEAMS)}, 2026.
 
-\bibitem{alshiekh2018safe}
-M.~Alshiekh, R.~Bloem, R.~Ehlers, B.~K{\"o}nighofer, S.~Niekum, and U.~Topcu,
-  ``Safe reinforcement learning via shielding,'' in \emph{Proceedings of the
-  AAAI Conference on Artificial Intelligence}, vol.~32, 2018, pp. 2669--2678.
+\bibitem{li2024llmsas}
+J.~Li, M.~Zhang, N.~Li, D.~Weyns, Z.~Jin, and K.~Tei, ``Exploring the potential
+  of large language models in self-adaptive systems,'' in \emph{Proceedings of
+  the 19th International Symposium on Software Engineering for Adaptive and
+  Self-Managing Systems (SEAMS)}, 2024, pp. 77--83.
 
 \bibitem{elsayedaly2021shielding}
 I.~ElSayed-Aly, S.~Bharadwaj, C.~Amato, R.~Ehlers, U.~Topcu, and L.~Feng,
@@ -97,10 +98,10 @@ I.~ElSayed-Aly, S.~Bharadwaj, C.~Amato, R.~Ehlers, U.~Topcu, and L.~Feng,
   and MultiAgent Systems (AAMAS)}, 2021, pp. 483--491.
 
 \bibitem{compositional2025shielding}
-TODO, ``Compositional shielding and reinforcement learning for multi-agent
-  systems,'' in \emph{Proceedings of the 24th International Conference on
-  Autonomous Agents and Multiagent Systems (AAMAS)}, 2025, tODO authors;
-  dl.acm.org/doi/10.5555/3709347.3743554.
+A.~H. Brorholt, K.~G. Larsen, and C.~Schilling, ``Compositional shielding and
+  reinforcement learning for multi-agent systems,'' in \emph{Proceedings of the
+  24th International Conference on Autonomous Agents and Multiagent Systems
+  (AAMAS)}, 2025, arXiv:2410.10460.
 
 \bibitem{falcone2011enforcement}
 Y.~Falcone, L.~Mounier, J.-C. Fernandez, and J.-L. Richier, ``Runtime

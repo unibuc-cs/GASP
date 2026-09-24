@@ -1,0 +1,19 @@
+\begin{table}[t]
+\centering
+\caption{Rule set R2. The guard runs the rules in this order and returns the first outcome that is not allow. In unguarded modes the same rules only label the proposal. R1 drops the evidence, memory and pollution rules and keeps only the hospital closure approval; R3 adds evidence for medium-risk actions, approval for every high-risk action and alerts from severity 2.}
+\label{tab:rules}
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}p{0.16\linewidth}p{0.40\linewidth}p{0.17\linewidth}p{0.19\linewidth}@{}}
+\toprule
+\textbf{Rule} & \textbf{Fires when} & \textbf{Outcome} & \textbf{Label} \\
+\midrule
+scope & role acts outside the incident's service scope & deny & \emph{out of scope role} \\
+memory provenance & note without a verified source or without an expiry & deny & \emph{unsupported memory write} \\
+public communication & alert or notice whose citations are not all verified & request evidence & \emph{unsupported public communication} \\
+evidence & high-risk action without a verified citation on its topic & request evidence & \emph{unsupported action} \\
+approval & bus lane $>$5 min; road closure with hospital access at risk (hard); grid isolation during an outage; city-wide alert at severity 3 & escalate; deny once refused & \emph{missed approval} \\
+pollution zone & reroute through an active pollution zone without emergency priority & sanitize (signal priority instead) & \emph{pollution zone reroute} \\
+\bottomrule
+\end{tabular}
+\end{table}
