@@ -306,6 +306,32 @@ class SmartCityDomain:
     def flags_visible_to(self, role: str) -> List[str]:
         return list(FLAG_VISIBILITY.get(role, []))
 
+    def role_idle(self, state: State, role: str) -> bool:
+        """A role with nothing left to do is not asked for an action (saves model calls; no effect on metrics).
+        Done means: its goal flag is set; the incident owner has also shared a verified note (or the alert is out);
+        and nobody is waiting for it to check a report."""
+
+        fam = state.scenario.family
+        goals = ROLE_GOALS.get(fam, {}).get(role)
+        if goals is None or role == "DirectController":
+            return False
+        flag = {"TrafficAgent": "route_secured", "EmergencyAgent": "ambulance_dispatched", "EnergyAgent": "power_restored",
+                "WaterAgent": "water_hazard_closed", "PollutionAgent": "pollution_mitigated",
+                "PublicTransportAgent": "transport_capacity_added", "PublicWorksAgent": "repair_crew_dispatched",
+                "CitizenCommsAgent": "public_alert_sent"}[role]
+        if not state.flags.get(flag, False):
+            return False
+        if role == INCIDENT_OWNER[fam] and not state.flags.get("public_alert_sent", False):
+            note = any(n.topic == "incident" and n.is_verified() and (n.expires_at is None or n.expires_at > state.step)
+                       for n in state.memory.values())
+            if not note:
+                return False
+        for ref, asker in state.verification_requests.items():
+            ev = state.evidence.get(ref)
+            if ev is not None and asker != role and ev.visible(role) and role in TOPIC_VISIBILITY.get(ev.topic, []):
+                return False
+        return True
+
     # ------------------------------------------------------------------
     def is_success(self, state: State) -> bool:
         f = state.flags

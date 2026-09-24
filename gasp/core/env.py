@@ -34,6 +34,7 @@ class EnvConfig:
     trust_gain: float = 0.1
     trust_penalty: float = 0.3
     carry_trust: bool = True      # trust persists across the scenarios of one run (a society's lifetime)
+    skip_idle_roles: bool = True  # roles with nothing left to do are not asked for an action (saves model calls)
 
 
 class Policy(Protocol):
@@ -122,8 +123,14 @@ class Episode:
             "active_roles": list(st.active_roles),
         }
 
+    def acting_roles(self) -> List[str]:
+        roles = list(self.state.active_roles)
+        if self.config.skip_idle_roles and hasattr(self.domain, "role_idle"):
+            roles = [r for r in roles if not self.domain.role_idle(self.state, r)]
+        return roles
+
     def observations(self) -> Dict[str, Dict[str, Any]]:
-        return {role: self.observation(role) for role in self.state.active_roles}
+        return {role: self.observation(role) for role in self.acting_roles()}
 
     # ------------------------------------------------------------------
     def _normalize(self, role: str, action: Optional[TypedAction]) -> tuple[TypedAction, bool]:
@@ -174,7 +181,7 @@ class Episode:
         st.resolve_approvals()
         usage = usage or {}
 
-        for role in list(st.active_roles):
+        for role in [r for r in st.active_roles if r in proposals]:
             action, formatting_failure = self._normalize(role, proposals.get(role))
             before = st.snapshot()
             delegated = self._maybe_delegate(role, action)

@@ -51,6 +51,8 @@ def main() -> None:
     ap.add_argument("--modes", type=str, default=None, help="comma-separated subset of modes")
     ap.add_argument("--models", type=str, default=None, help="comma-separated subset of model names")
     ap.add_argument("--repeats", type=int, default=None)
+    ap.add_argument("--estimate", action="store_true",
+                    help="no API calls: run the grid with the procedural JSON backend and report calls and tokens")
     args = ap.parse_args()
 
     cfg = yaml.safe_load(args.config.read_text(encoding="utf-8"))
@@ -65,6 +67,8 @@ def main() -> None:
     if args.models:
         wanted = {m.strip() for m in args.models.split(",")}
         models = [m for m in models if m["name"] in wanted]
+    if args.estimate:
+        models = [{"name": "estimate", "kind": "procedural-json"}]
 
     scenarios = load_scenarios(args.scenarios)
     if args.limit:
@@ -90,7 +94,7 @@ def main() -> None:
     started = time.time()
     with rows_path.open("a", encoding="utf-8") as rows_f:
         for model_spec in models:
-            backend = make_backend(model_spec)
+            backend = make_backend(model_spec, domain, rules)
             for mode in modes:
                 m = MODES[mode]
                 policy = LLMRolePolicy(domain, backend, rules, include_rules=m["include_rules"], temperature=temperature,
@@ -118,11 +122,24 @@ def main() -> None:
     write_csv(rows, out / "episodes.csv")
     aggs = aggregate(rows, ("model", "mode"))
     (out / "table_llm.md").write_text(markdown_table(aggs, TABLE_COLUMNS, ("model", "mode")) + "\n", encoding="utf-8")
+    prompt_hashes = {}
+    for role in list(domain.role_actions):
+        for include in (True, False):
+            from gasp.policies.llm import system_prompt
+            import hashlib
+            prompt_hashes[f"{role}:{'rules' if include else 'norules'}"] = hashlib.sha256(
+                system_prompt(domain, role, rules, include).encode("utf-8")).hexdigest()[:16]
     (out / "manifest.json").write_text(json.dumps(manifest({
         "config": cfg, "modes": modes, "repeats": repeats, "temperature": temperature, "n_scenarios": len(scenarios),
-        "n_episodes": len(rows), "mode_definitions": MODES,
+        "n_episodes": len(rows), "mode_definitions": MODES, "system_prompt_hashes": prompt_hashes,
     }), indent=1), encoding="utf-8")
     print((out / "table_llm.md").read_text(encoding="utf-8"))
+    if args.estimate:
+        tokens = sum(r["tokens"] for r in rows)
+        calls = sum(r["calls"] for r in rows)
+        print(f"ESTIMATE for {len(rows)} episodes: {calls} model calls, about {tokens / 1e6:.1f}M tokens (input + output, "
+              f"chars/4) with a perfectly compliant policy. Budget about 1.5x of that for a real model (retries, longer "
+              f"episodes), times the number of repeats you run.")
 
 
 if __name__ == "__main__":

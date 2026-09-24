@@ -111,6 +111,7 @@ def episode_metrics(result: EpisodeResult, max_steps: int, weights: Optional[Dic
         "off_target_actions": float(off_target),
         "formatting_failures": float(formatting),
         "tokens": float(tokens),
+        "calls": float(len(recs)),
         "gau": gau(1.0 if result.success else 0.0, len(exe_viol), len(missed), len(unsupported_memory), result.steps, max_steps, weights,
                    hidden_harm=1.0 if result.final_flags.get("hidden_harm") else 0.0),
         "violation_types": dict(violation_types),

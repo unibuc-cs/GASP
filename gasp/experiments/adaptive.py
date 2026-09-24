@@ -52,14 +52,18 @@ def plot(aggs: List[Dict[str, Any]], out: Path, rule_set: str, rate: float) -> N
     import matplotlib.pyplot as plt
 
     fig, ax = plt.subplots(figsize=(4.2, 3.0), dpi=200)
-    for brain in ("procedural", "naive"):
+    for i, brain in enumerate(("procedural", "naive")):
         pts = [a for a in aggs if a["brain"] == brain]
         pts.sort(key=lambda a: -a["overseer_load"])
         xs = [a["overseer_load"] for a in pts]
         ys = [a["hidden_harm"] for a in pts]
         ax.plot(xs, ys, "-", color=SERIES_COLORS[brain], linewidth=2, marker="o", markersize=5, label=brain)
+        # Label the two ends only; the intermediate thresholds sit on the line (listed in the caption).
         for a, x, y in zip(pts, xs, ys):
-            ax.annotate(a["threshold"], (x, y), textcoords="offset points", xytext=(4, 4), fontsize=6, color="#444444")
+            if a["threshold"] in ("static", "t=0.0"):
+                txt = "static guard" if a["threshold"] == "static" else "all soft approvals delegated"
+                ax.annotate(txt, (x, y), textcoords="offset points", xytext=(6, -12 - 9 * i) if a["threshold"] == "static" else (6, 4 - 9 * i),
+                            fontsize=6, color=SERIES_COLORS[brain])
     ax.set_xlabel("approval requests per episode (overseer load)")
     ax.set_ylabel("episodes with hidden harm")
     ax.set_title(f"{rule_set}, hidden context in {int(rate * 100)}% of scenarios", fontsize=9)
