@@ -9,3 +9,4 @@ dist/
 .pytest_cache/
 outputs/paper/
 outputs/llm/
+outputs/llm_pilot_example/traces/

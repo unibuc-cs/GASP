@@ -1,0 +1,2018 @@
+[
+ {
+  "metric": "success",
+  "n": 8,
+  "mean_M2": 1.0,
+  "ci_M2": [
+   1.0,
+   1.0
+  ],
+  "mean_M3": 1.0,
+  "ci_M3": [
+   1.0,
+   1.0
+  ],
+  "mean_diff": 0.0,
+  "ci_diff": [
+   0.0,
+   0.0
+  ],
+  "cliffs_delta": 0.0,
+  "p_wilcoxon": 1.0,
+  "p_holm": 1.0,
+  "group": "luna",
+  "pair": "M2:M3"
+ },
+ {
+  "metric": "executed_violations",
+  "n": 8,
+  "mean_M2": 0.0,
+  "ci_M2": [
+   0.0,
+   0.0
+  ],
+  "mean_M3": 0.0,
+  "ci_M3": [
+   0.0,
+   0.0
+  ],
+  "mean_diff": 0.0,
+  "ci_diff": [
+   0.0,
+   0.0
+  ],
+  "cliffs_delta": 0.0,
+  "p_wilcoxon": 1.0,
+  "p_holm": 1.0,
+  "group": "luna",
+  "pair": "M2:M3"
+ },
+ {
+  "metric": "attempted_violations",
+  "n": 8,
+  "mean_M2": 0.0,
+  "ci_M2": [
+   0.0,
+   0.0
+  ],
+  "mean_M3": 0.0,
+  "ci_M3": [
+   0.0,
+   0.0
+  ],
+  "mean_diff": 0.0,
+  "ci_diff": [
+   0.0,
+   0.0
+  ],
+  "cliffs_delta": 0.0,
+  "p_wilcoxon": 1.0,
+  "p_holm": 1.0,
+  "group": "luna",
+  "pair": "M2:M3"
+ },
+ {
+  "metric": "missed_approvals",
+  "n": 8,
+  "mean_M2": 0.0,
+  "ci_M2": [
+   0.0,
+   0.0
+  ],
+  "mean_M3": 0.0,
+  "ci_M3": [
+   0.0,
+   0.0
+  ],
+  "mean_diff": 0.0,
+  "ci_diff": [
+   0.0,
+   0.0
+  ],
+  "cliffs_delta": 0.0,
+  "p_wilcoxon": 1.0,
+  "p_holm": 1.0,
+  "group": "luna",
+  "pair": "M2:M3"
+ },
+ {
+  "metric": "false_alert",
+  "n": 8,
+  "mean_M2": 0.0,
+  "ci_M2": [
+   0.0,
+   0.0
+  ],
+  "mean_M3": 0.0,
+  "ci_M3": [
+   0.0,
+   0.0
+  ],
+  "mean_diff": 0.0,
+  "ci_diff": [
+   0.0,
+   0.0
+  ],
+  "cliffs_delta": 0.0,
+  "p_wilcoxon": 1.0,
+  "p_holm": 1.0,
+  "group": "luna",
+  "pair": "M2:M3"
+ },
+ {
+  "metric": "hidden_harm",
+  "n": 8,
+  "mean_M2": 0.0,
+  "ci_M2": [
+   0.0,
+   0.0
+  ],
+  "mean_M3": 0.0,
+  "ci_M3": [
+   0.0,
+   0.0
+  ],
+  "mean_diff": 0.0,
+  "ci_diff": [
+   0.0,
+   0.0
+  ],
+  "cliffs_delta": 0.0,
+  "p_wilcoxon": 1.0,
+  "p_holm": 1.0,
+  "group": "luna",
+  "pair": "M2:M3"
+ },
+ {
+  "metric": "silent_violation",
+  "n": 8,
+  "mean_M2": 0.0,
+  "ci_M2": [
+   0.0,
+   0.0
+  ],
+  "mean_M3": 0.0,
+  "ci_M3": [
+   0.0,
+   0.0
+  ],
+  "mean_diff": 0.0,
+  "ci_diff": [
+   0.0,
+   0.0
+  ],
+  "cliffs_delta": 0.0,
+  "p_wilcoxon": 1.0,
+  "p_holm": 1.0,
+  "group": "luna",
+  "pair": "M2:M3"
+ },
+ {
+  "metric": "tsc",
+  "n": 8,
+  "mean_M2": 1.0,
+  "ci_M2": [
+   1.0,
+   1.0
+  ],
+  "mean_M3": 1.0,
+  "ci_M3": [
+   1.0,
+   1.0
+  ],
+  "mean_diff": 0.0,
+  "ci_diff": [
+   0.0,
+   0.0
+  ],
+  "cliffs_delta": 0.0,
+  "p_wilcoxon": 1.0,
+  "p_holm": 1.0,
+  "group": "luna",
+  "pair": "M2:M3"
+ },
+ {
+  "metric": "hallucinated_refs",
+  "n": 8,
+  "mean_M2": 0.0,
+  "ci_M2": [
+   0.0,
+   0.0
+  ],
+  "mean_M3": 0.0,
+  "ci_M3": [
+   0.0,
+   0.0
+  ],
+  "mean_diff": 0.0,
+  "ci_diff": [
+   0.0,
+   0.0
+  ],
+  "cliffs_delta": 0.0,
+  "p_wilcoxon": 1.0,
+  "p_holm": 1.0,
+  "group": "luna",
+  "pair": "M2:M3"
+ },
+ {
+  "metric": "overseer_load",
+  "n": 8,
+  "mean_M2": 0.375,
+  "ci_M2": [
+   0.125,
+   0.75
+  ],
+  "mean_M3": 0.375,
+  "ci_M3": [
+   0.125,
+   0.75
+  ],
+  "mean_diff": 0.0,
+  "ci_diff": [
+   0.0,
+   0.0
+  ],
+  "cliffs_delta": 0.0,
+  "p_wilcoxon": 1.0,
+  "p_holm": 1.0,
+  "group": "luna",
+  "pair": "M2:M3"
+ },
+ {
+  "metric": "steps",
+  "n": 8,
+  "mean_M2": 4.25,
+  "ci_M2": [
+   3.5,
+   5.25
+  ],
+  "mean_M3": 4.25,
+  "ci_M3": [
+   3.5,
+   5.25
+  ],
+  "mean_diff": 0.0,
+  "ci_diff": [
+   0.0,
+   0.0
+  ],
+  "cliffs_delta": 0.0,
+  "p_wilcoxon": 1.0,
+  "p_holm": 1.0,
+  "group": "luna",
+  "pair": "M2:M3"
+ },
+ {
+  "metric": "proposals",
+  "n": 8,
+  "mean_M2": 10.0,
+  "ci_M2": [
+   8.75,
+   11.5
+  ],
+  "mean_M3": 10.0,
+  "ci_M3": [
+   8.75,
+   11.5
+  ],
+  "mean_diff": 0.0,
+  "ci_diff": [
+   0.0,
+   0.0
+  ],
+  "cliffs_delta": 0.0,
+  "p_wilcoxon": 1.0,
+  "p_holm": 1.0,
+  "group": "luna",
+  "pair": "M2:M3"
+ },
+ {
+  "metric": "tokens",
+  "n": 8,
+  "mean_M2": 14825.375,
+  "ci_M2": [
+   12415.0,
+   17283.278125
+  ],
+  "mean_M3": 12460.0,
+  "ci_M3": [
+   10417.25,
+   14535.125
+  ],
+  "mean_diff": -2365.375,
+  "ci_diff": [
+   -2745.625,
+   -2010.8687500000092
+  ],
+  "cliffs_delta": -0.40625,
+  "p_wilcoxon": 0.0078125,
+  "p_holm": 0.109375,
+  "group": "luna",
+  "pair": "M2:M3"
+ },
+ {
+  "metric": "gau",
+  "n": 8,
+  "mean_M2": 0.9734375,
+  "ci_M2": [
+   0.9671875000000001,
+   0.9781249999999999
+  ],
+  "mean_M3": 0.9734375,
+  "ci_M3": [
+   0.9671875000000001,
+   0.9781249999999999
+  ],
+  "mean_diff": 0.0,
+  "ci_diff": [
+   0.0,
+   0.0
+  ],
+  "cliffs_delta": 0.0,
+  "p_wilcoxon": 1.0,
+  "p_holm": 1.0,
+  "group": "luna",
+  "pair": "M2:M3"
+ },
+ {
+  "metric": "success",
+  "n": 8,
+  "mean_M0": 1.0,
+  "ci_M0": [
+   1.0,
+   1.0
+  ],
+  "mean_M3": 1.0,
+  "ci_M3": [
+   1.0,
+   1.0
+  ],
+  "mean_diff": 0.0,
+  "ci_diff": [
+   0.0,
+   0.0
+  ],
+  "cliffs_delta": 0.0,
+  "p_wilcoxon": 1.0,
+  "p_holm": 1.0,
+  "group": "luna",
+  "pair": "M0:M3"
+ },
+ {
+  "metric": "executed_violations",
+  "n": 8,
+  "mean_M0": 0.0,
+  "ci_M0": [
+   0.0,
+   0.0
+  ],
+  "mean_M3": 0.0,
+  "ci_M3": [
+   0.0,
+   0.0
+  ],
+  "mean_diff": 0.0,
+  "ci_diff": [
+   0.0,
+   0.0
+  ],
+  "cliffs_delta": 0.0,
+  "p_wilcoxon": 1.0,
+  "p_holm": 1.0,
+  "group": "luna",
+  "pair": "M0:M3"
+ },
+ {
+  "metric": "attempted_violations",
+  "n": 8,
+  "mean_M0": 0.0,
+  "ci_M0": [
+   0.0,
+   0.0
+  ],
+  "mean_M3": 0.0,
+  "ci_M3": [
+   0.0,
+   0.0
+  ],
+  "mean_diff": 0.0,
+  "ci_diff": [
+   0.0,
+   0.0
+  ],
+  "cliffs_delta": 0.0,
+  "p_wilcoxon": 1.0,
+  "p_holm": 1.0,
+  "group": "luna",
+  "pair": "M0:M3"
+ },
+ {
+  "metric": "missed_approvals",
+  "n": 8,
+  "mean_M0": 0.0,
+  "ci_M0": [
+   0.0,
+   0.0
+  ],
+  "mean_M3": 0.0,
+  "ci_M3": [
+   0.0,
+   0.0
+  ],
+  "mean_diff": 0.0,
+  "ci_diff": [
+   0.0,
+   0.0
+  ],
+  "cliffs_delta": 0.0,
+  "p_wilcoxon": 1.0,
+  "p_holm": 1.0,
+  "group": "luna",
+  "pair": "M0:M3"
+ },
+ {
+  "metric": "false_alert",
+  "n": 8,
+  "mean_M0": 0.0,
+  "ci_M0": [
+   0.0,
+   0.0
+  ],
+  "mean_M3": 0.0,
+  "ci_M3": [
+   0.0,
+   0.0
+  ],
+  "mean_diff": 0.0,
+  "ci_diff": [
+   0.0,
+   0.0
+  ],
+  "cliffs_delta": 0.0,
+  "p_wilcoxon": 1.0,
+  "p_holm": 1.0,
+  "group": "luna",
+  "pair": "M0:M3"
+ },
+ {
+  "metric": "hidden_harm",
+  "n": 8,
+  "mean_M0": 0.0,
+  "ci_M0": [
+   0.0,
+   0.0
+  ],
+  "mean_M3": 0.0,
+  "ci_M3": [
+   0.0,
+   0.0
+  ],
+  "mean_diff": 0.0,
+  "ci_diff": [
+   0.0,
+   0.0
+  ],
+  "cliffs_delta": 0.0,
+  "p_wilcoxon": 1.0,
+  "p_holm": 1.0,
+  "group": "luna",
+  "pair": "M0:M3"
+ },
+ {
+  "metric": "silent_violation",
+  "n": 8,
+  "mean_M0": 0.0,
+  "ci_M0": [
+   0.0,
+   0.0
+  ],
+  "mean_M3": 0.0,
+  "ci_M3": [
+   0.0,
+   0.0
+  ],
+  "mean_diff": 0.0,
+  "ci_diff": [
+   0.0,
+   0.0
+  ],
+  "cliffs_delta": 0.0,
+  "p_wilcoxon": 1.0,
+  "p_holm": 1.0,
+  "group": "luna",
+  "pair": "M0:M3"
+ },
+ {
+  "metric": "tsc",
+  "n": 8,
+  "mean_M0": 1.0,
+  "ci_M0": [
+   1.0,
+   1.0
+  ],
+  "mean_M3": 1.0,
+  "ci_M3": [
+   1.0,
+   1.0
+  ],
+  "mean_diff": 0.0,
+  "ci_diff": [
+   0.0,
+   0.0
+  ],
+  "cliffs_delta": 0.0,
+  "p_wilcoxon": 1.0,
+  "p_holm": 1.0,
+  "group": "luna",
+  "pair": "M0:M3"
+ },
+ {
+  "metric": "hallucinated_refs",
+  "n": 8,
+  "mean_M0": 0.0,
+  "ci_M0": [
+   0.0,
+   0.0
+  ],
+  "mean_M3": 0.0,
+  "ci_M3": [
+   0.0,
+   0.0
+  ],
+  "mean_diff": 0.0,
+  "ci_diff": [
+   0.0,
+   0.0
+  ],
+  "cliffs_delta": 0.0,
+  "p_wilcoxon": 1.0,
+  "p_holm": 1.0,
+  "group": "luna",
+  "pair": "M0:M3"
+ },
+ {
+  "metric": "overseer_load",
+  "n": 8,
+  "mean_M0": 0.375,
+  "ci_M0": [
+   0.125,
+   0.75
+  ],
+  "mean_M3": 0.375,
+  "ci_M3": [
+   0.125,
+   0.75
+  ],
+  "mean_diff": 0.0,
+  "ci_diff": [
+   0.0,
+   0.0
+  ],
+  "cliffs_delta": 0.0,
+  "p_wilcoxon": 1.0,
+  "p_holm": 1.0,
+  "group": "luna",
+  "pair": "M0:M3"
+ },
+ {
+  "metric": "steps",
+  "n": 8,
+  "mean_M0": 6.5,
+  "ci_M0": [
+   5.5,
+   7.625
+  ],
+  "mean_M3": 4.25,
+  "ci_M3": [
+   3.5,
+   5.25
+  ],
+  "mean_diff": -2.25,
+  "ci_diff": [
+   -2.625,
+   -1.75
+  ],
+  "cliffs_delta": -0.734375,
+  "p_wilcoxon": 0.0078125,
+  "p_holm": 0.109375,
+  "group": "luna",
+  "pair": "M0:M3"
+ },
+ {
+  "metric": "proposals",
+  "n": 8,
+  "mean_M0": 6.125,
+  "ci_M0": [
+   5.375,
+   6.875
+  ],
+  "mean_M3": 10.0,
+  "ci_M3": [
+   8.75,
+   11.5
+  ],
+  "mean_diff": 3.875,
+  "ci_diff": [
+   3.25,
+   4.75
+  ],
+  "cliffs_delta": 0.953125,
+  "p_wilcoxon": 0.0078125,
+  "p_holm": 0.109375,
+  "group": "luna",
+  "pair": "M0:M3"
+ },
+ {
+  "metric": "tokens",
+  "n": 8,
+  "mean_M0": 12086.375,
+  "ci_M0": [
+   10257.615625,
+   14352.25
+  ],
+  "mean_M3": 12460.0,
+  "ci_M3": [
+   10417.25,
+   14535.125
+  ],
+  "mean_diff": 373.625,
+  "ci_diff": [
+   -768.271875,
+   1822.0
+  ],
+  "cliffs_delta": -0.0625,
+  "p_wilcoxon": 0.84375,
+  "p_holm": 1.0,
+  "group": "luna",
+  "pair": "M0:M3"
+ },
+ {
+  "metric": "gau",
+  "n": 8,
+  "mean_M0": 0.9593750000000001,
+  "ci_M0": [
+   0.95234375,
+   0.965625
+  ],
+  "mean_M3": 0.9734375,
+  "ci_M3": [
+   0.9671875000000001,
+   0.9781249999999999
+  ],
+  "mean_diff": 0.014062499999999964,
+  "ci_diff": [
+   0.010937499999999975,
+   0.016406249999999997
+  ],
+  "cliffs_delta": 0.734375,
+  "p_wilcoxon": 0.0078125,
+  "p_holm": 0.109375,
+  "group": "luna",
+  "pair": "M0:M3"
+ },
+ {
+  "metric": "success",
+  "n": 8,
+  "mean_M3": 1.0,
+  "ci_M3": [
+   1.0,
+   1.0
+  ],
+  "mean_M4": 1.0,
+  "ci_M4": [
+   1.0,
+   1.0
+  ],
+  "mean_diff": 0.0,
+  "ci_diff": [
+   0.0,
+   0.0
+  ],
+  "cliffs_delta": 0.0,
+  "p_wilcoxon": 1.0,
+  "p_holm": 1.0,
+  "group": "luna",
+  "pair": "M3:M4"
+ },
+ {
+  "metric": "executed_violations",
+  "n": 8,
+  "mean_M3": 0.0,
+  "ci_M3": [
+   0.0,
+   0.0
+  ],
+  "mean_M4": 0.0,
+  "ci_M4": [
+   0.0,
+   0.0
+  ],
+  "mean_diff": 0.0,
+  "ci_diff": [
+   0.0,
+   0.0
+  ],
+  "cliffs_delta": 0.0,
+  "p_wilcoxon": 1.0,
+  "p_holm": 1.0,
+  "group": "luna",
+  "pair": "M3:M4"
+ },
+ {
+  "metric": "attempted_violations",
+  "n": 8,
+  "mean_M3": 0.0,
+  "ci_M3": [
+   0.0,
+   0.0
+  ],
+  "mean_M4": 0.0,
+  "ci_M4": [
+   0.0,
+   0.0
+  ],
+  "mean_diff": 0.0,
+  "ci_diff": [
+   0.0,
+   0.0
+  ],
+  "cliffs_delta": 0.0,
+  "p_wilcoxon": 1.0,
+  "p_holm": 1.0,
+  "group": "luna",
+  "pair": "M3:M4"
+ },
+ {
+  "metric": "missed_approvals",
+  "n": 8,
+  "mean_M3": 0.0,
+  "ci_M3": [
+   0.0,
+   0.0
+  ],
+  "mean_M4": 0.0,
+  "ci_M4": [
+   0.0,
+   0.0
+  ],
+  "mean_diff": 0.0,
+  "ci_diff": [
+   0.0,
+   0.0
+  ],
+  "cliffs_delta": 0.0,
+  "p_wilcoxon": 1.0,
+  "p_holm": 1.0,
+  "group": "luna",
+  "pair": "M3:M4"
+ },
+ {
+  "metric": "false_alert",
+  "n": 8,
+  "mean_M3": 0.0,
+  "ci_M3": [
+   0.0,
+   0.0
+  ],
+  "mean_M4": 0.0,
+  "ci_M4": [
+   0.0,
+   0.0
+  ],
+  "mean_diff": 0.0,
+  "ci_diff": [
+   0.0,
+   0.0
+  ],
+  "cliffs_delta": 0.0,
+  "p_wilcoxon": 1.0,
+  "p_holm": 1.0,
+  "group": "luna",
+  "pair": "M3:M4"
+ },
+ {
+  "metric": "hidden_harm",
+  "n": 8,
+  "mean_M3": 0.0,
+  "ci_M3": [
+   0.0,
+   0.0
+  ],
+  "mean_M4": 0.0,
+  "ci_M4": [
+   0.0,
+   0.0
+  ],
+  "mean_diff": 0.0,
+  "ci_diff": [
+   0.0,
+   0.0
+  ],
+  "cliffs_delta": 0.0,
+  "p_wilcoxon": 1.0,
+  "p_holm": 1.0,
+  "group": "luna",
+  "pair": "M3:M4"
+ },
+ {
+  "metric": "silent_violation",
+  "n": 8,
+  "mean_M3": 0.0,
+  "ci_M3": [
+   0.0,
+   0.0
+  ],
+  "mean_M4": 0.0,
+  "ci_M4": [
+   0.0,
+   0.0
+  ],
+  "mean_diff": 0.0,
+  "ci_diff": [
+   0.0,
+   0.0
+  ],
+  "cliffs_delta": 0.0,
+  "p_wilcoxon": 1.0,
+  "p_holm": 1.0,
+  "group": "luna",
+  "pair": "M3:M4"
+ },
+ {
+  "metric": "tsc",
+  "n": 8,
+  "mean_M3": 1.0,
+  "ci_M3": [
+   1.0,
+   1.0
+  ],
+  "mean_M4": 1.0,
+  "ci_M4": [
+   1.0,
+   1.0
+  ],
+  "mean_diff": 0.0,
+  "ci_diff": [
+   0.0,
+   0.0
+  ],
+  "cliffs_delta": 0.0,
+  "p_wilcoxon": 1.0,
+  "p_holm": 1.0,
+  "group": "luna",
+  "pair": "M3:M4"
+ },
+ {
+  "metric": "hallucinated_refs",
+  "n": 8,
+  "mean_M3": 0.0,
+  "ci_M3": [
+   0.0,
+   0.0
+  ],
+  "mean_M4": 0.0,
+  "ci_M4": [
+   0.0,
+   0.0
+  ],
+  "mean_diff": 0.0,
+  "ci_diff": [
+   0.0,
+   0.0
+  ],
+  "cliffs_delta": 0.0,
+  "p_wilcoxon": 1.0,
+  "p_holm": 1.0,
+  "group": "luna",
+  "pair": "M3:M4"
+ },
+ {
+  "metric": "overseer_load",
+  "n": 8,
+  "mean_M3": 0.375,
+  "ci_M3": [
+   0.125,
+   0.75
+  ],
+  "mean_M4": 0.375,
+  "ci_M4": [
+   0.125,
+   0.75
+  ],
+  "mean_diff": 0.0,
+  "ci_diff": [
+   0.0,
+   0.0
+  ],
+  "cliffs_delta": 0.0,
+  "p_wilcoxon": 1.0,
+  "p_holm": 1.0,
+  "group": "luna",
+  "pair": "M3:M4"
+ },
+ {
+  "metric": "steps",
+  "n": 8,
+  "mean_M3": 4.25,
+  "ci_M3": [
+   3.5,
+   5.25
+  ],
+  "mean_M4": 4.25,
+  "ci_M4": [
+   3.5,
+   5.25
+  ],
+  "mean_diff": 0.0,
+  "ci_diff": [
+   0.0,
+   0.0
+  ],
+  "cliffs_delta": 0.0,
+  "p_wilcoxon": 1.0,
+  "p_holm": 1.0,
+  "group": "luna",
+  "pair": "M3:M4"
+ },
+ {
+  "metric": "proposals",
+  "n": 8,
+  "mean_M3": 10.0,
+  "ci_M3": [
+   8.75,
+   11.5
+  ],
+  "mean_M4": 10.0,
+  "ci_M4": [
+   8.75,
+   11.5
+  ],
+  "mean_diff": 0.0,
+  "ci_diff": [
+   0.0,
+   0.0
+  ],
+  "cliffs_delta": 0.0,
+  "p_wilcoxon": 1.0,
+  "p_holm": 1.0,
+  "group": "luna",
+  "pair": "M3:M4"
+ },
+ {
+  "metric": "tokens",
+  "n": 8,
+  "mean_M3": 12460.0,
+  "ci_M3": [
+   10417.25,
+   14535.125
+  ],
+  "mean_M4": 14825.375,
+  "ci_M4": [
+   12415.0,
+   17283.278125
+  ],
+  "mean_diff": 2365.375,
+  "ci_diff": [
+   2010.8687500000005,
+   2745.625
+  ],
+  "cliffs_delta": 0.40625,
+  "p_wilcoxon": 0.0078125,
+  "p_holm": 0.109375,
+  "group": "luna",
+  "pair": "M3:M4"
+ },
+ {
+  "metric": "gau",
+  "n": 8,
+  "mean_M3": 0.9734375,
+  "ci_M3": [
+   0.9671875000000001,
+   0.9781249999999999
+  ],
+  "mean_M4": 0.9734375,
+  "ci_M4": [
+   0.9671875000000001,
+   0.9781249999999999
+  ],
+  "mean_diff": 0.0,
+  "ci_diff": [
+   0.0,
+   0.0
+  ],
+  "cliffs_delta": 0.0,
+  "p_wilcoxon": 1.0,
+  "p_holm": 1.0,
+  "group": "luna",
+  "pair": "M3:M4"
+ },
+ {
+  "metric": "success",
+  "n": 8,
+  "mean_M2": 1.0,
+  "ci_M2": [
+   1.0,
+   1.0
+  ],
+  "mean_M3": 1.0,
+  "ci_M3": [
+   1.0,
+   1.0
+  ],
+  "mean_diff": 0.0,
+  "ci_diff": [
+   0.0,
+   0.0
+  ],
+  "cliffs_delta": 0.0,
+  "p_wilcoxon": 1.0,
+  "p_holm": 1.0,
+  "group": "sol",
+  "pair": "M2:M3"
+ },
+ {
+  "metric": "executed_violations",
+  "n": 8,
+  "mean_M2": 0.0,
+  "ci_M2": [
+   0.0,
+   0.0
+  ],
+  "mean_M3": 0.0,
+  "ci_M3": [
+   0.0,
+   0.0
+  ],
+  "mean_diff": 0.0,
+  "ci_diff": [
+   0.0,
+   0.0
+  ],
+  "cliffs_delta": 0.0,
+  "p_wilcoxon": 1.0,
+  "p_holm": 1.0,
+  "group": "sol",
+  "pair": "M2:M3"
+ },
+ {
+  "metric": "attempted_violations",
+  "n": 8,
+  "mean_M2": 0.0,
+  "ci_M2": [
+   0.0,
+   0.0
+  ],
+  "mean_M3": 0.0,
+  "ci_M3": [
+   0.0,
+   0.0
+  ],
+  "mean_diff": 0.0,
+  "ci_diff": [
+   0.0,
+   0.0
+  ],
+  "cliffs_delta": 0.0,
+  "p_wilcoxon": 1.0,
+  "p_holm": 1.0,
+  "group": "sol",
+  "pair": "M2:M3"
+ },
+ {
+  "metric": "missed_approvals",
+  "n": 8,
+  "mean_M2": 0.0,
+  "ci_M2": [
+   0.0,
+   0.0
+  ],
+  "mean_M3": 0.0,
+  "ci_M3": [
+   0.0,
+   0.0
+  ],
+  "mean_diff": 0.0,
+  "ci_diff": [
+   0.0,
+   0.0
+  ],
+  "cliffs_delta": 0.0,
+  "p_wilcoxon": 1.0,
+  "p_holm": 1.0,
+  "group": "sol",
+  "pair": "M2:M3"
+ },
+ {
+  "metric": "false_alert",
+  "n": 8,
+  "mean_M2": 0.0,
+  "ci_M2": [
+   0.0,
+   0.0
+  ],
+  "mean_M3": 0.0,
+  "ci_M3": [
+   0.0,
+   0.0
+  ],
+  "mean_diff": 0.0,
+  "ci_diff": [
+   0.0,
+   0.0
+  ],
+  "cliffs_delta": 0.0,
+  "p_wilcoxon": 1.0,
+  "p_holm": 1.0,
+  "group": "sol",
+  "pair": "M2:M3"
+ },
+ {
+  "metric": "hidden_harm",
+  "n": 8,
+  "mean_M2": 0.0,
+  "ci_M2": [
+   0.0,
+   0.0
+  ],
+  "mean_M3": 0.0,
+  "ci_M3": [
+   0.0,
+   0.0
+  ],
+  "mean_diff": 0.0,
+  "ci_diff": [
+   0.0,
+   0.0
+  ],
+  "cliffs_delta": 0.0,
+  "p_wilcoxon": 1.0,
+  "p_holm": 1.0,
+  "group": "sol",
+  "pair": "M2:M3"
+ },
+ {
+  "metric": "silent_violation",
+  "n": 8,
+  "mean_M2": 0.0,
+  "ci_M2": [
+   0.0,
+   0.0
+  ],
+  "mean_M3": 0.0,
+  "ci_M3": [
+   0.0,
+   0.0
+  ],
+  "mean_diff": 0.0,
+  "ci_diff": [
+   0.0,
+   0.0
+  ],
+  "cliffs_delta": 0.0,
+  "p_wilcoxon": 1.0,
+  "p_holm": 1.0,
+  "group": "sol",
+  "pair": "M2:M3"
+ },
+ {
+  "metric": "tsc",
+  "n": 8,
+  "mean_M2": 1.0,
+  "ci_M2": [
+   1.0,
+   1.0
+  ],
+  "mean_M3": 1.0,
+  "ci_M3": [
+   1.0,
+   1.0
+  ],
+  "mean_diff": 0.0,
+  "ci_diff": [
+   0.0,
+   0.0
+  ],
+  "cliffs_delta": 0.0,
+  "p_wilcoxon": 1.0,
+  "p_holm": 1.0,
+  "group": "sol",
+  "pair": "M2:M3"
+ },
+ {
+  "metric": "hallucinated_refs",
+  "n": 8,
+  "mean_M2": 0.0,
+  "ci_M2": [
+   0.0,
+   0.0
+  ],
+  "mean_M3": 0.0,
+  "ci_M3": [
+   0.0,
+   0.0
+  ],
+  "mean_diff": 0.0,
+  "ci_diff": [
+   0.0,
+   0.0
+  ],
+  "cliffs_delta": 0.0,
+  "p_wilcoxon": 1.0,
+  "p_holm": 1.0,
+  "group": "sol",
+  "pair": "M2:M3"
+ },
+ {
+  "metric": "overseer_load",
+  "n": 8,
+  "mean_M2": 0.375,
+  "ci_M2": [
+   0.125,
+   0.75
+  ],
+  "mean_M3": 0.375,
+  "ci_M3": [
+   0.125,
+   0.75
+  ],
+  "mean_diff": 0.0,
+  "ci_diff": [
+   0.0,
+   0.0
+  ],
+  "cliffs_delta": 0.0,
+  "p_wilcoxon": 1.0,
+  "p_holm": 1.0,
+  "group": "sol",
+  "pair": "M2:M3"
+ },
+ {
+  "metric": "steps",
+  "n": 8,
+  "mean_M2": 4.25,
+  "ci_M2": [
+   3.5,
+   5.25
+  ],
+  "mean_M3": 4.25,
+  "ci_M3": [
+   3.5,
+   5.25
+  ],
+  "mean_diff": 0.0,
+  "ci_diff": [
+   0.0,
+   0.0
+  ],
+  "cliffs_delta": 0.0,
+  "p_wilcoxon": 1.0,
+  "p_holm": 1.0,
+  "group": "sol",
+  "pair": "M2:M3"
+ },
+ {
+  "metric": "proposals",
+  "n": 8,
+  "mean_M2": 10.0,
+  "ci_M2": [
+   8.75,
+   11.5
+  ],
+  "mean_M3": 10.0,
+  "ci_M3": [
+   8.75,
+   11.5
+  ],
+  "mean_diff": 0.0,
+  "ci_diff": [
+   0.0,
+   0.0
+  ],
+  "cliffs_delta": 0.0,
+  "p_wilcoxon": 1.0,
+  "p_holm": 1.0,
+  "group": "sol",
+  "pair": "M2:M3"
+ },
+ {
+  "metric": "tokens",
+  "n": 8,
+  "mean_M2": 14825.375,
+  "ci_M2": [
+   12415.0,
+   17283.278125
+  ],
+  "mean_M3": 12460.0,
+  "ci_M3": [
+   10417.25,
+   14535.125
+  ],
+  "mean_diff": -2365.375,
+  "ci_diff": [
+   -2745.625,
+   -2010.8687500000092
+  ],
+  "cliffs_delta": -0.40625,
+  "p_wilcoxon": 0.0078125,
+  "p_holm": 0.109375,
+  "group": "sol",
+  "pair": "M2:M3"
+ },
+ {
+  "metric": "gau",
+  "n": 8,
+  "mean_M2": 0.9734375,
+  "ci_M2": [
+   0.9671875000000001,
+   0.9781249999999999
+  ],
+  "mean_M3": 0.9734375,
+  "ci_M3": [
+   0.9671875000000001,
+   0.9781249999999999
+  ],
+  "mean_diff": 0.0,
+  "ci_diff": [
+   0.0,
+   0.0
+  ],
+  "cliffs_delta": 0.0,
+  "p_wilcoxon": 1.0,
+  "p_holm": 1.0,
+  "group": "sol",
+  "pair": "M2:M3"
+ },
+ {
+  "metric": "success",
+  "n": 8,
+  "mean_M0": 1.0,
+  "ci_M0": [
+   1.0,
+   1.0
+  ],
+  "mean_M3": 1.0,
+  "ci_M3": [
+   1.0,
+   1.0
+  ],
+  "mean_diff": 0.0,
+  "ci_diff": [
+   0.0,
+   0.0
+  ],
+  "cliffs_delta": 0.0,
+  "p_wilcoxon": 1.0,
+  "p_holm": 1.0,
+  "group": "sol",
+  "pair": "M0:M3"
+ },
+ {
+  "metric": "executed_violations",
+  "n": 8,
+  "mean_M0": 0.0,
+  "ci_M0": [
+   0.0,
+   0.0
+  ],
+  "mean_M3": 0.0,
+  "ci_M3": [
+   0.0,
+   0.0
+  ],
+  "mean_diff": 0.0,
+  "ci_diff": [
+   0.0,
+   0.0
+  ],
+  "cliffs_delta": 0.0,
+  "p_wilcoxon": 1.0,
+  "p_holm": 1.0,
+  "group": "sol",
+  "pair": "M0:M3"
+ },
+ {
+  "metric": "attempted_violations",
+  "n": 8,
+  "mean_M0": 0.0,
+  "ci_M0": [
+   0.0,
+   0.0
+  ],
+  "mean_M3": 0.0,
+  "ci_M3": [
+   0.0,
+   0.0
+  ],
+  "mean_diff": 0.0,
+  "ci_diff": [
+   0.0,
+   0.0
+  ],
+  "cliffs_delta": 0.0,
+  "p_wilcoxon": 1.0,
+  "p_holm": 1.0,
+  "group": "sol",
+  "pair": "M0:M3"
+ },
+ {
+  "metric": "missed_approvals",
+  "n": 8,
+  "mean_M0": 0.0,
+  "ci_M0": [
+   0.0,
+   0.0
+  ],
+  "mean_M3": 0.0,
+  "ci_M3": [
+   0.0,
+   0.0
+  ],
+  "mean_diff": 0.0,
+  "ci_diff": [
+   0.0,
+   0.0
+  ],
+  "cliffs_delta": 0.0,
+  "p_wilcoxon": 1.0,
+  "p_holm": 1.0,
+  "group": "sol",
+  "pair": "M0:M3"
+ },
+ {
+  "metric": "false_alert",
+  "n": 8,
+  "mean_M0": 0.0,
+  "ci_M0": [
+   0.0,
+   0.0
+  ],
+  "mean_M3": 0.0,
+  "ci_M3": [
+   0.0,
+   0.0
+  ],
+  "mean_diff": 0.0,
+  "ci_diff": [
+   0.0,
+   0.0
+  ],
+  "cliffs_delta": 0.0,
+  "p_wilcoxon": 1.0,
+  "p_holm": 1.0,
+  "group": "sol",
+  "pair": "M0:M3"
+ },
+ {
+  "metric": "hidden_harm",
+  "n": 8,
+  "mean_M0": 0.0,
+  "ci_M0": [
+   0.0,
+   0.0
+  ],
+  "mean_M3": 0.0,
+  "ci_M3": [
+   0.0,
+   0.0
+  ],
+  "mean_diff": 0.0,
+  "ci_diff": [
+   0.0,
+   0.0
+  ],
+  "cliffs_delta": 0.0,
+  "p_wilcoxon": 1.0,
+  "p_holm": 1.0,
+  "group": "sol",
+  "pair": "M0:M3"
+ },
+ {
+  "metric": "silent_violation",
+  "n": 8,
+  "mean_M0": 0.0,
+  "ci_M0": [
+   0.0,
+   0.0
+  ],
+  "mean_M3": 0.0,
+  "ci_M3": [
+   0.0,
+   0.0
+  ],
+  "mean_diff": 0.0,
+  "ci_diff": [
+   0.0,
+   0.0
+  ],
+  "cliffs_delta": 0.0,
+  "p_wilcoxon": 1.0,
+  "p_holm": 1.0,
+  "group": "sol",
+  "pair": "M0:M3"
+ },
+ {
+  "metric": "tsc",
+  "n": 8,
+  "mean_M0": 1.0,
+  "ci_M0": [
+   1.0,
+   1.0
+  ],
+  "mean_M3": 1.0,
+  "ci_M3": [
+   1.0,
+   1.0
+  ],
+  "mean_diff": 0.0,
+  "ci_diff": [
+   0.0,
+   0.0
+  ],
+  "cliffs_delta": 0.0,
+  "p_wilcoxon": 1.0,
+  "p_holm": 1.0,
+  "group": "sol",
+  "pair": "M0:M3"
+ },
+ {
+  "metric": "hallucinated_refs",
+  "n": 8,
+  "mean_M0": 0.0,
+  "ci_M0": [
+   0.0,
+   0.0
+  ],
+  "mean_M3": 0.0,
+  "ci_M3": [
+   0.0,
+   0.0
+  ],
+  "mean_diff": 0.0,
+  "ci_diff": [
+   0.0,
+   0.0
+  ],
+  "cliffs_delta": 0.0,
+  "p_wilcoxon": 1.0,
+  "p_holm": 1.0,
+  "group": "sol",
+  "pair": "M0:M3"
+ },
+ {
+  "metric": "overseer_load",
+  "n": 8,
+  "mean_M0": 0.375,
+  "ci_M0": [
+   0.125,
+   0.75
+  ],
+  "mean_M3": 0.375,
+  "ci_M3": [
+   0.125,
+   0.75
+  ],
+  "mean_diff": 0.0,
+  "ci_diff": [
+   0.0,
+   0.0
+  ],
+  "cliffs_delta": 0.0,
+  "p_wilcoxon": 1.0,
+  "p_holm": 1.0,
+  "group": "sol",
+  "pair": "M0:M3"
+ },
+ {
+  "metric": "steps",
+  "n": 8,
+  "mean_M0": 6.5,
+  "ci_M0": [
+   5.5,
+   7.625
+  ],
+  "mean_M3": 4.25,
+  "ci_M3": [
+   3.5,
+   5.25
+  ],
+  "mean_diff": -2.25,
+  "ci_diff": [
+   -2.625,
+   -1.75
+  ],
+  "cliffs_delta": -0.734375,
+  "p_wilcoxon": 0.0078125,
+  "p_holm": 0.109375,
+  "group": "sol",
+  "pair": "M0:M3"
+ },
+ {
+  "metric": "proposals",
+  "n": 8,
+  "mean_M0": 6.125,
+  "ci_M0": [
+   5.375,
+   6.875
+  ],
+  "mean_M3": 10.0,
+  "ci_M3": [
+   8.75,
+   11.5
+  ],
+  "mean_diff": 3.875,
+  "ci_diff": [
+   3.25,
+   4.75
+  ],
+  "cliffs_delta": 0.953125,
+  "p_wilcoxon": 0.0078125,
+  "p_holm": 0.109375,
+  "group": "sol",
+  "pair": "M0:M3"
+ },
+ {
+  "metric": "tokens",
+  "n": 8,
+  "mean_M0": 12086.375,
+  "ci_M0": [
+   10257.615625,
+   14352.25
+  ],
+  "mean_M3": 12460.0,
+  "ci_M3": [
+   10417.25,
+   14535.125
+  ],
+  "mean_diff": 373.625,
+  "ci_diff": [
+   -768.271875,
+   1822.0
+  ],
+  "cliffs_delta": -0.0625,
+  "p_wilcoxon": 0.84375,
+  "p_holm": 1.0,
+  "group": "sol",
+  "pair": "M0:M3"
+ },
+ {
+  "metric": "gau",
+  "n": 8,
+  "mean_M0": 0.9593750000000001,
+  "ci_M0": [
+   0.95234375,
+   0.965625
+  ],
+  "mean_M3": 0.9734375,
+  "ci_M3": [
+   0.9671875000000001,
+   0.9781249999999999
+  ],
+  "mean_diff": 0.014062499999999964,
+  "ci_diff": [
+   0.010937499999999975,
+   0.016406249999999997
+  ],
+  "cliffs_delta": 0.734375,
+  "p_wilcoxon": 0.0078125,
+  "p_holm": 0.109375,
+  "group": "sol",
+  "pair": "M0:M3"
+ },
+ {
+  "metric": "success",
+  "n": 8,
+  "mean_M3": 1.0,
+  "ci_M3": [
+   1.0,
+   1.0
+  ],
+  "mean_M4": 1.0,
+  "ci_M4": [
+   1.0,
+   1.0
+  ],
+  "mean_diff": 0.0,
+  "ci_diff": [
+   0.0,
+   0.0
+  ],
+  "cliffs_delta": 0.0,
+  "p_wilcoxon": 1.0,
+  "p_holm": 1.0,
+  "group": "sol",
+  "pair": "M3:M4"
+ },
+ {
+  "metric": "executed_violations",
+  "n": 8,
+  "mean_M3": 0.0,
+  "ci_M3": [
+   0.0,
+   0.0
+  ],
+  "mean_M4": 0.0,
+  "ci_M4": [
+   0.0,
+   0.0
+  ],
+  "mean_diff": 0.0,
+  "ci_diff": [
+   0.0,
+   0.0
+  ],
+  "cliffs_delta": 0.0,
+  "p_wilcoxon": 1.0,
+  "p_holm": 1.0,
+  "group": "sol",
+  "pair": "M3:M4"
+ },
+ {
+  "metric": "attempted_violations",
+  "n": 8,
+  "mean_M3": 0.0,
+  "ci_M3": [
+   0.0,
+   0.0
+  ],
+  "mean_M4": 0.0,
+  "ci_M4": [
+   0.0,
+   0.0
+  ],
+  "mean_diff": 0.0,
+  "ci_diff": [
+   0.0,
+   0.0
+  ],
+  "cliffs_delta": 0.0,
+  "p_wilcoxon": 1.0,
+  "p_holm": 1.0,
+  "group": "sol",
+  "pair": "M3:M4"
+ },
+ {
+  "metric": "missed_approvals",
+  "n": 8,
+  "mean_M3": 0.0,
+  "ci_M3": [
+   0.0,
+   0.0
+  ],
+  "mean_M4": 0.0,
+  "ci_M4": [
+   0.0,
+   0.0
+  ],
+  "mean_diff": 0.0,
+  "ci_diff": [
+   0.0,
+   0.0
+  ],
+  "cliffs_delta": 0.0,
+  "p_wilcoxon": 1.0,
+  "p_holm": 1.0,
+  "group": "sol",
+  "pair": "M3:M4"
+ },
+ {
+  "metric": "false_alert",
+  "n": 8,
+  "mean_M3": 0.0,
+  "ci_M3": [
+   0.0,
+   0.0
+  ],
+  "mean_M4": 0.0,
+  "ci_M4": [
+   0.0,
+   0.0
+  ],
+  "mean_diff": 0.0,
+  "ci_diff": [
+   0.0,
+   0.0
+  ],
+  "cliffs_delta": 0.0,
+  "p_wilcoxon": 1.0,
+  "p_holm": 1.0,
+  "group": "sol",
+  "pair": "M3:M4"
+ },
+ {
+  "metric": "hidden_harm",
+  "n": 8,
+  "mean_M3": 0.0,
+  "ci_M3": [
+   0.0,
+   0.0
+  ],
+  "mean_M4": 0.0,
+  "ci_M4": [
+   0.0,
+   0.0
+  ],
+  "mean_diff": 0.0,
+  "ci_diff": [
+   0.0,
+   0.0
+  ],
+  "cliffs_delta": 0.0,
+  "p_wilcoxon": 1.0,
+  "p_holm": 1.0,
+  "group": "sol",
+  "pair": "M3:M4"
+ },
+ {
+  "metric": "silent_violation",
+  "n": 8,
+  "mean_M3": 0.0,
+  "ci_M3": [
+   0.0,
+   0.0
+  ],
+  "mean_M4": 0.0,
+  "ci_M4": [
+   0.0,
+   0.0
+  ],
+  "mean_diff": 0.0,
+  "ci_diff": [
+   0.0,
+   0.0
+  ],
+  "cliffs_delta": 0.0,
+  "p_wilcoxon": 1.0,
+  "p_holm": 1.0,
+  "group": "sol",
+  "pair": "M3:M4"
+ },
+ {
+  "metric": "tsc",
+  "n": 8,
+  "mean_M3": 1.0,
+  "ci_M3": [
+   1.0,
+   1.0
+  ],
+  "mean_M4": 1.0,
+  "ci_M4": [
+   1.0,
+   1.0
+  ],
+  "mean_diff": 0.0,
+  "ci_diff": [
+   0.0,
+   0.0
+  ],
+  "cliffs_delta": 0.0,
+  "p_wilcoxon": 1.0,
+  "p_holm": 1.0,
+  "group": "sol",
+  "pair": "M3:M4"
+ },
+ {
+  "metric": "hallucinated_refs",
+  "n": 8,
+  "mean_M3": 0.0,
+  "ci_M3": [
+   0.0,
+   0.0
+  ],
+  "mean_M4": 0.0,
+  "ci_M4": [
+   0.0,
+   0.0
+  ],
+  "mean_diff": 0.0,
+  "ci_diff": [
+   0.0,
+   0.0
+  ],
+  "cliffs_delta": 0.0,
+  "p_wilcoxon": 1.0,
+  "p_holm": 1.0,
+  "group": "sol",
+  "pair": "M3:M4"
+ },
+ {
+  "metric": "overseer_load",
+  "n": 8,
+  "mean_M3": 0.375,
+  "ci_M3": [
+   0.125,
+   0.75
+  ],
+  "mean_M4": 0.375,
+  "ci_M4": [
+   0.125,
+   0.75
+  ],
+  "mean_diff": 0.0,
+  "ci_diff": [
+   0.0,
+   0.0
+  ],
+  "cliffs_delta": 0.0,
+  "p_wilcoxon": 1.0,
+  "p_holm": 1.0,
+  "group": "sol",
+  "pair": "M3:M4"
+ },
+ {
+  "metric": "steps",
+  "n": 8,
+  "mean_M3": 4.25,
+  "ci_M3": [
+   3.5,
+   5.25
+  ],
+  "mean_M4": 4.25,
+  "ci_M4": [
+   3.5,
+   5.25
+  ],
+  "mean_diff": 0.0,
+  "ci_diff": [
+   0.0,
+   0.0
+  ],
+  "cliffs_delta": 0.0,
+  "p_wilcoxon": 1.0,
+  "p_holm": 1.0,
+  "group": "sol",
+  "pair": "M3:M4"
+ },
+ {
+  "metric": "proposals",
+  "n": 8,
+  "mean_M3": 10.0,
+  "ci_M3": [
+   8.75,
+   11.5
+  ],
+  "mean_M4": 10.0,
+  "ci_M4": [
+   8.75,
+   11.5
+  ],
+  "mean_diff": 0.0,
+  "ci_diff": [
+   0.0,
+   0.0
+  ],
+  "cliffs_delta": 0.0,
+  "p_wilcoxon": 1.0,
+  "p_holm": 1.0,
+  "group": "sol",
+  "pair": "M3:M4"
+ },
+ {
+  "metric": "tokens",
+  "n": 8,
+  "mean_M3": 12460.0,
+  "ci_M3": [
+   10417.25,
+   14535.125
+  ],
+  "mean_M4": 14825.375,
+  "ci_M4": [
+   12415.0,
+   17283.278125
+  ],
+  "mean_diff": 2365.375,
+  "ci_diff": [
+   2010.8687500000005,
+   2745.625
+  ],
+  "cliffs_delta": 0.40625,
+  "p_wilcoxon": 0.0078125,
+  "p_holm": 0.109375,
+  "group": "sol",
+  "pair": "M3:M4"
+ },
+ {
+  "metric": "gau",
+  "n": 8,
+  "mean_M3": 0.9734375,
+  "ci_M3": [
+   0.9671875000000001,
+   0.9781249999999999
+  ],
+  "mean_M4": 0.9734375,
+  "ci_M4": [
+   0.9671875000000001,
+   0.9781249999999999
+  ],
+  "mean_diff": 0.0,
+  "ci_diff": [
+   0.0,
+   0.0
+  ],
+  "cliffs_delta": 0.0,
+  "p_wilcoxon": 1.0,
+  "p_holm": 1.0,
+  "group": "sol",
+  "pair": "M3:M4"
+ }
+]

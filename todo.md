@@ -16,7 +16,7 @@ Done since the last update:
 - Architecture figure redrawn in TikZ with the MAPE-K functions tagged (monitor, analyze, plan, execute, knowledge), the evidence store and notes in the state box, the human overseer and the trust-adaptive governor in the loop.
 - RDC: removed from the paper's metrics. Argument tried: the ablation drop measures how many outcomes depend on a single role, which explains where strict rules cost success. It only restates the success conditions we wrote, so a reviewer would call it circular. The ablation script stays in the artifact as a testbed check.
 
-Still needed from the group: one person runs `scripts/run_pilot.sh` (or the Colab notebook), then `scripts/run_main_grid.sh`; sends back the zips named in RUNBOOK.md section 6. Later: repository privacy, HotCRP data.
+Still needed from the group: one person runs `scripts/run_pilot.sh` (or the Colab notebook), then `scripts/run_main_grid.sh`; sends back the filled `PILOT_REPORT.md` (template with example values: `PILOT_REPORT_TEMPLATE.md`; the script fills the numbers, four fields are typed by hand) and the zips named in RUNBOOK.md section 6. Later: repository privacy, HotCRP data.
 
 Next on my side without input: language pass over the draft; page numbers of the classic references; the results section as soon as the pilot files arrive.
 
@@ -202,8 +202,9 @@ Still open, in order:
 1. **Someone runs the pilot** (by Tue 30 Sep). What "running" means: a script on any computer with Python and internet calls the OpenAI API with your key and writes traces and tables. Nothing is installed or trained locally; no GPU. Two ways:
    - Laptop: unzip the repository, then in a terminal `export OPENAI_API_KEY=sk-...` and `bash scripts/run_pilot.sh`. Under an hour; a few USD. It ends with `outputs/llm_pilot.zip`.
    - Google Colab: open `notebooks/GASP_pilot_colab.ipynb`, run the cells top to bottom; the key goes into a password prompt and is not stored. Download `llm_pilot.zip` at the end.
-   Send me the zip. I read the tables and traces and say whether the prompts need changes before the main grid.
+   Send me the zip and the filled `PILOT_REPORT.md` (the script writes it; you add the pytest line, wall time, cost, and one line of impression per model). I read the tables and traces and say whether the prompts need changes before the main grid.
 2. **Someone runs the main grid** (start by Thu 2 Oct, done by Sun 5 Oct). `bash scripts/run_main_grid.sh` on a machine that can stay on for a few hours (a lab server or a cloud VM; a laptop works if it stays awake). About 110 USD for Sol and 6 USD for Luna at list prices. Then `bash scripts/run_main_grid.sh sens` for the Luna sweeps (about 2 USD). Send me `outputs/llm_results.zip`, `outputs/llm_sens.zip` (small) and `outputs/llm_traces.zip` (large).
 3. **Repository** (postponed; needed before submission on 23 Oct): private until notification, or an anonymous mirror.
 4. **HotCRP data** (postponed; by 10 Oct): names, affiliations, ORCIDs, corresponding e-mail.
 - 2026-09-25: models fixed (GPT-6 Sol, Luna); one-command pilot and grid scripts plus a Colab notebook; OpenAI backend adapts to parameter rejections; architecture figure in TikZ with MAPE-K tags; RDC removed from the paper; design choices confirmed by the group.
+- 2026-09-25 (later): pilot report template and generator (`PILOT_REPORT_TEMPLATE.md`, `gasp/experiments/pilot_report.py`), hooked into the pilot script and the Colab notebook; dry-run config `configs/llm_grid_dryrun.yaml` exercises the whole pilot path without a model.

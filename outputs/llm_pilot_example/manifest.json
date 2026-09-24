@@ -1,0 +1,104 @@
+{
+ "gasp_version": "2.0.0-dev",
+ "git_commit": "0498b74c8b38d9de7eb98f10a80a4a1ecc515e59",
+ "python": "3.11.15",
+ "platform": "Linux-6.18.44-fc-v37-x86_64-with-glibc2.39",
+ "timestamp": "2026-09-24T23:11:09",
+ "config": {
+  "domain": "smartcity",
+  "rule_set": "R2",
+  "max_steps": 16,
+  "repeats": 1,
+  "temperature": 0.7,
+  "modes": [
+   "M0",
+   "M1",
+   "M2",
+   "M3",
+   "M4"
+  ],
+  "models": [
+   {
+    "name": "sol",
+    "kind": "procedural-json"
+   },
+   {
+    "name": "luna",
+    "kind": "procedural-json"
+   }
+  ]
+ },
+ "modes": [
+  "M0",
+  "M1",
+  "M2",
+  "M3",
+  "M4"
+ ],
+ "repeats": 1,
+ "temperature": 0.7,
+ "n_scenarios": 8,
+ "n_episodes": 80,
+ "mode_definitions": {
+  "M0": {
+   "activation": "direct",
+   "guarded": false,
+   "include_rules": true,
+   "desc": "one agent, all tools, rules in prompt"
+  },
+  "M0g": {
+   "activation": "direct",
+   "guarded": true,
+   "include_rules": true,
+   "desc": "one agent, rules in prompt, guard"
+  },
+  "M1": {
+   "activation": "scenario",
+   "guarded": false,
+   "include_rules": false,
+   "desc": "roles, no rules anywhere"
+  },
+  "M2": {
+   "activation": "scenario",
+   "guarded": false,
+   "include_rules": true,
+   "desc": "roles, rules in prompts only"
+  },
+  "M3": {
+   "activation": "scenario",
+   "guarded": true,
+   "include_rules": false,
+   "desc": "roles, guard, rules not in prompts"
+  },
+  "M4": {
+   "activation": "scenario",
+   "guarded": true,
+   "include_rules": true,
+   "desc": "roles, rules in prompts and guard"
+  }
+ },
+ "system_prompt_hashes": {
+  "TrafficAgent:rules": "682b92d47aa22458",
+  "TrafficAgent:norules": "a2bdb71804802479",
+  "EmergencyAgent:rules": "32890fd847035465",
+  "EmergencyAgent:norules": "1bc6e0741b204af0",
+  "EnergyAgent:rules": "188e8e31708c9d6a",
+  "EnergyAgent:norules": "0c7bf0fe6d47fc38",
+  "WaterAgent:rules": "b7cdd80871e6cb83",
+  "WaterAgent:norules": "40b4519e89fec3fb",
+  "PollutionAgent:rules": "e8464adebf013156",
+  "PollutionAgent:norules": "26447274cc478a75",
+  "PublicTransportAgent:rules": "49cd7caf154b95ff",
+  "PublicTransportAgent:norules": "0e999a948e8890e7",
+  "PublicWorksAgent:rules": "2b82b11538636cc6",
+  "PublicWorksAgent:norules": "c98ee5d53717282a",
+  "CitizenCommsAgent:rules": "ec5e4d94782ffd89",
+  "CitizenCommsAgent:norules": "7b71f9e114439d77",
+  "DirectController:rules": "f59b5785caab3248",
+  "DirectController:norules": "7056614aa5c524f7"
+ },
+ "backend_adaptations": {
+  "sol": [],
+  "luna": []
+ }
+}
