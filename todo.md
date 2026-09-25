@@ -15,6 +15,8 @@ Since the last update:
 
 Waiting on the group: the pilot (report + zip), then the main grid. Later: repository privacy, HotCRP data.
 
+Added: `docs/TARGET_RESULTS.md`, the hypotheses as target ranges in the pilot report layout, with the reason for every threshold, the reading of each outcome, and the list of what is not adjusted after seeing results.
+
 Next on my side: nothing blocks the results section except the data. Meanwhile: a second look at the abstract and introduction once numbers exist; artifact description draft for the December artifact track.
 
 ## 1. Target and hard dates
@@ -206,3 +208,4 @@ Still open, in order:
 - 2026-09-25: models fixed (GPT-6 Sol, Luna); one-command pilot and grid scripts plus a Colab notebook; OpenAI backend adapts to parameter rejections; architecture figure in TikZ with MAPE-K tags; RDC removed from the paper; design choices confirmed by the group.
 - 2026-09-25 (later): pilot report template and generator (`PILOT_REPORT_TEMPLATE.md`, `gasp/experiments/pilot_report.py`), hooked into the pilot script and the Colab notebook; dry-run config `configs/llm_grid_dryrun.yaml` exercises the whole pilot path without a model.
 - 2026-09-25 (later): beginner guide to the pilot report; LLM tables, figure and failure catalogue generators wired into the paper build; language pass; bib check.
+- 2026-09-25: target results document (hypotheses as ranges, decision table per comparison, what stays fixed).
