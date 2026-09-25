@@ -50,3 +50,39 @@ def test_backend_adapts_parameters_to_the_server():
         assert PickyHandler.seen[-1]["response_format"] == {"type": "json_object"}
     finally:
         server.shutdown()
+
+
+class LocalReasoningHandler(BaseHTTPRequestHandler):
+    """A vLLM-like local server: no key, rejects an unknown request field, answers with thinking."""
+
+    seen = []
+
+    def do_POST(self):
+        body = json.loads(self.rfile.read(int(self.headers["Content-Length"])))
+        LocalReasoningHandler.seen.append((dict(self.headers), body))
+        if "reasoning_effort" in body:
+            self._reply(400, {"error": {"message": "Unrecognized request argument supplied: reasoning_effort"}})
+            return
+        self._reply(200, {"choices": [{"message": {"reasoning_content": "the road is blocked, so noop",
+                                                    "content": '<think>draft {"action_type": "query_evidence"}</think>{"action_type": "noop"}'}}],
+                          "usage": {"prompt_tokens": 30, "completion_tokens": 40}})
+
+    _reply = PickyHandler._reply
+    log_message = PickyHandler.log_message
+
+
+def test_backend_talks_to_a_local_server_without_a_key_and_drops_rejected_fields():
+    server = HTTPServer(("127.0.0.1", 0), LocalReasoningHandler)
+    port = server.server_address[1]
+    threading.Thread(target=server.serve_forever, daemon=True).start()
+    try:
+        backend = OpenAICompatibleBackend("glimmer", base_url=f"http://127.0.0.1:{port}/v1", api_key_env="NO_SUCH_KEY",
+                                          extra_body={"reasoning_effort": "low"}, timeout=30)
+        text, usage = backend.complete("sys", "user", 0.7, 800)
+        assert text.endswith('{"action_type": "noop"}') and usage == {"tokens_in": 30, "tokens_out": 40}
+        assert backend.adaptations == ["reasoning_effort dropped (server rejected it)"]
+        headers, body = LocalReasoningHandler.seen[-1]
+        assert "Authorization" not in headers and "reasoning_effort" not in body and body["max_tokens"] == 800
+        assert "reasoning_effort" in LocalReasoningHandler.seen[0][1]
+    finally:
+        server.shutdown()

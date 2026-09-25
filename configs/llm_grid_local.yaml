@@ -1,0 +1,22 @@
+# Open-weight model served locally with vLLM: the third model, run as a robustness check next to the two API models.
+# Same scenarios, rule set, horizon and temperature as configs/llm_grid.yaml; fewer modes and repeats because the
+# run is limited by one GPU, not by money. Modes M2 and M3 carry the primary comparison (prompted vs enforced
+# rules); M4 is included because it is the configuration one would deploy. Three repeats: 80 x 3 x 3 = 720 episodes.
+domain: smartcity
+rule_set: R2
+max_steps: 16
+repeats: 3
+temperature: 0.7
+modes: [M2, M3, M4]
+models:
+  - name: glimmer                              # Muse-Glimmer-30B-assistant (Meta, Apache 2.0, dense 30B)
+    kind: openai                               # vLLM speaks the OpenAI chat API
+    model: glimmer                             # must match --served-model-name in scripts/serve_local_model.sh
+    base_url: http://localhost:8000/v1         # vLLM on the same machine, or an ssh tunnel to it
+    api_key_env: LOCAL_API_KEY                 # leave unset: a local server needs no key, and none is sent
+    max_tokens: 800                            # room for the model's own reasoning before the JSON answer
+    timeout: 600                               # seconds per call; a busy local server is slower than the API
+    extra_body:
+      reasoning_effort: low                    # Glimmer has low/medium/high/xhigh. Low keeps answers short.
+                                               # If the server rejects the field, the backend drops it and
+                                               # records the adaptation in the manifest.

@@ -78,7 +78,8 @@ class OpenAICompatibleBackend:
     JSON mode is not supported.  Every adaptation is recorded in ``adaptations`` for the manifest."""
 
     def __init__(self, model: str, base_url: str = "https://api.openai.com/v1", api_key_env: str = "OPENAI_API_KEY",
-                 max_retries: int = 5, extra_headers: Optional[Dict[str, str]] = None, json_mode: bool = True):
+                 max_retries: int = 5, extra_headers: Optional[Dict[str, str]] = None, json_mode: bool = True,
+                 extra_body: Optional[Dict[str, Any]] = None, timeout: int = 180):
         import requests  # type: ignore
         self.requests = requests
         self.model = model
@@ -88,6 +89,11 @@ class OpenAICompatibleBackend:
         self.max_retries = max_retries
         self.extra_headers = extra_headers or {}
         self.json_mode = json_mode
+        # Extra request fields for a particular server or model, e.g. {"reasoning_effort": "low"} or
+        # {"chat_template_kwargs": {"enable_thinking": false}} for a local vLLM server. A field the server
+        # rejects is dropped on the first 400 and recorded in ``adaptations``.
+        self.extra_body: Dict[str, Any] = dict(extra_body or {})
+        self.timeout = timeout
         self.token_param = "max_tokens"
         self.send_temperature = True
         self.adaptations: List[str] = []
@@ -99,6 +105,7 @@ class OpenAICompatibleBackend:
             body["temperature"] = temperature
         if self.json_mode:
             body["response_format"] = {"type": "json_object"}
+        body.update(self.extra_body)
         return body
 
     def _adapt(self, message: str) -> bool:
@@ -117,6 +124,11 @@ class OpenAICompatibleBackend:
             self.json_mode = False
             self.adaptations.append("response_format dropped (no JSON mode)")
             return True
+        for key in list(self.extra_body):
+            if key.lower() in msg:
+                del self.extra_body[key]
+                self.adaptations.append(f"{key} dropped (server rejected it)")
+                return True
         return False
 
     def complete(self, system: str, user: str, temperature: float, max_tokens: int) -> Tuple[str, Dict[str, int]]:
@@ -128,14 +140,16 @@ class OpenAICompatibleBackend:
             r = None
             try:
                 r = self.requests.post(f"{self.base_url}/chat/completions", headers=headers,
-                                       json=self._body(system, user, temperature, max_tokens), timeout=180)
+                                       json=self._body(system, user, temperature, max_tokens), timeout=self.timeout)
                 if r.status_code == 400 and self._adapt(r.text):
                     continue   # retry at once with the adapted request
                 if r.status_code >= 500 or r.status_code == 429:
                     raise RuntimeError(f"status {r.status_code}")
                 r.raise_for_status()
                 data = r.json()
-                text = data["choices"][0]["message"]["content"] or ""
+                # Reasoning models served by vLLM put their thinking in ``reasoning_content`` and the answer in
+                # ``content``; only the answer is parsed. Thinking left inline is removed by parse_action.
+                text = data["choices"][0]["message"].get("content") or ""
                 u = data.get("usage", {})
                 return text, {"tokens_in": int(u.get("prompt_tokens", 0)), "tokens_out": int(u.get("completion_tokens", 0))}
             except Exception as exc:
@@ -198,7 +212,9 @@ class ProceduralJSONBackend:
 
 
 def make_backend(spec: Dict[str, Any], domain=None, rules: Optional[RuleSet] = None) -> ChatBackend:
-    """spec: {"kind": "anthropic"|"openai"|"mock", "model": ..., "base_url": ..., "api_key_env": ...}"""
+    """spec: {"kind": "anthropic"|"openai"|"mock", "model": ..., "base_url": ..., "api_key_env": ...,
+    "extra_body": {...}, "timeout": seconds}. ``kind: openai`` also covers local servers (vLLM, llama.cpp,
+    Ollama) through ``base_url``; without a key in the environment no Authorization header is sent."""
 
     kind = spec.get("kind", "openai")
     if kind == "anthropic":
@@ -206,7 +222,8 @@ def make_backend(spec: Dict[str, Any], domain=None, rules: Optional[RuleSet] = N
     if kind == "openai":
         return OpenAICompatibleBackend(spec["model"], spec.get("base_url", "https://api.openai.com/v1"),
                                        spec.get("api_key_env", "OPENAI_API_KEY"), extra_headers=spec.get("headers"),
-                                       json_mode=bool(spec.get("json_mode", True)))
+                                       json_mode=bool(spec.get("json_mode", True)), extra_body=spec.get("extra_body"),
+                                       timeout=int(spec.get("timeout", 180)))
     if kind == "mock":
         return MockBackend(spec.get("answers", ['{"action_type": "noop"}']))
     if kind == "procedural-json":
@@ -267,16 +284,47 @@ def user_prompt(observation: Dict[str, Any]) -> str:
 
 
 _JSON_RE = re.compile(r"\{.*\}", re.DOTALL)
+_THINK_RE = re.compile(r"<think>.*?</think>", re.DOTALL)
+_FENCE_RE = re.compile(r"```(?:json)?", re.IGNORECASE)
 
 
-def parse_action(text: str, role: str, allowed: List[ActionType], default_target: str) -> Tuple[Optional[TypedAction], Optional[str]]:
-    m = _JSON_RE.search(text or "")
+def extract_json_object(text: str) -> Tuple[Optional[Any], Optional[str]]:
+    """The JSON object in a model answer. Thinking blocks and code fences are removed first; if the whole
+    span between the first and the last brace is not valid JSON (thinking left inline, several objects, a
+    draft before the answer), the last object that parses and names an action_type wins."""
+
+    text = _THINK_RE.sub("", text or "")
+    if "<think>" in text:                      # unterminated thinking: the answer, if any, comes after it
+        text = text.split("<think>")[-1]
+    text = _FENCE_RE.sub("", text)
+    m = _JSON_RE.search(text)
     if not m:
         return None, "no JSON object found"
     try:
-        data = json.loads(m.group(0))
-    except json.JSONDecodeError as exc:
-        return None, f"invalid JSON: {exc}"
+        return json.loads(m.group(0)), None
+    except json.JSONDecodeError as first_error:
+        decoder = json.JSONDecoder()
+        found: List[Any] = []
+        pos = text.find("{")
+        while pos != -1:
+            try:
+                obj, end = decoder.raw_decode(text, pos)
+                found.append(obj)
+                pos = text.find("{", end)
+            except json.JSONDecodeError:
+                pos = text.find("{", pos + 1)
+        with_action = [o for o in found if isinstance(o, dict) and "action_type" in o]
+        if with_action:
+            return with_action[-1], None
+        if found:
+            return found[-1], None
+        return None, f"invalid JSON: {first_error}"
+
+
+def parse_action(text: str, role: str, allowed: List[ActionType], default_target: str) -> Tuple[Optional[TypedAction], Optional[str]]:
+    data, error = extract_json_object(text)
+    if error:
+        return None, error
     if not isinstance(data, dict):
         return None, "JSON is not an object"
     at_raw = str(data.get("action_type", "")).strip()

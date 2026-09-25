@@ -17,6 +17,9 @@ bash scripts/run_main_grid.sh         # a few hours, about 120 USD in total
 
 Send back `outputs/llm_results.zip` and `outputs/llm_traces.zip`. Nothing runs locally, no GPU, nothing to install beyond Python.
 
+Optional, if the lab GPU is free: start vLLM with `bash scripts/serve_local_model.sh` on the server, then `bash scripts/run_local_ablation.sh`.
+That adds an open-weight 30B model (Glimmer) as a third model; no key, no cost, a few hours. RUNBOOK.md section 7.
+
 ## What to check in the pilot table
 
 - Guard on (M3, M4): `executed_violations` and `false_alert` are 0.00. Anything else is a bug; tell me.

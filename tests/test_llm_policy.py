@@ -12,6 +12,19 @@ def test_parse_action_accepts_valid_json_with_noise():
     assert err is None and a.action_type == ActionType.DISPATCH_AMBULANCE and a.evidence_refs == ["E1"] and a.needs_approval_prob == 0.1
 
 
+def test_parse_action_skips_thinking_drafts_and_fences():
+    # A local reasoning model: thinking left inline (with a JSON draft in it), then the answer in a code fence.
+    text = ('<think>Maybe {"action_type": "noop"}? No, the route is blocked.</think>\n'
+            '```json\n{"action_type": "reroute_traffic", "target": "r1", "evidence_refs": ["E2"], "needs_approval_prob": 0.2}\n```')
+    a, err = parse_action(text, "TrafficAgent", [ActionType.REROUTE_TRAFFIC, ActionType.NOOP], "x")
+    assert err is None and a.action_type == ActionType.REROUTE_TRAFFIC and a.evidence_refs == ["E2"]
+    # Unterminated thinking followed by the answer; and thinking with no answer at all.
+    a, err = parse_action('<think>hmm {"a": 1}\n{"action_type": "noop"}', "TrafficAgent", [ActionType.NOOP], "x")
+    assert err is None and a.action_type == ActionType.NOOP
+    a, err = parse_action("<think>still thinking about {braces", "TrafficAgent", [ActionType.NOOP], "x")
+    assert a is None
+
+
 def test_parse_action_rejects_disallowed_and_garbage():
     a, err = parse_action('{"action_type": "restore_power"}', "TrafficAgent", [ActionType.REROUTE_TRAFFIC], "x")
     assert a is None and "not allowed" in err

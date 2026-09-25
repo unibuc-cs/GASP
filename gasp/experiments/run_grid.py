@@ -57,6 +57,9 @@ def main() -> None:
     ap.add_argument("--overseer", choices=["scenario", "always", "never"], default="scenario",
                     help="force the overseer available or unavailable in every scenario (sensitivity runs)")
     ap.add_argument("--tag", type=str, default=None, help="label stored with every row (e.g. R3-never)")
+    ap.add_argument("--shard", type=str, default=None,
+                    help="K/N: run only every N-th scenario starting at K (0-based), to spread one mode over N processes "
+                         "against a local server that batches requests; give each shard its own --out")
     args = ap.parse_args()
 
     cfg = yaml.safe_load(args.config.read_text(encoding="utf-8"))
@@ -84,6 +87,11 @@ def main() -> None:
                 kept.append(sc)
                 per_fam[sc.family] = per_fam.get(sc.family, 0) + 1
         scenarios = kept
+    if args.shard:
+        k, n = (int(x) for x in args.shard.split("/"))
+        if not 0 <= k < n:
+            raise SystemExit(f"--shard {args.shard}: K must be between 0 and N-1")
+        scenarios = scenarios[k::n]
 
     out = args.out
     trace_dir = out / "traces"
@@ -104,8 +112,12 @@ def main() -> None:
             backend_notes[model_spec["name"]] = backend
             for mode in modes:
                 m = MODES[mode]
-                policy = LLMRolePolicy(domain, backend, rules, include_rules=m["include_rules"], temperature=temperature,
-                                       cache_dir=(out / "cache") if temperature == 0 else None)
+                # A model entry may override the grid's temperature and the answer length (reasoning models
+                # need room for their thinking before the JSON); both are recorded in the manifest's config.
+                model_temperature = float(model_spec.get("temperature", temperature))
+                policy = LLMRolePolicy(domain, backend, rules, include_rules=m["include_rules"], temperature=model_temperature,
+                                       max_tokens=int(model_spec.get("max_tokens", 400)),
+                                       cache_dir=(out / "cache") if model_temperature == 0 else None)
                 env_cfg = EnvConfig(activation=m["activation"], guarded=m["guarded"], rule_set=rule_set_name,
                                     mode_name=mode, max_steps=max_steps, overseer_available=overseer_override)
                 for sc in scenarios:
@@ -139,6 +151,7 @@ def main() -> None:
                 system_prompt(domain, role, rules, include).encode("utf-8")).hexdigest()[:16]
     (out / "manifest.json").write_text(json.dumps(manifest({
         "config": cfg, "modes": modes, "repeats": repeats, "temperature": temperature, "n_scenarios": len(scenarios),
+        "shard": args.shard,
         "n_episodes": len(rows), "mode_definitions": MODES, "system_prompt_hashes": prompt_hashes,
         "backend_adaptations": {name: getattr(b, "adaptations", []) for name, b in backend_notes.items()},
     }), indent=1), encoding="utf-8")

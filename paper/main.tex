@@ -140,6 +140,9 @@ Three policy classes drive the roles. \emph{LLM roles}: one chat completion per 
 \paragraph{Modes}
 M0: one agent with every tool and the rules in its prompt. M1: roles without rules anywhere. M2: roles with the rules in their prompts only. M3: roles with the guard and no rules in their prompts. M4: rules in prompts and the guard. M2 against M3 isolates prompted from enforced governance; M0 against M3 a monolith from a governed society; M3 against M4 whether knowing the rules reduces the friction of enforcement. The deterministic rows D0 to D6 mirror these modes with the naive and procedural brains.
 
+\paragraph{Models}
+LLM roles run on two API models from one provider, GPT-6 Sol and GPT-6 Luna, at temperature 0.7 with five repeats per scenario in every mode, and on one open-weight model, Muse-Glimmer-30B, served locally with vLLM, three repeats on M2 to M4. \todo{keep only the runs that were done; Glimmer is the check that the pattern does not depend on the provider.} Prompts, sampling settings and the served model names are in the artifact's manifests.
+
 \paragraph{Metrics}
 All metrics come from trace records and final flags. Per episode: success; steps; proposals (role actions other than noop); attempted and executed violations, by rule; missed approvals (executed actions that required approval and had none); escalations and \emph{overseer load}, the number of distinct approval requests that reached the human, with the share that did not need approval; escalation precision and recall over the actions that required approval; the Brier score of $q$ against the rule's label; \emph{trace support coverage} (TSC), the share of executed high-impact actions with verified supporting evidence; \emph{hallucinated references}, the share of cited ids that do not exist or are not visible to the role; false alert and hidden harm as flags; \emph{silent violation}, success together with at least one executed violation; and governance-adjusted utility
 \[
@@ -177,7 +180,7 @@ Under R3, where every high-risk action needs approval, the guard costs success: 
 \IfFileExists{tables/table_llm_main.tex}{%
 \begin{table*}[t]
 \centering
-\caption{LLM-driven roles: means over 80 scenarios and five repeats per model and mode, rule set R2. Columns as in Table~\ref{tab:main}; Halluc.\ is the share of cited evidence ids that do not exist or were not visible to the role; Format fail.\ the number of answers per episode that were not valid JSON twice in a row.}
+\caption{LLM-driven roles: means over 80 scenarios per model and mode, rule set R2; five repeats for the API models, three for the open-weight model, which ran M2 to M4 only. Columns as in Table~\ref{tab:main}; Halluc.\ is the share of cited evidence ids that do not exist or were not visible to the role; Format fail.\ the number of answers per episode that were not valid JSON twice in a row.}
 \label{tab:llm}
 \scriptsize
 \setlength{\tabcolsep}{3pt}
@@ -245,7 +248,7 @@ Instantiating the framework for a new system takes four artefacts: an action cat
 The approval step looks like a bottleneck and, under strict rules and an unavailable human, it is: success drops to a half. The adaptive governor shows what removing it costs. The rules capture what the designers foresaw; the human catches the rest, and no amount of compliance with the rules predicts the rest. Systems that want to reduce human load should reduce the \emph{unnecessary} share of approval requests, which the trace measures, rather than delegate on trust.
 
 \paragraph{Threats to validity}
-\emph{Construct}: the testbed is symbolic and its rules are ours; hidden context is a coin flip with a fixed rate, and its harm is binary. The metrics measure conformance to the given rules, not the quality of the rules. \emph{Internal}: the naive roles' reactions to the guard were written by us; a different reactive policy would change the cost side, not the violation side. LLM nondeterminism is handled by repeats and paired tests; prompts are fixed and published. \emph{External}: two domains that we built to correspond, two models from one provider, a deterministic human. The framework transfers when the four artefacts above can be written; whether the numbers transfer is an open question. \emph{Conclusion}: all comparisons are paired, corrected for multiple testing and reported with intervals; seeds, scenario sets and manifests are in the artifact.
+\emph{Construct}: the testbed is symbolic and its rules are ours; hidden context is a coin flip with a fixed rate, and its harm is binary. The metrics measure conformance to the given rules, not the quality of the rules. \emph{Internal}: the naive roles' reactions to the guard were written by us; a different reactive policy would change the cost side, not the violation side. LLM nondeterminism is handled by repeats and paired tests; prompts are fixed and published. \emph{External}: two domains that we built to correspond, two API models from one provider and one open-weight model \todo{drop the open-weight model if the Glimmer run is not done}, a deterministic human. The framework transfers when the four artefacts above can be written; whether the numbers transfer is an open question. \emph{Conclusion}: all comparisons are paired, corrected for multiple testing and reported with intervals; seeds, scenario sets and manifests are in the artifact.
 
 %=====================================================================
 \section{Conclusion}

@@ -12,6 +12,7 @@ Three ways to run, pick one:
 | `bash scripts/run_pilot.sh` | any laptop with Python 3.10+ | the pilot (under an hour, a few USD) |
 | `notebooks/GASP_pilot_colab.ipynb` | Google Colab, no installation | the pilot, if installing Python is a hassle |
 | `bash scripts/run_main_grid.sh` | a machine that can stay on for hours (a lab server, a cloud VM) | the main grid and the sensitivity sweeps |
+| `bash scripts/run_local_ablation.sh` | the lab GPU server, vLLM, over ssh | optional: an open-weight 30B model as third model (section 7) |
 
 Prices at list rates: GPT-6 Sol 2 / 10 USD per million input / output tokens; GPT-6 Luna 0.10 / 0.50. Main grid, five
 repeats: about 40M tokens per model, so roughly 110 USD for Sol and 6 USD for Luna. Pilot: a few USD in total.
@@ -22,7 +23,7 @@ repeats: about 40M tokens per model, so roughly 110 USD for Sol and 6 USD for Lu
 git checkout seams2027                     # or unzip GASP-seams2027.zip
 export OPENAI_API_KEY=sk-...               # your key; never commit it
 python -m pip install -r requirements.txt
-python -m pytest tests -q                  # expect: 44 passed
+python -m pytest tests -q                  # expect: 47 passed
 ```
 
 `configs/llm_grid.yaml` already names the two models. Leave `temperature: 0.7`, `repeats: 5`, `max_steps: 16`,
@@ -113,7 +114,34 @@ Small files (a few MB), by mail or in the repo:
 
 Large: `outputs/llm/*/traces/` (zip it; a few hundred MB). Needed for the worked example, the failure catalogue and the hallucinated-reference examples.
 
-## 7. If something goes wrong
+## 7. Optional: an open-weight model on the lab GPU (vLLM over ssh)
+
+A third model that is not from OpenAI: Muse-Glimmer-30B-assistant (Meta, Apache 2.0, dense 30B, on Hugging Face). It runs on
+the group's GPU server under vLLM: no key, no cost, time is set by the GPU. Same scenarios and rule set; modes M2, M3, M4;
+three repeats, 720 episodes, about 12k calls.
+
+```bash
+ssh user@gpu-server
+tmux new -s vllm
+pip install vllm                                  # once
+bash scripts/serve_local_model.sh                 # header of the script: the variant that fits the card (80 GB, 2 x 40 GB, 48 GB, 24 GB)
+# Ctrl-b c opens a second window in tmux
+bash scripts/run_local_ablation.sh pilot          # 24 episodes, 10-30 minutes; check outputs/llm_local_pilot/table_llm.md
+bash scripts/run_local_ablation.sh                # 720 episodes: a few hours on an 80 GB card, a night on a 24 GB one; resumable
+```
+
+Ctrl-b d detaches; server and runs continue. The first start downloads about 60 GB of weights; set `HF_HOME` to a disk with room.
+To run from a laptop instead, open a tunnel with `ssh -N -L 8000:localhost:8000 user@gpu-server` and run the same two commands there.
+
+Checks are the pilot's: formatting failures under 1 per episode, success in M2 above 0.3, executed violations 0.00 under the guard.
+Glimmer reasons before it answers; the config asks for its "low" reasoning level and allows 800 answer tokens. If formatting
+failures are high, open a trace: an answer cut off before the JSON means raise `max_tokens` in `configs/llm_grid_local.yaml`.
+The model also takes images; our requests are text only, which is fine.
+
+Hand back `outputs/llm_local.zip` and `outputs/llm_local_traces.zip`. Results sit in `outputs/llm/local_*`, where the paper
+build picks them up together with the API results.
+
+## 8. If something goes wrong
 
 - 429 or 5xx from the API: the backend retries five times with backoff; if a run dies, restart the same command.
 - A model never returns valid JSON: lower `temperature` to 0.3 in the config for that model and rerun the pilot; if it still fails, replace the model.

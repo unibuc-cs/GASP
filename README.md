@@ -30,7 +30,8 @@ Two domains implement the same interface (`gasp/domains/base.py`): `smartcity` (
 (software incident response). `--domain ops` on `reproduce.py` runs everything for the second domain; the guard,
 traces, metrics, statistics and both deterministic brains are shared. See `RUNBOOK.md` for the LLM experiments
 and `paper/` for the SEAMS draft (`make` builds it). `scripts/run_pilot.sh`, `scripts/run_main_grid.sh` and
-`notebooks/GASP_pilot_colab.ipynb` run the LLM experiments with an OpenAI key in the environment.
+`notebooks/GASP_pilot_colab.ipynb` run the LLM experiments with an OpenAI key in the environment;
+`scripts/serve_local_model.sh` and `scripts/run_local_ablation.sh` add an open-weight model served locally with vLLM.
 
 ---
 
