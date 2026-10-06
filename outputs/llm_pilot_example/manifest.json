@@ -1,9 +1,9 @@
 {
- "gasp_version": "2.0.0-dev",
- "git_commit": "0498b74c8b38d9de7eb98f10a80a4a1ecc515e59",
+ "gasp_version": "2.0.0",
+ "git_commit": "42e4bc9b42228998b56b056270afa61555ff3f6f",
  "python": "3.11.15",
- "platform": "Linux-6.18.44-fc-v37-x86_64-with-glibc2.39",
- "timestamp": "2026-09-24T23:11:09",
+ "platform": "Linux-6.18.44-fc-v70-x86_64-with-glibc2.39",
+ "timestamp": "2026-10-06T19:19:17",
  "config": {
   "domain": "smartcity",
   "rule_set": "R2",
@@ -38,6 +38,7 @@
  "repeats": 1,
  "temperature": 0.7,
  "n_scenarios": 8,
+ "shard": null,
  "n_episodes": 80,
  "mode_definitions": {
   "M0": {

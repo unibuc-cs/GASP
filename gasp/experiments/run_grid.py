@@ -38,7 +38,7 @@ MODES: Dict[str, Dict[str, Any]] = {
 }
 
 TABLE_COLUMNS = ["success", "steps", "proposals", "attempted_violations", "executed_violations", "missed_approvals",
-                 "overseer_load", "tsc", "hallucinated_refs", "false_alert", "silent_violation_rate", "brier",
+                 "overseer_load", "tsc", "hallucinated_refs", "false_alert", "hidden_harm", "silent_violation_rate", "brier",
                  "formatting_failures", "tokens", "gau"]
 
 

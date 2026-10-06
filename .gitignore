@@ -10,3 +10,11 @@ dist/
 outputs/paper/
 outputs/llm/
 outputs/llm_pilot_example/traces/
+paper/main.pdf
+paper/*.aux
+paper/*.bbl
+paper/*.blg
+paper/*.log
+paper/*.out
+paper/*.fdb_latexmk
+paper/*.fls
