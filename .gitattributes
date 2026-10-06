@@ -1,0 +1,7 @@
+# Keep LF everywhere: the shell scripts run on Linux servers and Colab, where CRLF breaks them.
+* text=auto eol=lf
+*.csv text eol=crlf
+*.pdf binary
+*.png binary
+*.pt binary
+*.ipynb text eol=lf
