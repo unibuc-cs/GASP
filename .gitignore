@@ -10,7 +10,6 @@ dist/
 outputs/paper/
 outputs/llm/
 outputs/llm_pilot_example/traces/
-paper/main.pdf
 paper/*.aux
 paper/*.bbl
 paper/*.blg
