@@ -2,7 +2,7 @@
 
 ## 0. Status (6 October 2026)
 
-Branch `seams2027`, 45 tests pass, `make` in `paper/` builds the 8 page draft. Code, tests, scripts, documents and
+Branch `main`, 45 tests pass, `make` in `paper/` builds the 8 page draft. Code, tests, scripts, documents and
 every part of the paper that does not depend on model runs are done. Nothing from the model runs has arrived yet: not
 the pilot, not the main grid. Seventeen days to the deadline; the model runs are the critical path.
 
@@ -42,7 +42,6 @@ Group:
 - [ ] Repository private, or anonymous mirror, before 23 Oct.
 - [ ] HotCRP: names, affiliations, ORCIDs, corresponding e-mail, by 16 Oct. Create the submission early.
 - [ ] Decide on arXiv: nothing before notification, or a preprint with a different title.
-- [ ] Push branch `seams2027` (from the zip: `git push -u origin seams2027`).
 
 Mine, once data arrives:
 
@@ -80,4 +79,4 @@ Optional, if time and budget allow: LLM roles in the ops domain (about 6 USD on 
 - 23 Sep: ESEM reviews analyzed; the public repository does not reproduce Table 3; venue decision.
 - 24 Sep: `gasp/` v2 built on branch `seams2027` (environment, rules, guard, policies, LLM backends, metrics, statistics, reproduction script); second domain on a shared base; paper prose for every section except the LLM results; runbook and estimate mode (about 4,100 calls and 5.5M tokens per repeat); hidden context, soft and hard approvals, trust-adaptive governor and its sweep; worked example; prompt compaction (about 950 tokens per call). Findings while building: parallel roles make "steps" a poor cost measure, so proposals are reported too; the communication role needs a verified path to public facts (forwarded verification requests); a public message needs every citation verified; the guard must use catalogue risk levels, not the level a policy claims.
 - 25 Sep: models fixed; pilot and grid scripts, Colab notebook, backend adaptation to rejected parameters; architecture figure; pilot report generator and example; LLM tables, figure and failure catalogue wired into the paper build; language pass; target results; one-page entry document; Glimmer 30B on vLLM over ssh (config, scripts, parser and backend changes, shard option).
-- 6 Oct: documents restructured: one entry point (`README.md`), one results guide, one background note; legacy prototype moved to `legacy/`; hidden harm added to the LLM table and the pilot checks; plan rewritten to the current state. No pilot received yet.
+- 6 Oct: work moves to `main` (the group pushed the branch; its one extra commit, the tracked PDF, is kept). Documents restructured: one entry point (`README.md`), one results guide, one background note; legacy prototype moved to `legacy/`; hidden harm added to the LLM table and the pilot checks; plan rewritten to the current state. No pilot received yet.

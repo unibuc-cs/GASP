@@ -20,7 +20,7 @@ repeats: about 40M tokens per model, so roughly 110 USD for Sol and 6 USD for Lu
 ## 1. Setup (10 minutes)
 
 ```bash
-git checkout seams2027                     # or unzip GASP-seams2027.zip
+git clone https://github.com/unibuc-cs/GASP.git && cd GASP     # or unzip the zip
 export OPENAI_API_KEY=sk-...               # your key; never commit it
 python -m pip install -r requirements.txt
 python -m pytest tests -q                  # expect: 45 passed
