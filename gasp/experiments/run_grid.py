@@ -57,6 +57,9 @@ def main() -> None:
     ap.add_argument("--overseer", choices=["scenario", "always", "never"], default="scenario",
                     help="force the overseer available or unavailable in every scenario (sensitivity runs)")
     ap.add_argument("--tag", type=str, default=None, help="label stored with every row (e.g. R3-never)")
+    ap.add_argument("--base-url", type=str, default=None,
+                    help="send every OpenAI-compatible model in the config to this server (one vLLM server per GPU: "
+                         "each process gets its own); recorded in the manifest")
     ap.add_argument("--shard", type=str, default=None,
                     help="K/N: run only every N-th scenario starting at K (0-based), to spread one mode over N processes "
                          "against a local server that batches requests; give each shard its own --out")
@@ -75,6 +78,10 @@ def main() -> None:
     if args.models:
         wanted = {m.strip() for m in args.models.split(",")}
         models = [m for m in models if m["name"] in wanted]
+    if args.base_url:
+        for m in models:
+            if m.get("kind", "openai") == "openai":
+                m["base_url"] = args.base_url
     if args.estimate:
         models = [{"name": "estimate", "kind": "procedural-json"}]
 

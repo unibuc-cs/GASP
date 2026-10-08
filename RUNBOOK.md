@@ -122,11 +122,16 @@ three repeats, 720 episodes, about 12k calls.
 ssh user@gpu-server
 tmux new -s vllm
 source ~/muse-glimmer/.venv/bin/activate          # the uv environment on our server (elsewhere: pip install vllm, once)
-bash scripts/serve_local_model.sh                 # header of the script: the variant that fits the card (80 GB, 2 x 40 GB, 48 GB, 24 GB)
+bash scripts/serve_local_model.sh                 # finds the GPUs, starts one server per GPU (ports 8000, 8001, ...)
 # Ctrl-b c opens a second window in tmux
 bash scripts/run_local_ablation.sh pilot          # 24 episodes, 10-30 minutes; check outputs/llm_local_pilot/table_llm.md
-bash scripts/run_local_ablation.sh                # 720 episodes: a few hours on an 80 GB card, a night on a 24 GB one; resumable
+bash scripts/run_local_ablation.sh                # 720 episodes over all servers; a night on three 80 GB cards; resumable
 ```
+
+The serve script reads the GPU count and memory from `nvidia-smi`, picks the precision (bf16 above 70 GB per card, fp8 above
+38 GB, 4-bit below) and starts one server per GPU, each with a full copy of the model; the ablation script finds the servers
+and deals its processes over them, so all GPUs work. `GPUS=2`, `QUANT=fp8` or `LAYOUT=tp` (one server spread over all GPUs,
+for a model that does not fit on one card) override the choices; the script header lists them.
 
 Ctrl-b d detaches; server and runs continue. The first start downloads about 60 GB of weights; set `HF_HOME` to a disk with room.
 tmux keys: hold Ctrl, press b, release both, then press the letter alone (lowercase). If nothing happens, you are probably not
@@ -141,9 +146,10 @@ nohup bash scripts/run_local_ablation.sh > ablation.log 2>&1 &
 To run from a laptop instead, open a tunnel with `ssh -N -L 8000:localhost:8000 user@gpu-server` and run the same two commands there.
 
 Checks are the pilot's: formatting failures under 1 per episode, success in M2 above 0.3, executed violations 0.00 under the guard.
-Glimmer reasons before it answers. The server starts with vLLM's `muse_glimmer` reasoning parser, which returns the
-reasoning in a separate field so only the answer is parsed; the config sets the reasoning level to "low" through the system
-prompt line the model card specifies and allows 800 answer tokens. If formatting
+Glimmer reasons before it answers. The servers start with vLLM's `muse_glimmer` reasoning parser, which returns the
+reasoning in a separate field so only the answer is parsed; the config sets the reasoning level to "high", the model card's
+recommendation for agentic tasks, through the system prompt line the card specifies, and allows 4096 tokens per answer
+including the reasoning. The API models run at their defaults, with no extended thinking asked for; the paper says so. If formatting
 failures are high, open a trace: an answer cut off before the JSON means raise `max_tokens` in `configs/llm_grid_local.yaml`.
 The model also takes images; our requests are text only, which is fine.
 

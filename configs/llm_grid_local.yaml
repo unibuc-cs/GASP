@@ -16,8 +16,10 @@ models:
     model: glimmer                             # must match --served-model-name in scripts/serve_local_model.sh
     base_url: http://localhost:8000/v1         # vLLM on the same machine, or an ssh tunnel to it
     api_key_env: LOCAL_API_KEY                 # leave unset: a local server needs no key, and none is sent
-    max_tokens: 800                            # room for the model's own reasoning before the JSON answer
-    timeout: 600                               # seconds per call; a busy local server is slower than the API
-    system_prefix: "Reasoning strength: low\n" # Glimmer reads its reasoning level (low/medium/high/xhigh) from
-                                               # this line in the system prompt (model card). Low keeps answers
-                                               # short. The role prompts after this line are the same for every model.
+    max_tokens: 4096                           # the model's reasoning counts against this; at "high" it can run
+                                               # to a few thousand tokens before the JSON answer
+    timeout: 900                               # seconds per call; a busy local server is slower than the API
+    system_prefix: "Reasoning strength: high\n"  # Glimmer reads its reasoning level (low/medium/high/xhigh) from
+                                               # this line in the system prompt. "high" is the model card's
+                                               # recommendation for agentic tasks. The role prompts after this
+                                               # line are the same for every model.
