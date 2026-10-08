@@ -129,6 +129,15 @@ bash scripts/run_local_ablation.sh                # 720 episodes: a few hours on
 ```
 
 Ctrl-b d detaches; server and runs continue. The first start downloads about 60 GB of weights; set `HF_HOME` to a disk with room.
+tmux keys: hold Ctrl, press b, release both, then press the letter alone (lowercase). If nothing happens, you are probably not
+inside tmux: a tmux session shows a green bar at the bottom of the window (`echo $TMUX` prints something inside one). In the
+VS Code terminal Ctrl-b is taken by the editor itself; use another terminal there, or do without tmux:
+
+```bash
+nohup bash scripts/serve_local_model.sh > vllm.log 2>&1 &      # keeps running after you log out
+tail -f vllm.log                                                # watch it; Ctrl-c stops watching, not the server
+nohup bash scripts/run_local_ablation.sh > ablation.log 2>&1 &
+```
 To run from a laptop instead, open a tunnel with `ssh -N -L 8000:localhost:8000 user@gpu-server` and run the same two commands there.
 
 Checks are the pilot's: formatting failures under 1 per episode, success in M2 above 0.3, executed violations 0.00 under the guard.
