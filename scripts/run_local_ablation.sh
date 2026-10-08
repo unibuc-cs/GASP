@@ -22,6 +22,13 @@ N=${#SERVERS[@]}
 if (( N == 0 )); then echo "No server answers on ports $PORT... Start scripts/serve_local_model.sh (or set LOCAL_BASE_URL) first."; exit 1; fi
 echo "Using $N server(s): ${SERVERS[*]}"
 python -m gasp.experiments.reproduce --out outputs/paper --no-traces --skip-ablation > /dev/null
+wait_with_progress() {   # $1 = glob of run directories, $2 = total episodes; redraws every 20 s while jobs run
+  python -m gasp.experiments.progress --runs "$1" --total "$2" --watch 20 &
+  local mon=$!
+  while [[ -n "$(jobs -rp | grep -v "^$mon$")" ]]; do sleep 5; done
+  kill "$mon" 2>/dev/null; wait "$mon" 2>/dev/null; echo
+  python -m gasp.experiments.progress --runs "$1" --total "$2"
+}
 if [[ "${1:-full}" == "pilot" ]]; then
   # one process per mode, each on its own server when there are several; merged into one directory for the report
   j=0
@@ -31,8 +38,8 @@ if [[ "${1:-full}" == "pilot" ]]; then
         > outputs/llm_local_pilot_$m.log 2>&1 &
     j=$((j + 1))
   done
-  echo "3 pilot processes started (logs: outputs/llm_local_pilot_M*.log); 30-60 minutes at reasoning level high. Waiting..."
-  wait
+  echo "3 pilot processes started (logs: outputs/llm_local_pilot_M*.log); 30-60 minutes at reasoning level high."
+  wait_with_progress "outputs/llm_local_pilot/M*" 24
   python -m gasp.experiments.merge_runs --runs "outputs/llm_local_pilot/M*" --out outputs/llm_local_pilot
   python -m gasp.experiments.analyze --episodes outputs/llm_local_pilot/episodes.csv --out outputs/llm_local_pilot/stats \
       --pairs M2:M3,M3:M4 --group model > /dev/null
@@ -53,8 +60,8 @@ else
       j=$((j + 1))
     done
   done
-  echo "$j processes started over $N server(s); logs in outputs/llm_local_*.log. Waiting..."
-  wait
+  echo "$j processes started over $N server(s); logs in outputs/llm_local_*.log."
+  wait_with_progress "outputs/llm/local_*" 720
   python -m gasp.experiments.analyze --episodes "outputs/llm/local_*/episodes.csv" --out outputs/llm_local_stats \
       --pairs M2:M3,M3:M4 --group model
   zip -q -r outputs/llm_local.zip outputs/llm/local_* outputs/llm_local_stats --exclude "outputs/llm/local_*/traces/*"

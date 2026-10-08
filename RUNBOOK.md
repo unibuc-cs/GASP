@@ -154,6 +154,12 @@ including the reasoning. The API models run at their defaults, with no extended 
 failures are high, open a trace: an answer cut off before the JSON means raise `max_tokens` in `configs/llm_grid_local.yaml`.
 The model also takes images; our requests are text only, which is fine.
 
+While a run goes, the script redraws one progress line every 20 seconds: finished episodes of the total, model calls and
+tokens so far, time elapsed and left, counts per mode, the last finished episode. From another window the same line is
+`python -m gasp.experiments.progress --runs "outputs/llm/local_*" --total 720` (for the pilot:
+`--runs "outputs/llm_local_pilot/M*" --total 24`); `nvidia-smi` shows the three cards working, and `vllm_gpu0.log`
+has the server's own throughput lines.
+
 Hand back `outputs/llm_local.zip` and `outputs/llm_local_traces.zip`. Results sit in `outputs/llm/local_*`, where the paper
 build picks them up together with the API results.
 
