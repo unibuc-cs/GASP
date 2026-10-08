@@ -121,7 +121,7 @@ three repeats, 720 episodes, about 12k calls.
 ```bash
 ssh user@gpu-server
 tmux new -s vllm
-pip install vllm                                  # once
+source ~/muse-glimmer/.venv/bin/activate          # the uv environment on our server (elsewhere: pip install vllm, once)
 bash scripts/serve_local_model.sh                 # header of the script: the variant that fits the card (80 GB, 2 x 40 GB, 48 GB, 24 GB)
 # Ctrl-b c opens a second window in tmux
 bash scripts/run_local_ablation.sh pilot          # 24 episodes, 10-30 minutes; check outputs/llm_local_pilot/table_llm.md
@@ -132,8 +132,9 @@ Ctrl-b d detaches; server and runs continue. The first start downloads about 60 
 To run from a laptop instead, open a tunnel with `ssh -N -L 8000:localhost:8000 user@gpu-server` and run the same two commands there.
 
 Checks are the pilot's: formatting failures under 1 per episode, success in M2 above 0.3, executed violations 0.00 under the guard.
-Glimmer reasons before it answers; the config sets its reasoning level to "low" through the system prompt line the model
-card specifies and allows 800 answer tokens. If formatting
+Glimmer reasons before it answers. The server starts with vLLM's `muse_glimmer` reasoning parser, which returns the
+reasoning in a separate field so only the answer is parsed; the config sets the reasoning level to "low" through the system
+prompt line the model card specifies and allows 800 answer tokens. If formatting
 failures are high, open a trace: an answer cut off before the JSON means raise `max_tokens` in `configs/llm_grid_local.yaml`.
 The model also takes images; our requests are text only, which is fine.
 

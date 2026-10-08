@@ -5,7 +5,7 @@
 # Run it over ssh inside tmux (or screen) so the server outlives the ssh session:
 #   ssh user@gpu-server
 #   tmux new -s vllm
-#   pip install vllm                          # once; needs CUDA drivers on the machine
+#   source ~/muse-glimmer/.venv/bin/activate   # the uv environment on our server; elsewhere: pip install vllm
 #   bash scripts/serve_local_model.sh          # then detach with Ctrl-b d
 # Pick the variant by GPU memory (nvidia-smi):
 #   bash scripts/serve_local_model.sh          # bf16: about 60 GB of weights. One 80 GB card, or two cards with TP=2
@@ -19,8 +19,10 @@ set -euo pipefail
 MODEL=${MODEL:-meta-models/Muse-Glimmer-30B}
 PORT=${PORT:-8000}
 TP=${TP:-1}
+REASONING_PARSER=${REASONING_PARSER:-muse_glimmer}   # vLLM's parser for this model: keeps the reasoning out of the answer text
 ARGS=(--served-model-name glimmer --host 127.0.0.1 --port "$PORT" --max-model-len 8192 --max-num-seqs 16
       --gpu-memory-utilization 0.92 --tensor-parallel-size "$TP")
+if [[ "$REASONING_PARSER" != "none" ]]; then ARGS+=(--reasoning-parser "$REASONING_PARSER"); fi
 if [[ -n "${QUANT:-}" ]]; then ARGS+=(--quantization "$QUANT"); fi
 echo "vllm serve $MODEL ${ARGS[*]}"
 exec vllm serve "$MODEL" "${ARGS[@]}"

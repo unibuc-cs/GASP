@@ -17,3 +17,4 @@ paper/*.log
 paper/*.out
 paper/*.fdb_latexmk
 paper/*.fls
+.sync/
