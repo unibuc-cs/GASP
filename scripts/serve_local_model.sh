@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
-# Serve Muse-Glimmer-30B-assistant with vLLM on the GPU machine, as an OpenAI-compatible server on port 8000.
+# Serve meta-models/Muse-Glimmer-30B with vLLM on the GPU machine, as an OpenAI-compatible server on port 8000.
+# (Muse-Glimmer-30B-assistant is NOT the model: it is the 5 GB speculative decoding drafter head, without a
+# tokenizer, and vLLM cannot serve it on its own.)
 # Run it over ssh inside tmux (or screen) so the server outlives the ssh session:
 #   ssh user@gpu-server
 #   tmux new -s vllm
@@ -14,7 +16,7 @@
 # The model listens on 127.0.0.1 only. From another machine reach it through an ssh tunnel:
 #   ssh -N -L 8000:localhost:8000 user@gpu-server
 set -euo pipefail
-MODEL=${MODEL:-meta-models/Muse-Glimmer-30B-assistant}
+MODEL=${MODEL:-meta-models/Muse-Glimmer-30B}
 PORT=${PORT:-8000}
 TP=${TP:-1}
 ARGS=(--served-model-name glimmer --host 127.0.0.1 --port "$PORT" --max-model-len 8192 --max-num-seqs 16

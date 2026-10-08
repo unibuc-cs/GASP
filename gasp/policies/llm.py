@@ -79,7 +79,7 @@ class OpenAICompatibleBackend:
 
     def __init__(self, model: str, base_url: str = "https://api.openai.com/v1", api_key_env: str = "OPENAI_API_KEY",
                  max_retries: int = 5, extra_headers: Optional[Dict[str, str]] = None, json_mode: bool = True,
-                 extra_body: Optional[Dict[str, Any]] = None, timeout: int = 180):
+                 extra_body: Optional[Dict[str, Any]] = None, timeout: int = 180, system_prefix: str = ""):
         import requests  # type: ignore
         self.requests = requests
         self.model = model
@@ -94,13 +94,18 @@ class OpenAICompatibleBackend:
         # rejects is dropped on the first 400 and recorded in ``adaptations``.
         self.extra_body: Dict[str, Any] = dict(extra_body or {})
         self.timeout = timeout
+        # Text put in front of every system prompt for this model only, for settings a model reads from its
+        # prompt rather than from a request field (Glimmer: "Reasoning strength: low"). Recorded in the manifest
+        # through the config; the role prompts themselves stay identical across models.
+        self.system_prefix = system_prefix
         self.token_param = "max_tokens"
         self.send_temperature = True
         self.adaptations: List[str] = []
 
     def _body(self, system: str, user: str, temperature: float, max_tokens: int) -> Dict[str, Any]:
         body: Dict[str, Any] = {"model": self.model, self.token_param: max_tokens,
-                                "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}]}
+                                "messages": [{"role": "system", "content": self.system_prefix + system},
+                                             {"role": "user", "content": user}]}
         if self.send_temperature:
             body["temperature"] = temperature
         if self.json_mode:
@@ -223,7 +228,7 @@ def make_backend(spec: Dict[str, Any], domain=None, rules: Optional[RuleSet] = N
         return OpenAICompatibleBackend(spec["model"], spec.get("base_url", "https://api.openai.com/v1"),
                                        spec.get("api_key_env", "OPENAI_API_KEY"), extra_headers=spec.get("headers"),
                                        json_mode=bool(spec.get("json_mode", True)), extra_body=spec.get("extra_body"),
-                                       timeout=int(spec.get("timeout", 180)))
+                                       timeout=int(spec.get("timeout", 180)), system_prefix=str(spec.get("system_prefix", "")))
     if kind == "mock":
         return MockBackend(spec.get("answers", ['{"action_type": "noop"}']))
     if kind == "procedural-json":

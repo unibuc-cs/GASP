@@ -77,12 +77,14 @@ def test_backend_talks_to_a_local_server_without_a_key_and_drops_rejected_fields
     threading.Thread(target=server.serve_forever, daemon=True).start()
     try:
         backend = OpenAICompatibleBackend("glimmer", base_url=f"http://127.0.0.1:{port}/v1", api_key_env="NO_SUCH_KEY",
-                                          extra_body={"reasoning_effort": "low"}, timeout=30)
+                                          extra_body={"reasoning_effort": "low"}, timeout=30,
+                                          system_prefix="Reasoning strength: low\n")
         text, usage = backend.complete("sys", "user", 0.7, 800)
         assert text.endswith('{"action_type": "noop"}') and usage == {"tokens_in": 30, "tokens_out": 40}
         assert backend.adaptations == ["reasoning_effort dropped (server rejected it)"]
         headers, body = LocalReasoningHandler.seen[-1]
         assert "Authorization" not in headers and "reasoning_effort" not in body and body["max_tokens"] == 800
         assert "reasoning_effort" in LocalReasoningHandler.seen[0][1]
+        assert body["messages"][0]["content"] == "Reasoning strength: low\nsys" and body["messages"][1]["content"] == "user"
     finally:
         server.shutdown()

@@ -9,14 +9,15 @@ repeats: 3
 temperature: 0.7
 modes: [M2, M3, M4]
 models:
-  - name: glimmer                              # Muse-Glimmer-30B-assistant (Meta, Apache 2.0, dense 30B)
+  - name: glimmer                              # meta-models/Muse-Glimmer-30B (Meta, Apache 2.0, dense 30B).
+                                               # Not Muse-Glimmer-30B-assistant: that repository is the 5 GB
+                                               # speculative decoding drafter head, with no tokenizer.
     kind: openai                               # vLLM speaks the OpenAI chat API
     model: glimmer                             # must match --served-model-name in scripts/serve_local_model.sh
     base_url: http://localhost:8000/v1         # vLLM on the same machine, or an ssh tunnel to it
     api_key_env: LOCAL_API_KEY                 # leave unset: a local server needs no key, and none is sent
     max_tokens: 800                            # room for the model's own reasoning before the JSON answer
     timeout: 600                               # seconds per call; a busy local server is slower than the API
-    extra_body:
-      reasoning_effort: low                    # Glimmer has low/medium/high/xhigh. Low keeps answers short.
-                                               # If the server rejects the field, the backend drops it and
-                                               # records the adaptation in the manifest.
+    system_prefix: "Reasoning strength: low\n" # Glimmer reads its reasoning level (low/medium/high/xhigh) from
+                                               # this line in the system prompt (model card). Low keeps answers
+                                               # short. The role prompts after this line are the same for every model.

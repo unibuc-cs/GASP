@@ -113,7 +113,8 @@ Large: `outputs/llm/*/traces/` (zip it; a few hundred MB). Needed for the worked
 
 ## 7. Optional: an open-weight model on the lab GPU (vLLM over ssh)
 
-A third model that is not from OpenAI: Muse-Glimmer-30B-assistant (Meta, Apache 2.0, dense 30B, on Hugging Face). It runs on
+A third model that is not from OpenAI: `meta-models/Muse-Glimmer-30B` (Meta, Apache 2.0, dense 30B, on Hugging Face;
+the `-assistant` repository next to it is only its speculative decoding drafter and cannot be served alone). It runs on
 the group's GPU server under vLLM: no key, no cost, time is set by the GPU. Same scenarios and rule set; modes M2, M3, M4;
 three repeats, 720 episodes, about 12k calls.
 
@@ -131,7 +132,8 @@ Ctrl-b d detaches; server and runs continue. The first start downloads about 60 
 To run from a laptop instead, open a tunnel with `ssh -N -L 8000:localhost:8000 user@gpu-server` and run the same two commands there.
 
 Checks are the pilot's: formatting failures under 1 per episode, success in M2 above 0.3, executed violations 0.00 under the guard.
-Glimmer reasons before it answers; the config asks for its "low" reasoning level and allows 800 answer tokens. If formatting
+Glimmer reasons before it answers; the config sets its reasoning level to "low" through the system prompt line the model
+card specifies and allows 800 answer tokens. If formatting
 failures are high, open a trace: an answer cut off before the JSON means raise `max_tokens` in `configs/llm_grid_local.yaml`.
 The model also takes images; our requests are text only, which is fine.
 
