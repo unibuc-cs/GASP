@@ -124,13 +124,14 @@ tmux new -s vllm
 source ~/muse-glimmer/.venv/bin/activate          # the uv environment on our server (elsewhere: pip install vllm, once)
 bash scripts/serve_local_model.sh                 # finds the GPUs, starts one server per GPU (ports 8000, 8001, ...)
 # Ctrl-b c opens a second window in tmux
-bash scripts/run_local_ablation.sh pilot          # 24 episodes, 10-30 minutes; check outputs/llm_local_pilot/table_llm.md
-bash scripts/run_local_ablation.sh                # 720 episodes over all servers; a night on three 80 GB cards; resumable
+bash scripts/run_local_ablation.sh pilot          # 24 episodes, one process per mode over the servers, 30-60 minutes
+bash scripts/run_local_ablation.sh                # 720 episodes over all servers; about a night on three H100s; resumable
 ```
 
 The serve script reads the GPU count and memory from `nvidia-smi`, picks the precision (bf16 above 70 GB per card, fp8 above
 38 GB, 4-bit below) and starts one server per GPU, each with a full copy of the model; the ablation script finds the servers
-and deals its processes over them, so all GPUs work. `GPUS=2`, `QUANT=fp8` or `LAYOUT=tp` (one server spread over all GPUs,
+and deals its processes over them, so all GPUs work. On our node (three H100 80 GB) this means three bf16 servers and
+about twelve concurrent requests per card. `GPUS=2`, `QUANT=fp8` or `LAYOUT=tp` (one server spread over all GPUs,
 for a model that does not fit on one card) override the choices; the script header lists them.
 
 Ctrl-b d detaches; server and runs continue. The first start downloads about 60 GB of weights; set `HF_HOME` to a disk with room.

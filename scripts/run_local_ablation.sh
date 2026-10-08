@@ -23,8 +23,17 @@ if (( N == 0 )); then echo "No server answers on ports $PORT... Start scripts/se
 echo "Using $N server(s): ${SERVERS[*]}"
 python -m gasp.experiments.reproduce --out outputs/paper --no-traces --skip-ablation > /dev/null
 if [[ "${1:-full}" == "pilot" ]]; then
-  python -m gasp.experiments.run_grid --config configs/llm_grid_local.yaml --out outputs/llm_local_pilot \
-      --scenarios outputs/paper/scenarios.json --limit 2 --repeats 1 --base-url "${SERVERS[0]}"
+  # one process per mode, each on its own server when there are several; merged into one directory for the report
+  j=0
+  for m in M2 M3 M4; do
+    python -m gasp.experiments.run_grid --config configs/llm_grid_local.yaml --out outputs/llm_local_pilot/$m \
+        --scenarios outputs/paper/scenarios.json --limit 2 --repeats 1 --modes $m --base-url "${SERVERS[$((j % N))]}" \
+        > outputs/llm_local_pilot_$m.log 2>&1 &
+    j=$((j + 1))
+  done
+  echo "3 pilot processes started (logs: outputs/llm_local_pilot_M*.log); 30-60 minutes at reasoning level high. Waiting..."
+  wait
+  python -m gasp.experiments.merge_runs --runs "outputs/llm_local_pilot/M*" --out outputs/llm_local_pilot
   python -m gasp.experiments.analyze --episodes outputs/llm_local_pilot/episodes.csv --out outputs/llm_local_pilot/stats \
       --pairs M2:M3,M3:M4 --group model > /dev/null
   python -m gasp.experiments.pilot_report --pilot outputs/llm_local_pilot --who "${PILOT_WHO:-<your name>}" \
