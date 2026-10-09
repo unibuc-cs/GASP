@@ -162,6 +162,20 @@ tokens so far, time elapsed and left, counts per mode, the last finished episode
 `--runs "outputs/llm_local_pilot/M*" --total 24`); `nvidia-smi` shows the three cards working, and `vllm_gpu0.log`
 has the server's own throughput lines.
 
+Other local models, for a size axis (small, 30B, large): one config per model (`configs/llm_grid_local_small.yaml`,
+`configs/llm_grid_local_large.yaml`, with candidate models in their comments), served on their own GPUs and ports and run
+with `CONFIG=... bash scripts/run_local_ablation.sh pilot` and then without `pilot`. The run script finds the servers by
+the served model name, so two models can be served and run at the same time:
+
+```bash
+MODEL=<small model id> NAME=small GPU_IDS=2 PORT=8010 bash scripts/serve_local_model.sh          # window 0
+MODEL=<large model id> NAME=large GPU_IDS=0,1 LAYOUT=tp PORT=8000 bash scripts/serve_local_model.sh   # window 1
+CONFIG=configs/llm_grid_local_small.yaml bash scripts/run_local_ablation.sh pilot                 # window 2
+```
+
+Results land in `outputs/llm/<name>_*` and appear in the paper's tables as new rows after `make`; the Models paragraph
+of the paper needs one sentence per model.
+
 Hand back `outputs/llm_local.zip` and `outputs/llm_local_traces.zip`. Results sit in `outputs/llm/local_*`, where the paper
 build picks them up together with the API results.
 

@@ -1,0 +1,21 @@
+# Second local model: a small one (about 4B parameters), the low end of the size axis. Served with
+#   MODEL=<Hugging Face id> NAME=small GPU_IDS=2 PORT=8010 bash scripts/serve_local_model.sh
+# and run with
+#   CONFIG=configs/llm_grid_local_small.yaml bash scripts/run_local_ablation.sh pilot     (then without "pilot")
+# Candidates (check the exact repository id on Hugging Face before serving): Qwen/Qwen3.5-4B, google/gemma-4-E4B-it.
+# Same scenarios, rules, horizon and temperature as the other models; all five modes so the size axis is complete.
+domain: smartcity
+rule_set: R2
+max_steps: 16
+repeats: 3
+temperature: 0.7
+modes: [M0, M1, M2, M3, M4]
+models:
+  - name: small                                # appears as the model name in every table; change to the model's name
+    kind: openai
+    model: small                               # must equal NAME in the serve command
+    base_url: http://localhost:8010/v1         # found automatically by served name; this is only the fallback
+    api_key_env: LOCAL_API_KEY
+    max_tokens: 4096                           # room for the model's reasoning, if it reasons before answering
+    timeout: 900
+    system_prefix: ""                          # Qwen and Gemma take no reasoning line; leave empty

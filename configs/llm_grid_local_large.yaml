@@ -1,0 +1,23 @@
+# Third local model: a large one, the high end of the size axis, bigger than the 30B main model. Served over two or
+# three GPUs, for example
+#   MODEL=<Hugging Face id> NAME=large GPU_IDS=0,1 LAYOUT=tp PORT=8000 bash scripts/serve_local_model.sh
+# Candidates (check the exact repository id and the license on Hugging Face): Qwen/Qwen3.5-122B-A10B in its FP8
+# checkpoint (about 122 GB, two H100s with LAYOUT=tp), or openai/gpt-oss-120b (about 63 GB, one GPU each with the
+# default dp layout; its reasoning level is a system prompt line, "Reasoning: high").
+# Run with
+#   CONFIG=configs/llm_grid_local_large.yaml bash scripts/run_local_ablation.sh pilot     (then without "pilot")
+domain: smartcity
+rule_set: R2
+max_steps: 16
+repeats: 3
+temperature: 0.7
+modes: [M0, M1, M2, M3, M4]
+models:
+  - name: large                                # appears as the model name in every table; change to the model's name
+    kind: openai
+    model: large                               # must equal NAME in the serve command
+    base_url: http://localhost:8000/v1         # found automatically by served name; this is only the fallback
+    api_key_env: LOCAL_API_KEY
+    max_tokens: 4096
+    timeout: 900
+    system_prefix: ""                          # for gpt-oss: "Reasoning: high\n"
