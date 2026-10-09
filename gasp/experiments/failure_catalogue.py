@@ -114,7 +114,7 @@ def main() -> None:
                     counts["unnecessary_request"] += 1
                     found["unnecessary_request"].append((prio, excerpt(r, f"unnecessary approval request{' ' + model if model else ''}", succ)))
                     if not succ:
-                        lockout_candidates.append((prio, excerpt(r, f"approval lock-out{' ' + model if model else ''}", succ)))
+                        lockout_candidates.append((prio, excerpt(r, f"approval lockout{' ' + model if model else ''}", succ)))
                 # a role that only gathers: five or more consecutive evidence or verification requests
                 if a["action_type"] in ("query_evidence", "request_verification"):
                     gather[r["role"]] += 1

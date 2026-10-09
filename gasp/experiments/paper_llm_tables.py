@@ -17,7 +17,9 @@ from collections import defaultdict
 from pathlib import Path
 from typing import Any, Dict, List
 
-from gasp.core.metrics import aggregate
+from collections import Counter
+
+from gasp.core.metrics import aggregate, gau_weight_grid
 from gasp.experiments.analyze import read_rows
 
 
@@ -83,10 +85,48 @@ def stats_table(stats: List[Dict[str, Any]]) -> str:
     return "\n".join(lines) + "\n"
 
 
+SENS_COLUMNS = [("success", "Succ."), ("steps", "Steps"), ("attempted_violations", "Att. viol."), ("executed_violations", "Exec. viol."),
+                ("overseer_load", "Overseer"), ("approvals_denied", "Denied"), ("false_alert", "False alert"), ("hidden_harm", "Hidden harm")]
+TAG_DESC = {"R1": "R1 (lenient)", "R3": "R3 (strict)", "ov-always": "R2, human always available", "ov-never": "R2, human never available"}
+
+
+def sens_table(rows: List[Dict[str, Any]]) -> str:
+    """Sensitivity sweeps: one block per model and sweep tag, M2 and M3 rows."""
+    aggs = aggregate(rows, ("model", "tag", "mode"))
+    lines = [r"\begin{tabular}{lll" + "c" * len(SENS_COLUMNS) + "}", r"\toprule",
+             r"\textbf{Model} & \textbf{Setting} & \textbf{Mode} & " + " & ".join(r"\textbf{" + h + "}" for _, h in SENS_COLUMNS) + r" \\", r"\midrule"]
+    last = None
+    for a in aggs:
+        key = (a["model"], a["tag"])
+        model = a["model"] if key != last and (last is None or a["model"] != last[0]) else ""
+        tag = TAG_DESC.get(str(a["tag"]), str(a["tag"])) if key != last else ""
+        if last is not None and key != last:
+            lines.append(r"\midrule")
+        last = key
+        lines.append(f"{model} & {tag} & {a['mode']} & " + " & ".join(fmt(a.get(c)) for c, _ in SENS_COLUMNS) + r" \\")
+    lines += [r"\bottomrule", r"\end{tabular}"]
+    return "\n".join(lines) + "\n"
+
+
+def macros(rows: List[Dict[str, Any]]) -> str:
+    """Numbers used in the prose that change when rows are added: the GAU weight grid per model."""
+    out = []
+    for model in sorted({r["model"] for r in rows}):
+        grid = gau_weight_grid([r for r in rows if r["model"] == model], max_steps=16)
+        first = Counter(g["ranking"][0] for g in grid)
+        order = Counter(tuple(g["ranking"]) for g in grid).most_common(1)[0]
+        best, n = first.most_common(1)[0]
+        name = "".join(ch for ch in model if ch.isalpha())
+        out.append(f"\\newcommand{{\\gaugrid{name}}}{{{best} ranks first in {n} of {len(grid)} weight settings; the order "
+                   + ", ".join(order[0]) + f" holds in {order[1]} of them}}")
+    return "\n".join(out) + "\n"
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--episodes", type=str, required=True)
     ap.add_argument("--stats", type=Path, default=None)
+    ap.add_argument("--sens", type=str, default=None, help="glob of sensitivity-sweep episodes.csv files (rows carry a tag)")
     ap.add_argument("--dest", type=Path, default=Path("paper/tables"))
     args = ap.parse_args()
     rows: List[Dict[str, Any]] = []
@@ -94,10 +134,18 @@ def main() -> None:
         rows += read_rows(Path(path))
     args.dest.mkdir(parents=True, exist_ok=True)
     (args.dest / "table_llm_main.tex").write_text(main_table(rows), encoding="utf-8")
+    (args.dest / "llm_macros.tex").write_text(macros(rows), encoding="utf-8")
     if args.stats and args.stats.exists():
         stats = json.loads(args.stats.read_text(encoding="utf-8"))
         (args.dest / "table_llm_stats.tex").write_text(stats_table(stats), encoding="utf-8")
-    print("wrote", args.dest / "table_llm_main.tex", "(+ table_llm_stats.tex)" if args.stats else "")
+    if args.sens:
+        srows: List[Dict[str, Any]] = []
+        for path in sorted(glob.glob(args.sens)):
+            srows += read_rows(Path(path))
+        if srows:
+            (args.dest / "table_llm_sens.tex").write_text(sens_table(srows), encoding="utf-8")
+    print("wrote", args.dest / "table_llm_main.tex", "llm_macros.tex", "(+ table_llm_stats.tex)" if args.stats else "",
+          "(+ table_llm_sens.tex)" if args.sens else "")
 
 
 if __name__ == "__main__":

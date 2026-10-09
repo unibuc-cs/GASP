@@ -165,7 +165,30 @@ has the server's own throughput lines.
 Hand back `outputs/llm_local.zip` and `outputs/llm_local_traces.zip`. Results sit in `outputs/llm/local_*`, where the paper
 build picks them up together with the API results.
 
-## 8. If something goes wrong
+## 8. Building the paper and filling the red marks
+
+`paper/main.tex` reads every number that comes from a run through generated files, so after any run the sequence is:
+
+```bash
+cd paper && make            # sync: tables, figure, statistics, failure catalogue from outputs/; then latexmk -> main.pdf
+```
+
+`make sync` alone needs only Python; `make` also needs a TeX distribution with latexmk (if the server has none, run
+`make sync` there, then compile `paper/` in Overleaf or on a laptop with TeX Live). The LLM parts switch on by themselves
+when `outputs/llm/*/episodes.csv` exists: the API runs land in `outputs/llm/M0` to `M4` (one directory per mode, both
+models), the local runs in `outputs/llm/local_*`, the sweeps in `outputs/llm_sens/`; all of them appear in the same tables
+and figure. Each remaining red mark in the PDF says which table or statistics file its sentence comes from:
+
+- `tables/table_llm_main.tex` (also `outputs/llm/*/table_llm.md`): the model by mode means.
+- `outputs/llm/stats/paired_stats.md`: paired differences with intervals, Cliff's delta and corrected p, one block per model and pair.
+- `tables/table_llm_sens.tex`: the sweeps, once `outputs/llm_sens/` exists.
+- `outputs/llm/failure_catalogue.md`: counts and quotable excerpts of the failure types.
+- `tables/llm_macros.tex`: the GAU weight grid sentence, regenerated for every model.
+
+Red marks that start with "API:" wait for the two API models; "M0/M1" and "Sweeps" for the second and third GPU night.
+Remove each `\todo{...}` once its sentence is written; the paper must have none at submission.
+
+## 9. If something goes wrong
 
 - 429 or 5xx from the API: the backend retries five times with backoff; if a run dies, restart the same command.
 - A model never returns valid JSON: lower `temperature` to 0.3 in the config for that model and rerun the pilot; if it still fails, replace the model.
