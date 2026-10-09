@@ -1,8 +1,8 @@
-# Second local model: a small one (about 4B parameters), the low end of the size axis. Served with
-#   MODEL=<Hugging Face id> NAME=small GPU_IDS=2 PORT=8010 bash scripts/serve_local_model.sh
+# Second local model, the small end of the size axis: Gemma 4 E4B (Google, Apache 2.0, about 4.5B effective parameters,
+# released April 2026; vLLM 0.19.1 or newer). Served with
+#   MODEL=google/gemma-4-E4B-it NAME=gemma4 GPU_IDS=2 PORT=8010 bash scripts/serve_local_model.sh
 # and run with
 #   CONFIG=configs/llm_grid_local_small.yaml bash scripts/run_local_ablation.sh pilot     (then without "pilot")
-# Candidates (check the exact repository id on Hugging Face before serving): Qwen/Qwen3.5-4B, google/gemma-4-E4B-it.
 # Same scenarios, rules, horizon and temperature as the other models; all five modes so the size axis is complete.
 domain: smartcity
 rule_set: R2
@@ -11,11 +11,14 @@ repeats: 3
 temperature: 0.7
 modes: [M0, M1, M2, M3, M4]
 models:
-  - name: small                                # appears as the model name in every table; change to the model's name
+  - name: gemma4                               # the model name in every table
     kind: openai
-    model: small                               # must equal NAME in the serve command
+    model: gemma4                              # must equal NAME in the serve command
     base_url: http://localhost:8010/v1         # found automatically by served name; this is only the fallback
     api_key_env: LOCAL_API_KEY
-    max_tokens: 4096                           # room for the model's reasoning, if it reasons before answering
+    max_tokens: 4096                           # room for the model's thinking before the JSON answer
     timeout: 900
-    system_prefix: ""                          # Qwen and Gemma take no reasoning line; leave empty
+    extra_body:
+      chat_template_kwargs:
+        enable_thinking: true                  # Gemma 4 thinks only when asked per request (vLLM recipe); the gemma4
+                                               # reasoning parser keeps the thinking out of the answer text

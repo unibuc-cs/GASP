@@ -168,10 +168,16 @@ with `CONFIG=... bash scripts/run_local_ablation.sh pilot` and then without `pil
 the served model name, so two models can be served and run at the same time:
 
 ```bash
-MODEL=<small model id> NAME=small GPU_IDS=2 PORT=8010 bash scripts/serve_local_model.sh          # window 0
-MODEL=<large model id> NAME=large GPU_IDS=0,1 LAYOUT=tp PORT=8000 bash scripts/serve_local_model.sh   # window 1
-CONFIG=configs/llm_grid_local_small.yaml bash scripts/run_local_ablation.sh pilot                 # window 2
+pkill -f "vllm serve"; sleep 5; nvidia-smi                                                        # stop whatever is served; memory comes back
+MODEL=openai/gpt-oss-120b NAME=gptoss120b GPU_IDS=0,1 PORT=8000 bash scripts/serve_local_model.sh   # window 0: one copy per GPU
+MODEL=google/gemma-4-E4B-it NAME=gemma4 GPU_IDS=2 PORT=8010 bash scripts/serve_local_model.sh       # window 1
+CONFIG=configs/llm_grid_local_large.yaml bash scripts/run_local_ablation.sh pilot                 # window 2, then without "pilot"
+CONFIG=configs/llm_grid_local_small.yaml bash scripts/run_local_ablation.sh pilot                 # window 3, then without "pilot"
 ```
+
+Ctrl-c in a serve window stops that script's servers only. The model names the configs use (`gptoss120b`, `gemma4`) are
+what the tables will show; the paper's Models paragraph needs one sentence per model (sizes, licences and reasoning
+settings are in the config comments).
 
 Results land in `outputs/llm/<name>_*` and appear in the paper's tables as new rows after `make`; the Models paragraph
 of the paper needs one sentence per model.

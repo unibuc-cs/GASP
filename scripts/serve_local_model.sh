@@ -10,8 +10,10 @@
 #   bash scripts/serve_local_model.sh          # then Ctrl-b d to detach
 #
 # Any model, any subset of GPUs, several models at once (one script per model, different GPU_IDS and PORT):
-#   MODEL=Qwen/Qwen3.5-4B NAME=qwen4b GPU_IDS=2 PORT=8010 bash scripts/serve_local_model.sh
-#   MODEL=Qwen/Qwen3.5-122B-A10B-FP8 NAME=qwen122b GPU_IDS=0,1 LAYOUT=tp PORT=8000 bash scripts/serve_local_model.sh
+#   MODEL=google/gemma-4-E4B-it NAME=gemma4 GPU_IDS=2 PORT=8010 bash scripts/serve_local_model.sh
+#   MODEL=openai/gpt-oss-120b NAME=gptoss120b GPU_IDS=0,1 PORT=8000 bash scripts/serve_local_model.sh   # one copy per GPU
+# Stopping: Ctrl-c in the window that runs this script stops its servers; `pkill -f "vllm serve"` stops every server;
+# `nvidia-smi` shows the memory coming back.
 # Variables (all optional):
 #   MODEL     Hugging Face id of the model                 NAME      served model name; the config's `model` field
 #   GPU_IDS   comma list of GPU indices (default: all)     PORT      first port; dp layout uses PORT, PORT+1, ...
@@ -20,7 +22,7 @@
 #   QUANT     fp8 | bitsandbytes | "" (bf16); default chosen from the first GPU's memory for a 30B model, so set it
 #             for other sizes; a checkpoint that is already quantized (FP8, AWQ) needs nothing
 #   REASONING_PARSER  vLLM parser that separates the model's reasoning from its answer; default by model family
-#             (Glimmer: muse_glimmer, Qwen: qwen3, gpt-oss: openai_gptoss, otherwise none); "none" disables
+#             (Glimmer: muse_glimmer, Qwen: qwen3, Gemma 4: gemma4, otherwise none); "none" disables
 #   MAX_LEN   context length (default 8192)                EXTRA_ARGS  anything else for vllm serve
 # The first start downloads the weights from Hugging Face; set HF_HOME to a disk with room.
 # Servers listen on 127.0.0.1 only. From another machine reach one through an ssh tunnel:
@@ -44,11 +46,16 @@ if [[ -z "${REASONING_PARSER:-}" ]]; then
   case "${MODEL,,}" in
     *glimmer*) REASONING_PARSER=muse_glimmer ;;
     *qwen*)    REASONING_PARSER=qwen3 ;;
-    *gpt-oss*) REASONING_PARSER=openai_gptoss ;;
-    *)         REASONING_PARSER=none ;;
+    *gemma-4*) REASONING_PARSER=gemma4 ;;
+    *)         REASONING_PARSER=none ;;      # gpt-oss needs none: vLLM handles its harmony format itself
   esac
 fi
-ARGS=(--served-model-name "$NAME" --host 127.0.0.1 --max-model-len "$MAX_LEN" --max-num-seqs 16 --gpu-memory-utilization 0.92)
+UTIL=0.92
+ARGS=(--served-model-name "$NAME" --host 127.0.0.1 --max-model-len "$MAX_LEN" --max-num-seqs 16)
+case "${MODEL,,}" in
+  *gpt-oss*) UTIL=0.95; ARGS+=(--max-num-batched-tokens 1024) ;;   # the vLLM recipe for gpt-oss-120b on one H100
+esac
+ARGS+=(--gpu-memory-utilization "$UTIL")
 if [[ "$REASONING_PARSER" != "none" ]]; then ARGS+=(--reasoning-parser "$REASONING_PARSER"); fi
 if [[ -n "$QUANT" ]]; then ARGS+=(--quantization "$QUANT"); fi
 if [[ -n "${EXTRA_ARGS:-}" ]]; then read -r -a EXTRA <<< "$EXTRA_ARGS"; ARGS+=("${EXTRA[@]}"); fi
