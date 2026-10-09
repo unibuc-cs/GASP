@@ -1,0 +1,9 @@
+\begin{tabular}{llccccccccccccc}
+\toprule
+\textbf{Model} & \textbf{Mode} & \textbf{Succ.} & \textbf{Steps} & \textbf{Att. viol.} & \textbf{Exec. viol.} & \textbf{Overseer} & \textbf{TSC} & \textbf{Halluc.} & \textbf{False alert} & \textbf{Hidden harm} & \textbf{Silent viol.} & \textbf{Format fail.} & \textbf{Tokens} & \textbf{GAU} \\
+\midrule
+glimmer & M2 (roles, rules in prompts) & 0.96 & 4.22 & 0.12 & 0.12 & 0.34 & 1.00 & 0.00 & 0.00 & 0.00 & 0.12 & 0.04 & 28.7k & 0.90 \\
+ & M3 (roles, guard) & 0.90 & 8.22 & 0.58 & 0.00 & 0.56 & 1.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.06 & 43.5k & 0.84 \\
+ & M4 (roles, rules and guard) & 0.96 & 4.23 & 0.06 & 0.00 & 0.35 & 1.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.03 & 29.1k & 0.94 \\
+\bottomrule
+\end{tabular}

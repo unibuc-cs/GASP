@@ -1,0 +1,23 @@
+\begin{tabular}{llrrr}
+\toprule
+\textbf{Model, comparison} & \textbf{Metric} & \textbf{Difference [95\% CI]} & \textbf{Cliff's $\delta$} & \textbf{$p$ (Holm)} \\
+\midrule
+glimmer, M3 vs M2 & executed violations & -0.12 [-0.17, -0.07] & -0.26 & 0.002 \\
+ & attempted violations & +0.46 [0.35, 0.57] & +0.43 & $<$0.001 \\
+ & false alert & +0.00 [0.00, 0.00] & +0.00 & 1.000 \\
+ & hidden harm & +0.00 [0.00, 0.00] & +0.00 & 1.000 \\
+ & success & -0.07 [-0.11, -0.03] & -0.18 & 0.081 \\
+ & steps & +4.00 [3.24, 4.80] & +0.78 & $<$0.001 \\
+ & overseer load & +0.22 [0.12, 0.32] & +0.32 & 0.003 \\
+ & hallucinated refs & +0.00 [0.00, 0.00] & +0.00 & 1.000 \\
+\midrule
+glimmer, M4 vs M3 & executed violations & +0.00 [0.00, 0.00] & +0.00 & 1.000 \\
+ & attempted violations & -0.52 [-0.64, -0.40] & -0.49 & $<$0.001 \\
+ & false alert & +0.00 [0.00, 0.00] & +0.00 & 1.000 \\
+ & hidden harm & +0.00 [0.00, 0.00] & +0.00 & 1.000 \\
+ & success & +0.07 [0.03, 0.11] & +0.18 & 0.108 \\
+ & steps & -3.99 [-4.80, -3.22] & -0.77 & $<$0.001 \\
+ & overseer load & -0.20 [-0.30, -0.10] & -0.30 & 0.013 \\
+ & hallucinated refs & +0.00 [0.00, 0.00] & +0.00 & 1.000 \\
+\bottomrule
+\end{tabular}

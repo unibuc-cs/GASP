@@ -108,11 +108,11 @@ def to_markdown(rows: List[Dict[str, str]], lines: List[str], title: str) -> str
 def to_latex(rows: List[Dict[str, str]], lines: List[str], title: str) -> str:
     esc = lambda s: s.replace("_", r"\_").replace("→", r"$\rightarrow$").replace("−", "-").replace("×", r"$\times$").replace("·", r"$\cdot$")
     out = [r"\begin{table*}[t]", r"\centering", r"\caption{" + esc(title) + r"}", r"\label{tab:worked}", r"\footnotesize",
-           r"\begin{tabular}{@{}llp{0.22\linewidth}p{0.26\linewidth}lll@{}}", r"\toprule",
+           r"\resizebox{\textwidth}{!}{\begin{tabular}{@{}llp{0.22\linewidth}p{0.26\linewidth}lll@{}}", r"\toprule",
            r"\textbf{Step} & \textbf{Role} & \textbf{Action} & \textbf{Evidence} & \textbf{Guard} & \textbf{Rule} & \textbf{Note} \\", r"\midrule"]
     for r in rows:
         out.append(" & ".join(esc(r[k]) for k in ("step", "role", "action", "evidence", "guard", "rule", "note")) + r" \\")
-    out += [r"\bottomrule", r"\end{tabular}", "", r"\smallskip", r"\begin{minipage}{0.96\linewidth}\footnotesize\raggedright"]
+    out += [r"\bottomrule", r"\end{tabular}}", "", r"\smallskip", r"\begin{minipage}{0.96\linewidth}\footnotesize\raggedright"]
     out += [r"\textbf{Derivation.} " + " ".join(esc(l) + "." for l in lines)]
     out += [r"\end{minipage}", r"\end{table*}"]
     return "\n".join(out) + "\n"

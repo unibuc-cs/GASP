@@ -60,7 +60,7 @@ def features_table(feature_json: Path, label: str = "tab:features") -> str:
     lines = [r"\begin{table}[t]", r"\centering",
              r"\caption{Scenario set used in every run: " + str(total) + r" scenarios, stratified by family, generated from seed 2027. Hidden context (the overseer would refuse soft requests) is drawn independently with probability 0.15 and is not shown to any role.}",
              r"\label{" + label + r"}", r"\footnotesize",
-             r"\begin{tabular}{@{}p{0.55\linewidth}p{0.42\linewidth}@{}}", r"\toprule",
+             r"\begin{tabular}{@{}p{0.54\linewidth}p{0.40\linewidth}@{}}", r"\toprule",
              r"\textbf{Feature} & \textbf{Count} \\", r"\midrule"]
     for k, v in rows:
         lines.append(f"{k} & {v} \\\\")

@@ -22,7 +22,7 @@
 \maketitle
 
 \begin{abstract}
-Agentic systems built from several LLM-driven roles act through tools, share memory and take actions with consequences, yet they are mostly described as prompt pipelines and judged on their final output. We model such systems as governed agent societies: multi-role decision processes in which evidence is an object that actions must cite, a runtime guard sits inside the transition function, a human answers approval requests after a delay and can refuse, and every proposal leaves a typed trace record. The guard plays the analyze and plan steps of a MAPE-K loop with a human on the loop. We instantiate the model in a smart-city operations testbed with eight service roles, four incident families, planted false reports and hidden context that only the human knows, and we compare five ways of governing LLM-driven roles, from one agent with the rules in its prompt to roles with the rules both in their prompts and enforced at runtime. \todo{one sentence with the two or three LLM headline numbers}. With deterministic roles that follow the rules as a reference, roles that ignore them reach the same task success as governed ones while executing two rule violations per incident and broadcasting an untrue public alert in a quarter of the episodes with a false report; the guard removes both at a cost of about three extra steps and 0.6 approval requests per incident. Trace metrics expose what task success hides, and a trust-adaptive governor quantifies the trade-off between human approval load and the harm of acting where the rules are silent. Testbed, traces and scripts are available as an artifact.
+Agentic systems built from several LLM-driven roles act through tools, share memory and take actions with consequences, yet they are mostly described as prompt pipelines and judged on their final output. We model such systems as governed agent societies: multi-role decision processes in which evidence is an object that actions must cite, a runtime guard sits inside the transition function, a human answers approval requests after a delay and can refuse, and every proposal leaves a typed trace record. The guard plays the analyze and plan steps of a MAPE-K loop with a human on the loop. We instantiate the model in a smart-city operations testbed with eight service roles, four incident families, planted false reports and hidden context that only the human knows, and we compare five ways of governing LLM-driven roles, from one agent with the rules in its prompt to roles with the rules both in their prompts and enforced at runtime. With an open-weight 30B model driving the roles, rules placed in prompts leave 0.12 executed violations per incident, all of one kind, and one successful incident in nine hides a violation; the guard removes them at no measurable cost in success, steps or human requests, while the guard without the rules in the prompt costs four extra steps and a quarter more approval requests per incident. With deterministic roles that follow the rules as a reference, roles that ignore them reach the same task success as governed ones while executing two rule violations per incident and broadcasting an untrue public alert in a quarter of the episodes with a false report; the guard removes both at a cost of about three extra steps and 0.6 approval requests per incident. Trace metrics expose what task success hides, and a trust-adaptive governor quantifies the trade-off between human approval load and the harm of acting where the rules are silent. Testbed, traces and scripts are available as an artifact.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -146,9 +146,9 @@ LLM roles run on two API models from one provider, GPT-6 Sol and GPT-6 Luna, at 
 \paragraph{Metrics}
 All metrics come from trace records and final flags. Per episode: success; steps; proposals (role actions other than noop); attempted and executed violations, by rule; missed approvals (executed actions that required approval and had none); escalations and \emph{overseer load}, the number of distinct approval requests that reached the human, with the share that did not need approval; escalation precision and recall over the actions that required approval; the Brier score of $q$ against the rule's label; \emph{trace support coverage} (TSC), the share of executed high-impact actions with verified supporting evidence; \emph{hallucinated references}, the share of cited ids that do not exist or are not visible to the role; false alert and hidden harm as flags; \emph{silent violation}, success together with at least one executed violation; and governance-adjusted utility
 \[
-\mathrm{GAU} = \mathrm{succ} - 0.3\,V_{\mathrm{exec}} - 0.2\,A_{\mathrm{miss}} - 0.1\,M_{\mathrm{bad}} - 0.1\,\tfrac{\mathrm{steps}}{16} - 0.3\,H,
+\mathrm{GAU} = S - 0.3V - 0.2A - 0.1M - 0.1\,\mathrm{steps}/16 - 0.3H,
 \]
-with $V_{\mathrm{exec}}$ executed violations, $A_{\mathrm{miss}}$ missed approvals, $M_{\mathrm{bad}}$ unsupported memory writes and $H$ hidden harm. The weights order the failures by severity; a grid over 243 weight settings checks that the ranking of modes does not hinge on them. Table~\ref{tab:worked} follows one guarded episode and derives every metric from its trace.
+with $S$ success, $V$ executed violations, $A$ missed approvals, $M$ unsupported memory writes and $H$ hidden harm. The weights order the failures by severity; a grid over 243 weight settings checks that the ranking of modes does not hinge on them. Table~\ref{tab:worked} follows one guarded episode and derives every metric from its trace.
 
 \input{tables/worked_example.tex}
 
@@ -168,7 +168,8 @@ Roles that ignore the rules (D2) resolve every incident in 1.25 steps: all three
 \caption{Deterministic reference rows, 80 scenarios (20 per family), rule set R2. Naive roles do not know the rules; procedural roles follow them. Att.\ viol.\ and Exec.\ viol.\ are attempted and executed violations per episode; Overseer is the number of approval requests reaching the human per episode; Silent viol.\ is the share of successful episodes with an executed violation; Hidden harm the share of episodes in which an action that needed approval was executed where the human would have refused.}
 \label{tab:main}
 \footnotesize
-\input{tables/table_main.tex}
+\setlength{\tabcolsep}{3pt}
+\resizebox{\textwidth}{!}{\input{tables/table_main.tex}}
 \end{table*}
 
 \paragraph{Strict rules and an absent human}
@@ -176,7 +177,8 @@ Roles that ignore the rules (D2) resolve every incident in 1.25 steps: all three
 Under R3, where every high-risk action needs approval, the guard costs success: the compliant society resolves 86\% of the incidents with two approval requests per incident, because a refused request has no fallback for closing an underpass or restricting traffic in a school zone. With the human never available, success falls to 50\%. The naive society without the guard keeps its 100\% success under R3 and executes three violations per incident, one of them a missed approval in every third episode, and suffers hidden harm in every scenario that has hidden context. Under the lenient R1 the guard has little to enforce: one attempted violation per incident, all of them public alerts on unverified reports, and one blocked proposal is all it takes to remove them.
 
 \paragraph{\RQ{1} Enforcement against prompting}
-\todo{LLM results: M2 vs M3 vs M4 per model, paired statistics table from outputs/llm/stats/paired\_stats.md. Say whether prompting alone leaves executed violations, which rules the models break most, and whether knowing the rules (M4) reduces the number of blocked proposals compared with M3.}
+% NUM outputs/llm_local_stats/paired_stats.md, outputs/llm/failure_catalogue.md (Glimmer, R2, 80 scenarios x 3 repeats)
+Table~\ref{tab:llm} and Figure~\ref{fig:llm} give the LLM results; Table~\ref{tab:llmstats} the paired comparisons. With the rules in its prompt and no guard (M2), Glimmer executes 0.12 rule violations per incident (29 of 240 episodes), and every one of them is the same rule: a traffic reroute through an active pollution zone without emergency priority, in 19 pollution spikes, 9 flooded underpasses and one outage. The other five rules it keeps: no missed approval, no unsupported public message, no unsupported note, no false alert, no action outside its scope. With the guard added (M4) executed violations fall to zero ($-0.12$ $[-0.17, -0.07]$, Holm $p = 0.003$), while success, steps, approval requests and tokens do not change ($p = 1$ for each): the guard sanitised the 15 reroutes the model still proposed and did nothing else. The guard alone (M3), with roles that do not know the rules, also executes zero violations but has more to stop: 0.58 attempts per incident, 115 pollution-zone reroutes turned into signal priority changes and 24 escalations the roles had not requested, 22 of them city-wide alerts at severity 3 and two bus lanes. Knowing the rules halves the guard's work twice over: attempts fall from 0.58 to 0.06 between M3 and M4 ($\delta = -0.49$, $p < 0.001$). \todo{M0 and M1 rows when the second night's run is in; API models if they are run.}
 \IfFileExists{tables/table_llm_main.tex}{%
 \begin{table*}[t]
 \centering
@@ -184,7 +186,7 @@ Under R3, where every high-risk action needs approval, the guard costs success: 
 \label{tab:llm}
 \scriptsize
 \setlength{\tabcolsep}{3pt}
-\input{tables/table_llm_main.tex}
+\resizebox{\textwidth}{!}{\input{tables/table_llm_main.tex}}
 \end{table*}
 \begin{table}[t]
 \centering
@@ -192,7 +194,7 @@ Under R3, where every high-risk action needs approval, the guard costs success: 
 \label{tab:llmstats}
 \scriptsize
 \setlength{\tabcolsep}{3pt}
-\input{tables/table_llm_stats.tex}
+\resizebox{\linewidth}{!}{\input{tables/table_llm_stats.tex}}
 \end{table}
 \begin{figure*}[t]
 \centering
@@ -203,13 +205,15 @@ Under R3, where every high-risk action needs approval, the guard costs success: 
 }{}
 
 \paragraph{\RQ{2} Cost}
-\todo{success, steps, proposals, tokens, overseer load per model; the M0 comparison; formatting failures.}
+Enforcement without the rules in the prompt has a price. M3 needs 8.2 steps per incident against 4.2 for M2 ($+4.0$ $[3.2, 4.8]$, $\delta = 0.78$, $p < 0.001$), 17 proposals against 11, half as many tokens again (43.5k against 28.7k), 0.22 more approval requests per incident on the human ($p = 0.003$), and resolves 90\% of the incidents against 96\% ($-0.07$ $[-0.11, -0.03]$, Holm $p = 0.08$). The extra steps are the roles finding the compliant path by trial: a blocked reroute becomes a signal change, an escalated alert waits for the answer. M4 pays none of it: with the rules in the prompt and the guard behind them, every cost measure equals M2's within noise, and governance-adjusted utility is the highest of the three (0.94 against 0.90 and 0.84; $+0.09$ over M3, $p < 0.001$). Formatting failures stay between 0.03 and 0.06 per incident in every mode and no cited evidence id was invented; the model also never repeated a blocked action more than twice in a row, so the guard's reason, which the role sees at the next step, is read.
+
+Of the requests the human receives, most were not required by the rules: 64\% in M2 and M4, 71\% in M3. The model asks whenever hospital access is at risk, whether or not the proposed action is the road closure the rule names; without the rules in its prompt it asks at the same rate in scenarios with and without that risk (0.39 per incident in both). The human's load is therefore set as much by the model's caution as by the rule set, which is the load the trust-adaptive governor of Section~\ref{sec:model} would remove.
 
 \paragraph{\RQ{3} What success hides}
-\todo{silent violation rate, false alerts, unsupported alerts, hallucinated references, hidden harm per mode and model; two or three concrete traces from the failure catalogue.}
+In M2, 11\% of the successful incidents contain an executed violation (silent violation rate 0.12 per episode, 0.11 per scenario); the incident is resolved, the trace says a rule was broken, and nothing in the final state does. Under the guard the rate is zero by construction. False alerts, unsupported public messages and hidden harm are zero in all three modes: this model verifies before it speaks (trace support coverage 1.00 everywhere) and asks before every action that needs approval, so the hidden context never had an action to harm. The traces show two failure mechanisms instead, both ending in the 16-step horizon, which accounts for all 43 failed episodes. The first is an \emph{approval lock-out}: a role asks the human for an approval the rules do not require, the answer is a refusal, because the human is absent or holds hidden context, and the role respects the refusal for the rest of the episode. In M2 and M4 all 18 failures are of this kind, in the same three scenarios in all three repeats, each with hospital access at risk; in one of them the water role writes for thirteen steps that the closure ``requires human approval and the approval is denied'' while the underpass stays open. The guard did not cause it and cannot prevent it: a refusal binds whether the request was needed or not. The second is an \emph{evidence loop}, only in M3: the communication role, told nothing about the rules, requests evidence or verification on topics it believes it needs and never proposes a message; in 20 of the 25 M3 failures the missing goal is the public alert. With the rules in the prompt the same role sends a targeted notice in the same scenarios.
 
 \paragraph{\RQ{4} Robustness}
-\todo{per family and per model; R1/R3 and overseer sweeps on the small model; GAU weight grid: how often each mode ranks first.}
+By family, the pattern holds where there is something to govern: executed violations in M2 are 0.32 per incident in pollution spikes and 0.15 in flooded underpasses, the two families with active pollution zones, and zero in traffic accidents and 0.02 in outages; the guard brings all four to zero. The cost of M3 is largest in flooded underpasses (10.3 steps, success 0.75), the family with the most approval and evidence rules in play, and smallest in outages (6.7 steps, success 0.97). \todo{R1/R3 and human always/never sweeps (running); the GAU weight grid on the LLM rows; the API models, if run, for the model dimension.}
 
 \paragraph{\RQ{5} Transfer to software operations}
 Table~\ref{tab:ops} repeats the deterministic rows in the incident response domain. % NUM outputs/paper_ops/table_main.md
@@ -220,7 +224,8 @@ The pattern is the same. Roles that ignore the rules resolve every incident in 1
 \caption{Deterministic reference rows in the software incident response domain, 80 scenarios (20 per family), rule set R2, same columns as Table~\ref{tab:main}. Same guard, trace schema and metrics code as the city domain.}
 \label{tab:ops}
 \footnotesize
-\input{tables/table_main_ops.tex}
+\setlength{\tabcolsep}{3pt}
+\resizebox{\textwidth}{!}{\input{tables/table_main_ops.tex}}
 \end{table*}
 
 \paragraph{Trust-adaptive governance}
@@ -253,7 +258,7 @@ The approval step looks like a bottleneck and, under strict rules and an unavail
 %=====================================================================
 \section{Conclusion}
 \label{sec:conclusion}
-Governed agent societies put the rules where the actions are: in a guard inside the transition function that checks provenance, asks a person when the rules say so, and leaves a trace of everything it decided. \todo{one sentence with the LLM headline.} The traces show that success and governance are different things, and that a system can have the first without the second; the guard gives the second at a measured price in steps and human attention. Next steps are LLM roles in the incident response domain and learning role policies from the traces the guard produces.
+Governed agent societies put the rules where the actions are: in a guard inside the transition function that checks provenance, asks a person when the rules say so, and leaves a trace of everything it decided. With an LLM driving the roles, the rules in the prompt leaked one violation per eight incidents; the guard removed every one at no cost once the roles knew the rules, and at four extra steps per incident when they did not. The traces show that success and governance are different things, and that a system can have the first without the second; the guard gives the second at a measured price in steps and human attention. Next steps are LLM roles in the incident response domain and learning role policies from the traces the guard produces.
 
 \section*{Artifact}
 \label{sec:artifact}
