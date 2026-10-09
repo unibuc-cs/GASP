@@ -1,6 +1,6 @@
 """One line of progress for a grid run split over several processes.
 
-    python -m gasp.experiments.progress --runs "outputs/llm/local_*" --total 720            # print once
+    python -m gasp.experiments.progress --runs "outputs/llm/local_M2_*" "outputs/llm/local_M3_*" --total 480   # print once
     python -m gasp.experiments.progress --runs "outputs/llm_local_pilot/M*" --total 24 --watch 20   # redraw every 20 s
 
 Counts the finished episodes (lines of episodes.jsonl in every matching run directory), shows a bar, the model
@@ -20,9 +20,9 @@ from collections import Counter
 from pathlib import Path
 
 
-def snapshot(runs_glob: str):
+def snapshot(runs_globs):
     done, calls, tokens, per_mode, last = 0, 0, 0, Counter(), ""
-    for d in glob.glob(runs_glob):
+    for d in sorted({d for g in runs_globs for d in glob.glob(g)}):
         p = Path(d) / "episodes.jsonl"
         if not p.exists():
             continue
@@ -48,7 +48,7 @@ def fmt_time(seconds: float) -> str:
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--runs", required=True)
+    ap.add_argument("--runs", required=True, nargs="+", help="one or more globs of run directories")
     ap.add_argument("--total", type=int, required=True, help="episodes expected over all matching runs")
     ap.add_argument("--watch", type=float, default=0, help="seconds between redraws; 0 prints once")
     args = ap.parse_args()

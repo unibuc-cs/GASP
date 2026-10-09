@@ -125,7 +125,9 @@ source ~/muse-glimmer/.venv/bin/activate          # the uv environment on our se
 bash scripts/serve_local_model.sh                 # finds the GPUs, starts one server per GPU (ports 8000, 8001, ...)
 # Ctrl-b c opens a second window in tmux
 bash scripts/run_local_ablation.sh pilot          # 24 episodes, one process per mode over the servers, 30-60 minutes
-bash scripts/run_local_ablation.sh                # 720 episodes over all servers; about a night on three H100s; resumable
+bash scripts/run_local_ablation.sh                # M2 M3 M4, 720 episodes over all servers; about a night on three H100s; resumable
+MODES="M0 M1" bash scripts/run_local_ablation.sh  # the two remaining modes, 480 episodes
+bash scripts/run_local_ablation.sh sens           # rule sets R1 and R3, human always or never available; M2 and M3, one repeat
 ```
 
 The serve script reads the GPU count and memory from `nvidia-smi`, picks the precision (bf16 above 70 GB per card, fp8 above
