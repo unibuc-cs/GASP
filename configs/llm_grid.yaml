@@ -17,3 +17,14 @@ models:
     model: gpt-6-luna
     base_url: https://api.openai.com/v1
     api_key_env: OPENAI_API_KEY
+# Other models: one entry each, same fields. The `model` value must be the exact identifier from the provider's model
+# list. An OpenAI model is `kind: openai` with OPENAI_API_KEY; a Claude model is `kind: anthropic` with ANTHROPIC_API_KEY
+# (`pip install anthropic` once). The grid runs every entry in this list; use --models name1,name2 to run a subset.
+#  - name: astra
+#    kind: openai
+#    model: <exact OpenAI model id>
+#    api_key_env: OPENAI_API_KEY
+#  - name: fable
+#    kind: anthropic
+#    model: <exact Anthropic model id>
+#    api_key_env: ANTHROPIC_API_KEY
