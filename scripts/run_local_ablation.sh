@@ -75,9 +75,9 @@ elif [[ "${1:-full}" == "sens" ]]; then
       done
     done
   done
-  echo "$j processes started over $N server(s); logs in outputs/llm_sens_local_*.log."
+  echo "$j processes started over $N server(s); logs in outputs/llm_sens_${PREFIX}_*.log."
   wait_with_progress 640 "outputs/llm_sens/${PREFIX}_*"
-  python -m gasp.experiments.analyze --episodes "outputs/llm_sens/local_*/episodes.csv" --out outputs/llm_sens/stats \
+  python -m gasp.experiments.analyze --episodes "outputs/llm_sens/${PREFIX}_*/episodes.csv" --out outputs/llm_sens/${PREFIX}_stats \
       --pairs M2:M3 --group tag
   echo "Done. Results in outputs/llm_sens/ (the folder sync brings them over)."
 else
@@ -98,7 +98,7 @@ else
       j=$((j + 1))
     done
   done
-  echo "$j processes started over $N server(s) for modes $MODES; logs in outputs/llm_local_*.log."
+  echo "$j processes started over $N server(s) for modes $MODES; logs in outputs/llm_${PREFIX}_*.log."
   globs=(); for m in $MODES; do globs+=("outputs/llm/${PREFIX}_${m}_*"); done
   wait_with_progress "$total" "${globs[@]}"
   python -m gasp.experiments.analyze --episodes "outputs/llm/${PREFIX}_*/episodes.csv" --out outputs/llm_${PREFIX}_stats \
