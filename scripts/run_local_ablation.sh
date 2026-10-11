@@ -9,6 +9,7 @@
 # outputs/llm/local_* so the paper build picks them up with the API results.
 set -euo pipefail
 cd "$(dirname "$0")/.."
+trap 'kill 0' INT TERM      # Ctrl-c stops the run and its processes; started again, it continues where it was
 # Which model: a config file with one local model entry. The servers are found by the served model name, so several
 # models can be served at once on different ports and each config picks its own.
 #   CONFIG=configs/llm_grid_local_qwen4b.yaml bash scripts/run_local_ablation.sh pilot

@@ -4,7 +4,7 @@
 
 Branch `main`, 45 tests pass, `make` in `paper/` builds the 10 page draft. Everything that does not depend on model runs
 is written. In the paper: the deterministic results and Glimmer M2–M4. Missing: Glimmer M0, M1 and the sweeps; gpt-oss-120b
-and Gemma 4; the two API models. 12 days left.
+and Gemma 4 (lab GPU, cards 0 and 1 only); the two API models. 12 days left.
 
 ## What is left
 
@@ -40,4 +40,4 @@ Me, as results arrive:
 - 8 Oct: Glimmer served (the `-assistant` repository is only its drafter); pilot passed, 24 episodes in 56 minutes on three H100s.
 - 9 Oct: Glimmer M2–M4 (720 episodes) in the paper: with the rules only in its prompt the model breaks one rule 0.12 times per incident; with the guard added none, at no cost; with the guard alone none, at a cost. Paper 10 pages, red marks only where data is missing.
 - 10 Oct: scripts take any local model; configs for gpt-oss-120b and Gemma 4 E4B. The M0/M1 and sweeps command of 9 Oct did not run.
-- 11 Oct: two H100s now; local models in turns, one at a time (`RUNBOOK.md` section 7).
+- 11 Oct: only cards 0 and 1 are ours now (the node still shows three): `GPU_IDS=0,1` on every serve command; local models in turns, one at a time (`RUNBOOK.md` section 7).

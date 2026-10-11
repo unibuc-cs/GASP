@@ -9,14 +9,15 @@
 #   source ~/muse-glimmer/.venv/bin/activate   # the uv environment on our server; elsewhere: pip install vllm
 #   bash scripts/serve_local_model.sh          # then Ctrl-b d to detach
 #
-# Any model, any subset of GPUs, several models at once (one script per model, different GPU_IDS and PORT):
-#   MODEL=google/gemma-4-E4B-it NAME=gemma4 GPU_IDS=2 PORT=8010 bash scripts/serve_local_model.sh
-#   MODEL=openai/gpt-oss-120b NAME=gptoss120b GPU_IDS=0,1 PORT=8000 bash scripts/serve_local_model.sh   # one copy per GPU
+# Any model, any subset of GPUs (GPU_IDS; without it: the GPUs CUDA_VISIBLE_DEVICES names, else every GPU nvidia-smi lists):
+#   GPU_IDS=0,1 bash scripts/serve_local_model.sh                                                    # Glimmer on cards 0 and 1
+#   MODEL=openai/gpt-oss-120b NAME=gptoss120b GPU_IDS=0,1 bash scripts/serve_local_model.sh          # one copy per GPU
+#   MODEL=google/gemma-4-E4B-it NAME=gemma4 GPU_IDS=0,1 bash scripts/serve_local_model.sh
 # Stopping: Ctrl-c in the window that runs this script stops its servers; `pkill -f "vllm serve"` stops every server;
 # `nvidia-smi` shows the memory coming back.
 # Variables (all optional):
 #   MODEL     Hugging Face id of the model                 NAME      served model name; the config's `model` field
-#   GPU_IDS   comma list of GPU indices (default: all)     PORT      first port; dp layout uses PORT, PORT+1, ...
+#   GPU_IDS   comma list of GPU indices (default: CUDA_VISIBLE_DEVICES, else all)   PORT  first port; dp layout uses PORT, PORT+1, ...
 #   LAYOUT    dp: one server per GPU, full copy each (default); tp: one server, tensor parallel over GPU_IDS (head
 #             count must be divisible by the GPU count); pp: one server, pipeline parallel over GPU_IDS (any model)
 #   QUANT     fp8 | bitsandbytes | "" (bf16); default chosen from the first GPU's memory for a 30B model, so set it
@@ -34,7 +35,7 @@ PORT=${PORT:-8000}
 LAYOUT=${LAYOUT:-dp}
 MAX_LEN=${MAX_LEN:-8192}
 NGPU=$(nvidia-smi -L 2>/dev/null | wc -l)
-if [[ -z "${GPU_IDS:-}" ]]; then GPU_IDS=$(seq -s, 0 $((NGPU - 1))); fi
+if [[ -z "${GPU_IDS:-}" ]]; then GPU_IDS=${CUDA_VISIBLE_DEVICES:-$(seq -s, 0 $((NGPU - 1)))}; fi
 IFS=',' read -r -a GPU_LIST <<< "$GPU_IDS"
 GPUS=${#GPU_LIST[@]}
 if (( NGPU < 1 || GPUS < 1 )); then echo "no GPU found by nvidia-smi"; exit 1; fi

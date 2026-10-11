@@ -112,21 +112,22 @@ Large: `outputs/llm/*/traces/` (zip it; a few hundred MB). Needed for the worked
 
 Three local models, no key, no cost: Glimmer 30B (`meta-models/Muse-Glimmer-30B`, done for M2–M4), gpt-oss-120b and
 Gemma 4 E4B (configs `configs/llm_grid_local*.yaml`, with the model settings in their comments). Same scenarios as the API
-models, three repeats. The node has two H100s, so one model at a time, on both cards; every turn is the same three steps:
-stop the servers of the model before, serve the next one, run it (pilot first for a new model).
+models, three repeats. We may use cards 0 and 1 only (the node shows three), so `GPU_IDS=0,1` on every serve command, one
+model at a time; every turn is the same three steps: stop the servers of the model before, serve the next one, run it
+(pilot first for a new model).
 
 ```bash
 ssh user@gpu-server; tmux new -s vllm; source ~/muse-glimmer/.venv/bin/activate
 # turn 1: Glimmer, the two modes still missing (M0, M1) and the sweeps (rule sets R1, R3; human always or never available)
-bash scripts/serve_local_model.sh                                                   # window 0 (Ctrl-b c: new window)
+GPU_IDS=0,1 bash scripts/serve_local_model.sh                                       # window 0 (Ctrl-b c: new window)
 MODES="M0 M1" bash scripts/run_local_ablation.sh && bash scripts/run_local_ablation.sh sens   # window 1
 # turn 2: gpt-oss-120b, all five modes
 pkill -f "vllm serve"; sleep 10; nvidia-smi                                         # memory comes back on both cards
-MODEL=openai/gpt-oss-120b NAME=gptoss120b bash scripts/serve_local_model.sh
+MODEL=openai/gpt-oss-120b NAME=gptoss120b GPU_IDS=0,1 bash scripts/serve_local_model.sh
 CONFIG=configs/llm_grid_local_large.yaml bash scripts/run_local_ablation.sh pilot   # then the same line without "pilot"
 # turn 3: Gemma 4 E4B, all five modes
 pkill -f "vllm serve"; sleep 10
-MODEL=google/gemma-4-E4B-it NAME=gemma4 bash scripts/serve_local_model.sh
+MODEL=google/gemma-4-E4B-it NAME=gemma4 GPU_IDS=0,1 bash scripts/serve_local_model.sh
 CONFIG=configs/llm_grid_local_small.yaml bash scripts/run_local_ablation.sh pilot   # then without "pilot"
 ```
 
@@ -134,9 +135,10 @@ Rules of thumb:
 
 - Start a run only when the servers answer: `curl -s localhost:8000/v1/models` prints the model name. Otherwise the run
   script stops with "No server serving ..." and nothing after `&&` runs either.
-- The serve script finds the cards itself and starts one copy per card (`GPU_IDS=0` limits it; the header lists the rest).
-- A run can be stopped and started again and continues where it was, as long as `SHARDS` stays the same (default: four per
-  card). A run begun on three cards continues with `SHARDS=12` in front of the command.
+- Without `GPU_IDS` the serve script takes the cards `CUDA_VISIBLE_DEVICES` names, else every card `nvidia-smi` lists, one
+  copy per card. The run script uses every server it finds on ports 8000–8031, so stop servers you do not want first.
+- Ctrl-c in the run window stops a run; started again it continues where it was, as long as `SHARDS` stays the same
+  (default: four per server). A run begun on three servers continues with `SHARDS=12` in front of the command.
 - Times: the 720 Glimmer episodes took one night on three cards; count about a day on two for turn 1 (1,120 episodes).
   The run script prints one progress line every 20 s with the time left; `nvidia-smi` shows the cards working.
 - Pilot checks: formatting failures under 1 per episode, success in M2 above 0.3, executed violations 0 under the guard.
