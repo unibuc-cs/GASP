@@ -5,3 +5,4 @@
 *.png binary
 *.pt binary
 *.ipynb text eol=lf
+*.cmd text eol=crlf

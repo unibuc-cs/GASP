@@ -145,9 +145,15 @@ Rules of thumb:
   Glimmer reasons at level "high" (model card) with 4096 tokens per answer; the API models run at their defaults.
 - Without tmux: `nohup bash scripts/serve_local_model.sh > vllm.log 2>&1 &` and the same for the run script.
 
-After each turn, copy `outputs/llm`, `outputs/llm_sens` and the `outputs/llm_*_stats` folders from the server into the
-repository's `outputs` folder on the PC, so that for instance `outputs/llm/gptoss120b_M2_s0/episodes.csv` exists there.
-`make` in `paper/` then picks every model up as new table rows; the Models paragraph needs one sentence per model.
+After each turn, in a terminal on the PC (not PyCharm's Run button, which runs on the server):
+
+```bash
+python scripts/fetch_outputs.py user@gpu-server      # add the repository's path on the server if it is not ~/GASP; --no-traces skips the large trace files
+```
+
+It packs the results on the server, copies the pack, unpacks it into `outputs/` here at the right place and prints what is
+there (`scripts\fetch_outputs.cmd user@gpu-server` does the same on a PC without Python). `make` in `paper/` then picks
+every model up as new table rows; the Models paragraph needs one sentence per model.
 
 ## 8. Building the paper and filling the red marks
 

@@ -11,7 +11,7 @@ and Gemma 4 (lab GPU, cards 0 and 1 only); the two API models. 12 days left.
 Group:
 
 - [ ] Glimmer M0, M1 and the sweeps on the lab GPU (`RUNBOOK.md` section 7, turn 1). The command of 9 Oct did not run; nothing exists yet.
-- [ ] gpt-oss-120b, then Gemma 4 E4B (turns 2 and 3), pilot first. Results copied into `outputs/` on the PC after each turn.
+- [ ] gpt-oss-120b, then Gemma 4 E4B (turns 2 and 3), pilot first. After each turn: `python scripts/fetch_outputs.py user@gpu-server` on the PC.
 - [ ] The two API models: pilot, then main grid (`scripts/run_pilot.sh`, `scripts/run_main_grid.sh`, about 120 USD), then the "API:" red marks in the paper, or hand the results back.
 - [ ] Repository private or anonymous mirror before 23 Oct. HotCRP author data (names, affiliations, ORCIDs) by 16 Oct.
 
@@ -40,4 +40,4 @@ Me, as results arrive:
 - 8 Oct: Glimmer served (the `-assistant` repository is only its drafter); pilot passed, 24 episodes in 56 minutes on three H100s.
 - 9 Oct: Glimmer M2–M4 (720 episodes) in the paper: with the rules only in its prompt the model breaks one rule 0.12 times per incident; with the guard added none, at no cost; with the guard alone none, at a cost. Paper 10 pages, red marks only where data is missing.
 - 10 Oct: scripts take any local model; configs for gpt-oss-120b and Gemma 4 E4B. The M0/M1 and sweeps command of 9 Oct did not run.
-- 11 Oct: only cards 0 and 1 are ours now (the node still shows three): `GPU_IDS=0,1` on every serve command; local models in turns, one at a time (`RUNBOOK.md` section 7).
+- 11 Oct: only cards 0 and 1 are ours now (the node still shows three): `GPU_IDS=0,1` on every serve command; local models in turns, one at a time (`RUNBOOK.md` section 7). `scripts/fetch_outputs.py` brings all results from the server in one go.

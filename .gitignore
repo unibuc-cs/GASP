@@ -25,3 +25,4 @@ paper/*.log
 paper/*.out
 venv/
 Claude outputs/
+*.tgz
