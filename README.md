@@ -24,8 +24,8 @@ bash scripts/run_main_grid.sh                                     # a few hours,
 Send back `outputs/llm_results.zip` and `outputs/llm_traces.zip`. Nothing runs on your machine but a Python script
 that calls the API; no GPU.
 
-Optional, if the lab GPU is free: `bash scripts/serve_local_model.sh` on the GPU server (vLLM), then
-`bash scripts/run_local_ablation.sh`. Adds an open-weight 30B model as a third model; no key, no cost, a few hours.
+Local models on the lab GPU (Glimmer 30B, gpt-oss-120b, Gemma 4 E4B; no key, no cost): one model at a time, served with
+`bash scripts/serve_local_model.sh` and run with `bash scripts/run_local_ablation.sh`; the turns are in `RUNBOOK.md`, section 7.
 
 ## What to check in the pilot table
 
@@ -40,7 +40,7 @@ Everything else in the table is a result, not a problem. `docs/RESULTS_GUIDE.md`
 |---|---|
 | `RUNBOOK.md` | every command with its options, the GPU variant, what to do when something breaks |
 | `docs/RESULTS_GUIDE.md` | what each number means, the health checks, the expected ranges, what each outcome means for the paper |
-| `todo.md` | plan, status, open items, running log |
+| `todo.md` | status, what is left, dates, decisions |
 | `docs/BACKGROUND.md` | why SEAMS, what the ESEM reviews said, what the old code showed |
 | `gasp/` | the code: `core/` (evidence, actions, guard, state, traces, metrics), `domains/` (smartcity, ops), `policies/` (procedural, naive, LLM, backends), `experiments/` (reproduce, run_grid, analyze, paper tables and figures, pilot report) |
 | `configs/` | rule sets `rules/R1–R3.yaml`; LLM grids `llm_grid.yaml` (API models), `llm_grid_local.yaml` (vLLM), `llm_grid_dryrun.yaml` (no model) |

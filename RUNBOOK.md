@@ -1,18 +1,15 @@
 # Runbook: the LLM experiments
 
-Both models are OpenAI API models (`gpt-6-sol`, `gpt-6-luna`). Nothing runs locally, no GPU is needed, and no model
-is downloaded: "running the experiment" means a Python script on any computer with internet that calls the OpenAI API
-with your key, records the answers as traces, and writes the tables. The key is read from the environment variable
-`OPENAI_API_KEY` and never leaves the machine.
-
-Three ways to run, pick one:
+Two API models (`gpt-6-sol`, `gpt-6-luna`; sections 1–6): a Python script on any computer with internet calls the
+OpenAI API with your key (environment variable `OPENAI_API_KEY`), records the answers as traces and writes the tables.
+Three local models on the lab GPU (section 7).
 
 | Way | Where | Good for |
 |---|---|---|
 | `bash scripts/run_pilot.sh` | any laptop with Python 3.10+ | the pilot (under an hour, a few USD) |
 | `notebooks/GASP_pilot_colab.ipynb` | Google Colab, no installation | the pilot, if installing Python is a hassle |
 | `bash scripts/run_main_grid.sh` | a machine that can stay on for hours (a lab server, a cloud VM) | the main grid and the sensitivity sweeps |
-| `bash scripts/run_local_ablation.sh` | the lab GPU server, vLLM, over ssh | optional: an open-weight 30B model as third model (section 7) |
+| `bash scripts/run_local_ablation.sh` | the lab GPU server, vLLM, over ssh | the local models (section 7) |
 
 Prices at list rates: GPT-6 Sol 2 / 10 USD per million input / output tokens; GPT-6 Luna 0.10 / 0.50. Main grid, five
 repeats: about 40M tokens per model, so roughly 110 USD for Sol and 6 USD for Luna. Pilot: a few USD in total.
@@ -111,94 +108,44 @@ Small files (a few MB), by mail or in the repo:
 
 Large: `outputs/llm/*/traces/` (zip it; a few hundred MB). Needed for the worked example, the failure catalogue and the hallucinated-reference examples.
 
-## 7. Optional: an open-weight model on the lab GPU (vLLM over ssh)
+## 7. Open-weight models on the lab GPU (vLLM over ssh)
 
-A third model that is not from OpenAI: `meta-models/Muse-Glimmer-30B` (Meta, Apache 2.0, dense 30B, on Hugging Face;
-the `-assistant` repository next to it is only its speculative decoding drafter and cannot be served alone). It runs on
-the group's GPU server under vLLM: no key, no cost, time is set by the GPU. Same scenarios and rule set; modes M2, M3, M4;
-three repeats, 720 episodes, about 12k calls.
-
-```bash
-ssh user@gpu-server
-tmux new -s vllm
-source ~/muse-glimmer/.venv/bin/activate          # the uv environment on our server (elsewhere: pip install vllm, once)
-bash scripts/serve_local_model.sh                 # finds the GPUs, starts one server per GPU (ports 8000, 8001, ...)
-# Ctrl-b c opens a second window in tmux
-bash scripts/run_local_ablation.sh pilot          # 24 episodes, one process per mode over the servers, 30-60 minutes
-bash scripts/run_local_ablation.sh                # M2 M3 M4, 720 episodes over all servers; took one night on three H100s; resumable
-MODES="M0 M1" bash scripts/run_local_ablation.sh  # the two remaining modes, 480 episodes
-bash scripts/run_local_ablation.sh sens           # rule sets R1 and R3, human always or never available; M2 and M3, one repeat
-```
-
-Start the run script only once the servers answer (`curl -s localhost:8000/v1/models` prints the model name; the first
-start downloads the weights first): if no server answers, the script stops at once with "No server serving ...", and a
-chained command (`... && bash scripts/run_local_ablation.sh sens`) stops with it.
-
-The serve script reads the GPU count and memory from `nvidia-smi`, picks the precision (bf16 above 70 GB per card, fp8 above
-38 GB, 4-bit below) and starts one server per GPU, each with a full copy of the model; the ablation script finds the servers
-and deals its processes over them, so all GPUs work. On our node (two H100 80 GB since 10 October; three before) this means
-two bf16 servers and four shards per server and mode. `GPU_IDS=0`, `QUANT=fp8` or `LAYOUT=tp` (one server spread over all
-GPUs, for a model that does not fit on one card) override the choices; the script header lists them. A stopped run continues
-where it was as long as `SHARDS` is the same (the default is four per server): a run begun on three cards, with 12 shards,
-continues on two with `SHARDS=12 bash scripts/run_local_ablation.sh ...`.
-
-Ctrl-b d detaches; server and runs continue. The first start downloads about 60 GB of weights; set `HF_HOME` to a disk with room.
-tmux keys: hold Ctrl, press b, release both, then press the letter alone (lowercase). If nothing happens, you are probably not
-inside tmux: a tmux session shows a green bar at the bottom of the window (`echo $TMUX` prints something inside one). In the
-VS Code terminal Ctrl-b is taken by the editor itself; use another terminal there, or do without tmux:
+Three local models, no key, no cost: Glimmer 30B (`meta-models/Muse-Glimmer-30B`, done for M2–M4), gpt-oss-120b and
+Gemma 4 E4B (configs `configs/llm_grid_local*.yaml`, with the model settings in their comments). Same scenarios as the API
+models, three repeats. The node has two H100s, so one model at a time, on both cards; every turn is the same three steps:
+stop the servers of the model before, serve the next one, run it (pilot first for a new model).
 
 ```bash
-nohup bash scripts/serve_local_model.sh > vllm.log 2>&1 &      # keeps running after you log out
-tail -f vllm.log                                                # watch it; Ctrl-c stops watching, not the server
-nohup bash scripts/run_local_ablation.sh > ablation.log 2>&1 &
-```
-To run from a laptop instead, open a tunnel with `ssh -N -L 8000:localhost:8000 user@gpu-server` and run the same two commands there.
-
-Checks are the pilot's: formatting failures under 1 per episode, success in M2 above 0.3, executed violations 0.00 under the guard.
-Glimmer reasons before it answers. The servers start with vLLM's `muse_glimmer` reasoning parser, which returns the
-reasoning in a separate field so only the answer is parsed; the config sets the reasoning level to "high", the model card's
-recommendation for agentic tasks, through the system prompt line the card specifies, and allows 4096 tokens per answer
-including the reasoning. The API models run at their defaults, with no extended thinking asked for; the paper says so. If formatting
-failures are high, open a trace: an answer cut off before the JSON means raise `max_tokens` in `configs/llm_grid_local.yaml`.
-The model also takes images; our requests are text only, which is fine.
-
-While a run goes, the script redraws one progress line every 20 seconds: finished episodes of the total, model calls and
-tokens so far, time elapsed and left, counts per mode, the last finished episode. From another window the same line is
-`python -m gasp.experiments.progress --runs "outputs/llm/local_*" --total 720` (for the pilot:
-`--runs "outputs/llm_local_pilot/M*" --total 24`); `nvidia-smi` shows the cards working, and `vllm_glimmer_gpu0.log`
-has the server's own throughput lines.
-
-Other local models, for a size axis (small, 30B, large): one config per model (`configs/llm_grid_local_small.yaml` for
-`google/gemma-4-E4B-it`, `configs/llm_grid_local_large.yaml` for `openai/gpt-oss-120b`; the vLLM and reasoning settings
-are in the config comments), all five modes, three repeats, 1,200 episodes each. With two cards the models run in turns,
-one model at a time on both cards; every turn is the same three steps: stop the servers of the model before, serve the
-next one (no `GPU_IDS`, so the script takes every card it finds; one copy per card), run its pilot and then its grid. The
-run script finds the servers by the served model name, so the config decides which model runs.
-
-```bash
-# turn 1: Glimmer, the two remaining modes and the sweeps (skip what outputs/llm/local_M0_* and outputs/llm_sens already hold)
-bash scripts/serve_local_model.sh                                                    # window 0
-MODES="M0 M1" bash scripts/run_local_ablation.sh && bash scripts/run_local_ablation.sh sens   # window 1, once the servers answer
-# turn 2: gpt-oss-120b (117B parameters, 5B active, shipped 4-bit: one copy fits one card)
-pkill -f "vllm serve"; sleep 10; nvidia-smi                                          # window 0: memory comes back on both cards
+ssh user@gpu-server; tmux new -s vllm; source ~/muse-glimmer/.venv/bin/activate
+# turn 1: Glimmer, the two modes still missing (M0, M1) and the sweeps (rule sets R1, R3; human always or never available)
+bash scripts/serve_local_model.sh                                                   # window 0 (Ctrl-b c: new window)
+MODES="M0 M1" bash scripts/run_local_ablation.sh && bash scripts/run_local_ablation.sh sens   # window 1
+# turn 2: gpt-oss-120b, all five modes
+pkill -f "vllm serve"; sleep 10; nvidia-smi                                         # memory comes back on both cards
 MODEL=openai/gpt-oss-120b NAME=gptoss120b bash scripts/serve_local_model.sh
-CONFIG=configs/llm_grid_local_large.yaml bash scripts/run_local_ablation.sh pilot    # window 1, then the same line without "pilot"
-# turn 3: Gemma 4 E4B
+CONFIG=configs/llm_grid_local_large.yaml bash scripts/run_local_ablation.sh pilot   # then the same line without "pilot"
+# turn 3: Gemma 4 E4B, all five modes
 pkill -f "vllm serve"; sleep 10
 MODEL=google/gemma-4-E4B-it NAME=gemma4 bash scripts/serve_local_model.sh
-CONFIG=configs/llm_grid_local_small.yaml bash scripts/run_local_ablation.sh pilot    # then without "pilot"
+CONFIG=configs/llm_grid_local_small.yaml bash scripts/run_local_ablation.sh pilot   # then without "pilot"
 ```
 
-Ctrl-c in a serve window stops that script's servers only. Times: the 720 Glimmer episodes took one night on three cards,
-so count about a day on two for M0, M1 and the sweeps together (1,120 episodes). For the other two models the progress
-line gives the time left after the first finished episodes; gpt-oss-120b runs fewer parameters per token than Glimmer but
-reasons at length, and Gemma 4 E4B is small and quick. The model names the configs use (`gptoss120b`, `gemma4`) are what
-the tables will show.
+Rules of thumb:
+
+- Start a run only when the servers answer: `curl -s localhost:8000/v1/models` prints the model name. Otherwise the run
+  script stops with "No server serving ..." and nothing after `&&` runs either.
+- The serve script finds the cards itself and starts one copy per card (`GPU_IDS=0` limits it; the header lists the rest).
+- A run can be stopped and started again and continues where it was, as long as `SHARDS` stays the same (default: four per
+  card). A run begun on three cards continues with `SHARDS=12` in front of the command.
+- Times: the 720 Glimmer episodes took one night on three cards; count about a day on two for turn 1 (1,120 episodes).
+  The run script prints one progress line every 20 s with the time left; `nvidia-smi` shows the cards working.
+- Pilot checks: formatting failures under 1 per episode, success in M2 above 0.3, executed violations 0 under the guard.
+  Glimmer reasons at level "high" (model card) with 4096 tokens per answer; the API models run at their defaults.
+- Without tmux: `nohup bash scripts/serve_local_model.sh > vllm.log 2>&1 &` and the same for the run script.
 
 After each turn, copy `outputs/llm`, `outputs/llm_sens` and the `outputs/llm_*_stats` folders from the server into the
-repository's `outputs` folder on the PC, so that for instance `outputs/llm/gptoss120b_M2_s0/episodes.csv` exists there
-(not `outputs/outputs/...`); `make` in `paper/` then picks every model up as new table rows, and the Models paragraph of
-the paper needs one sentence per model (sizes, licences and reasoning settings are in the config comments).
+repository's `outputs` folder on the PC, so that for instance `outputs/llm/gptoss120b_M2_s0/episodes.csv` exists there.
+`make` in `paper/` then picks every model up as new table rows; the Models paragraph needs one sentence per model.
 
 ## 8. Building the paper and filling the red marks
 
