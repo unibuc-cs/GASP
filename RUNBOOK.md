@@ -125,16 +125,22 @@ source ~/muse-glimmer/.venv/bin/activate          # the uv environment on our se
 bash scripts/serve_local_model.sh                 # finds the GPUs, starts one server per GPU (ports 8000, 8001, ...)
 # Ctrl-b c opens a second window in tmux
 bash scripts/run_local_ablation.sh pilot          # 24 episodes, one process per mode over the servers, 30-60 minutes
-bash scripts/run_local_ablation.sh                # M2 M3 M4, 720 episodes over all servers; about a night on three H100s; resumable
+bash scripts/run_local_ablation.sh                # M2 M3 M4, 720 episodes over all servers; took one night on three H100s; resumable
 MODES="M0 M1" bash scripts/run_local_ablation.sh  # the two remaining modes, 480 episodes
 bash scripts/run_local_ablation.sh sens           # rule sets R1 and R3, human always or never available; M2 and M3, one repeat
 ```
 
+Start the run script only once the servers answer (`curl -s localhost:8000/v1/models` prints the model name; the first
+start downloads the weights first): if no server answers, the script stops at once with "No server serving ...", and a
+chained command (`... && bash scripts/run_local_ablation.sh sens`) stops with it.
+
 The serve script reads the GPU count and memory from `nvidia-smi`, picks the precision (bf16 above 70 GB per card, fp8 above
 38 GB, 4-bit below) and starts one server per GPU, each with a full copy of the model; the ablation script finds the servers
-and deals its processes over them, so all GPUs work. On our node (three H100 80 GB) this means three bf16 servers and
-about twelve concurrent requests per card. `GPUS=2`, `QUANT=fp8` or `LAYOUT=tp` (one server spread over all GPUs,
-for a model that does not fit on one card) override the choices; the script header lists them.
+and deals its processes over them, so all GPUs work. On our node (two H100 80 GB since 10 October; three before) this means
+two bf16 servers and four shards per server and mode. `GPU_IDS=0`, `QUANT=fp8` or `LAYOUT=tp` (one server spread over all
+GPUs, for a model that does not fit on one card) override the choices; the script header lists them. A stopped run continues
+where it was as long as `SHARDS` is the same (the default is four per server): a run begun on three cards, with 12 shards,
+continues on two with `SHARDS=12 bash scripts/run_local_ablation.sh ...`.
 
 Ctrl-b d detaches; server and runs continue. The first start downloads about 60 GB of weights; set `HF_HOME` to a disk with room.
 tmux keys: hold Ctrl, press b, release both, then press the letter alone (lowercase). If nothing happens, you are probably not
@@ -159,31 +165,40 @@ The model also takes images; our requests are text only, which is fine.
 While a run goes, the script redraws one progress line every 20 seconds: finished episodes of the total, model calls and
 tokens so far, time elapsed and left, counts per mode, the last finished episode. From another window the same line is
 `python -m gasp.experiments.progress --runs "outputs/llm/local_*" --total 720` (for the pilot:
-`--runs "outputs/llm_local_pilot/M*" --total 24`); `nvidia-smi` shows the three cards working, and `vllm_gpu0.log`
+`--runs "outputs/llm_local_pilot/M*" --total 24`); `nvidia-smi` shows the cards working, and `vllm_glimmer_gpu0.log`
 has the server's own throughput lines.
 
-Other local models, for a size axis (small, 30B, large): one config per model (`configs/llm_grid_local_small.yaml`,
-`configs/llm_grid_local_large.yaml`, with candidate models in their comments), served on their own GPUs and ports and run
-with `CONFIG=... bash scripts/run_local_ablation.sh pilot` and then without `pilot`. The run script finds the servers by
-the served model name, so two models can be served and run at the same time:
+Other local models, for a size axis (small, 30B, large): one config per model (`configs/llm_grid_local_small.yaml` for
+`google/gemma-4-E4B-it`, `configs/llm_grid_local_large.yaml` for `openai/gpt-oss-120b`; the vLLM and reasoning settings
+are in the config comments), all five modes, three repeats, 1,200 episodes each. With two cards the models run in turns,
+one model at a time on both cards; every turn is the same three steps: stop the servers of the model before, serve the
+next one (no `GPU_IDS`, so the script takes every card it finds; one copy per card), run its pilot and then its grid. The
+run script finds the servers by the served model name, so the config decides which model runs.
 
 ```bash
-pkill -f "vllm serve"; sleep 5; nvidia-smi                                                        # stop whatever is served; memory comes back
-MODEL=openai/gpt-oss-120b NAME=gptoss120b GPU_IDS=0,1 PORT=8000 bash scripts/serve_local_model.sh   # window 0: one copy per GPU
-MODEL=google/gemma-4-E4B-it NAME=gemma4 GPU_IDS=2 PORT=8010 bash scripts/serve_local_model.sh       # window 1
-CONFIG=configs/llm_grid_local_large.yaml bash scripts/run_local_ablation.sh pilot                 # window 2, then without "pilot"
-CONFIG=configs/llm_grid_local_small.yaml bash scripts/run_local_ablation.sh pilot                 # window 3, then without "pilot"
+# turn 1: Glimmer, the two remaining modes and the sweeps (skip what outputs/llm/local_M0_* and outputs/llm_sens already hold)
+bash scripts/serve_local_model.sh                                                    # window 0
+MODES="M0 M1" bash scripts/run_local_ablation.sh && bash scripts/run_local_ablation.sh sens   # window 1, once the servers answer
+# turn 2: gpt-oss-120b (117B parameters, 5B active, shipped 4-bit: one copy fits one card)
+pkill -f "vllm serve"; sleep 10; nvidia-smi                                          # window 0: memory comes back on both cards
+MODEL=openai/gpt-oss-120b NAME=gptoss120b bash scripts/serve_local_model.sh
+CONFIG=configs/llm_grid_local_large.yaml bash scripts/run_local_ablation.sh pilot    # window 1, then the same line without "pilot"
+# turn 3: Gemma 4 E4B
+pkill -f "vllm serve"; sleep 10
+MODEL=google/gemma-4-E4B-it NAME=gemma4 bash scripts/serve_local_model.sh
+CONFIG=configs/llm_grid_local_small.yaml bash scripts/run_local_ablation.sh pilot    # then without "pilot"
 ```
 
-Ctrl-c in a serve window stops that script's servers only. The model names the configs use (`gptoss120b`, `gemma4`) are
-what the tables will show; the paper's Models paragraph needs one sentence per model (sizes, licences and reasoning
-settings are in the config comments).
+Ctrl-c in a serve window stops that script's servers only. Times: the 720 Glimmer episodes took one night on three cards,
+so count about a day on two for M0, M1 and the sweeps together (1,120 episodes). For the other two models the progress
+line gives the time left after the first finished episodes; gpt-oss-120b runs fewer parameters per token than Glimmer but
+reasons at length, and Gemma 4 E4B is small and quick. The model names the configs use (`gptoss120b`, `gemma4`) are what
+the tables will show.
 
-Results land in `outputs/llm/<name>_*` and appear in the paper's tables as new rows after `make`; the Models paragraph
-of the paper needs one sentence per model.
-
-Hand back `outputs/llm_local.zip` and `outputs/llm_local_traces.zip`. Results sit in `outputs/llm/local_*`, where the paper
-build picks them up together with the API results.
+After each turn, copy `outputs/llm`, `outputs/llm_sens` and the `outputs/llm_*_stats` folders from the server into the
+repository's `outputs` folder on the PC, so that for instance `outputs/llm/gptoss120b_M2_s0/episodes.csv` exists there
+(not `outputs/outputs/...`); `make` in `paper/` then picks every model up as new table rows, and the Models paragraph of
+the paper needs one sentence per model (sizes, licences and reasoning settings are in the config comments).
 
 ## 8. Building the paper and filling the red marks
 
@@ -205,7 +220,7 @@ and figure. Each remaining red mark in the PDF says which table or statistics fi
 - `outputs/llm/failure_catalogue.md`: counts and quotable excerpts of the failure types.
 - `tables/llm_macros.tex`: the GAU weight grid sentence, regenerated for every model.
 
-Red marks that start with "API:" wait for the two API models; "M0/M1" and "Sweeps" for the second and third GPU night.
+Red marks that start with "API:" wait for the two API models; "M0/M1" and "Sweeps" for the Glimmer turn of section 7.
 Remove each `\todo{...}` once its sentence is written; the paper must have none at submission.
 
 ## 9. If something goes wrong

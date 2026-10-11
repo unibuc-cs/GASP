@@ -1,15 +1,16 @@
 # GASP → SEAMS 2027: plan and status
 
-## 0. Status (6 October 2026)
+## 0. Status (11 October 2026)
 
-Branch `main`, 45 tests pass, `make` in `paper/` builds the 8 page draft. Code, tests, scripts, documents and
-every part of the paper that does not depend on model runs are done. The Glimmer run (M2–M4, 720 episodes) is in the paper; M0, M1 and the sweeps run next on the lab GPUs. The API models
-have not been run; 14 days to the deadline.
+Branch `main`, 45 tests pass, `make` in `paper/` builds the 10 page draft. Code, tests, scripts, documents and
+every part of the paper that does not depend on model runs are done. The Glimmer run (M2–M4, 720 episodes) is in the
+paper; M0, M1 and the sweeps run next on the lab GPUs (two H100s since 10 October), then gpt-oss-120b and Gemma 4 E4B
+in turns, one model at a time (RUNBOOK section 7). The API models have not been run; 12 days to the deadline.
 
-What is needed from the group, in order: (1) someone runs the pilot with an OpenAI key and sends the report and zip,
-(2) the same person runs the main grid, (3) optionally the Glimmer run on the lab GPU, (4) the repository goes private
-or an anonymous mirror is made before 23 October, (5) author data for HotCRP. The commands are in `README.md`; the
-details in `RUNBOOK.md`.
+What is needed from the group, in order: (1) the three local turns, each copied back into `outputs/` when done,
+(2) the two API models, pilot then main grid, written in at the "API:" red marks or handed back, (3) the repository
+goes private or an anonymous mirror is made before 23 October, (4) author data for HotCRP. The commands are in
+`README.md`; the details in `RUNBOOK.md`.
 
 ## 1. Dates and format
 
@@ -39,7 +40,8 @@ Group:
 - [ ] Pilot: `bash scripts/run_pilot.sh` (or the Colab notebook) with the key; send `PILOT_REPORT.md` and `llm_pilot.zip`. Overdue since 30 Sep; new target Thu 8 Oct.
 - [ ] Main grid: `bash scripts/run_main_grid.sh`, then `bash scripts/run_main_grid.sh sens`; send `llm_results.zip`, `llm_sens.zip`, `llm_traces.zip`. Target Mon 12 Oct. About 120 USD.
 - [x] Glimmer pilot (8 Oct) and full run M2–M4, 720 episodes (9 Oct): in the paper (Tables tab:llm, tab:llmstats, Figure fig:llm; RQ1–RQ4 text).
-- [ ] Glimmer M0 and M1 (`MODES="M0 M1" bash scripts/run_local_ablation.sh`, 480 episodes), then the sweeps (`bash scripts/run_local_ablation.sh sens`, 640 episodes). Results come back through the folder.
+- [ ] Glimmer M0 and M1 (`MODES="M0 M1" bash scripts/run_local_ablation.sh`, 480 episodes), then the sweeps (`bash scripts/run_local_ablation.sh sens`, 640 episodes). The chained command of 9 Oct left no `local_M0_*` directory: start it again with the servers up. Results come back through the folder (`outputs/llm`, `outputs/llm_sens`, `outputs/llm_*_stats`).
+- [ ] Size axis, in turns on the two cards: gpt-oss-120b (`configs/llm_grid_local_large.yaml`), then Gemma 4 E4B (`configs/llm_grid_local_small.yaml`); pilot first, then all five modes, three repeats, 1,200 episodes each. Then the Models paragraph gets one sentence per model and RQ4 the size comparison.
 - [ ] Repository private, or anonymous mirror, before 23 Oct.
 - [ ] HotCRP: names, affiliations, ORCIDs, corresponding e-mail, by 16 Oct. Create the submission early.
 - [ ] Decide on arXiv: nothing before notification, or a preprint with a different title.
@@ -60,6 +62,7 @@ Optional, if time and budget allow: LLM roles in the ops domain (about 6 USD on 
 
 - By Thu 8 Oct: pilot received and read.
 - Fri 9 – Mon 12 Oct: main grid runs; sensitivity sweeps; Glimmer if the GPU is free.
+- Sun 11 – Thu 15 Oct: the three local turns on two cards (Glimmer M0/M1 and sweeps, about a day; gpt-oss-120b; Gemma 4), each one copied back when done. Proposed cut-off: a model whose turn is not done by Sun 18 Oct stays out of this submission.
 - Tue 13 – Sun 18 Oct: results text, figures, failure catalogue, discussion; full draft at 10 pages.
 - Mon 19 – Tue 20 Oct: internal review. Wed 21: anonymity and format check. Thu 22: buffer. Fri 23 Oct: submit.
 - If the pilot slips past 12 Oct: run the main grid with 3 repeats instead of 5 (about 70 USD, two thirds of the time) and skip Glimmer.
@@ -89,3 +92,5 @@ Optional, if time and budget allow: LLM roles in the ops domain (about 6 USD on 
 - 8 Oct (evening): Glimmer pilot done on three H100s, 24 episodes in 56 minutes. All health checks pass: formatting failures 0, hallucinated references 0, executed violations, false alerts and hidden harm 0 under the guard, success 0.88 in M2 and 1.00 in M3. Two observations. (1) M2 and M4 rows are identical to the token: each vLLM server samples from a fixed default seed and the two processes sent identical request sequences, and the guard never fired in M4 because the model attempted no violation when told the rules; in the full run the interleaved processes break this. (2) FLOO-001 (hospital access at risk, human unavailable): with the rules in its prompt the model asked for an approval the rules do not require for an underpass closure, the absent human counted as a refusal, and the model then refused to close for the rest of the episode, so the incident stayed open; without the rules (M3) it closed after one blocked attempt. Over-escalation as a cost of prompted rules; worth a paragraph if it recurs. Decision: full run as configured, no changes after the pilot.
 - 9 Oct: full Glimmer run received through the folder (720 episodes, 10.9k calls, 24M tokens, one night on three H100s). Results: M2 executes 0.12 violations per incident, all pollution-zone reroutes (29 of 240 episodes), silent violation rate 0.11; M4 zero at no cost (success 0.96 both, same steps, requests, tokens); M3 zero at +4 steps, +50 % tokens, +0.22 requests, −0.07 success (Holm p 0.08). 64–71 % of the human's requests were not required by the rules (the model asks whenever hospital access is at risk). All 43 failures are timeouts: approval lockouts (18 in M2/M4, same three scenarios every repeat; 8 in M3) and evidence loops of the communication role (17 in M3). No false alert, hidden harm, hallucinated reference or blocked loop anywhere. Paper: RQ1–RQ3 written, RQ4 partly, abstract and conclusion headline, tables and figure generated, all tables fitted to the page; 9 pages, 4 red marks left (M0/M1, sweeps, API models, anonymous link). Scripts: mode selection and sensitivity sweeps for the local runs.
 - 9 Oct (later): paper filled as far as the data goes. Every remaining red mark names the file its sentence comes from (API models, M0/M1, sweeps, anonymous link); RUNBOOK section 8 explains the build and the fill-in. 10 pages with the marks, references from page 9.
+- 10 Oct: a size axis for the local runs (group's idea): the serve script takes any model, GPU subset, port, layout and reasoning parser; the run script takes a config and finds the servers by the served model name; one config each for `google/gemma-4-E4B-it` (`gemma4`, thinking on) and `openai/gpt-oss-120b` (`gptoss120b`, reasoning effort high, no JSON constraint because it drops the reasoning), five modes, three repeats. Sweep statistics and logs named per model. The copy of the Glimmer results landed in `outputs/outputs` on the PC (a second copy of M2–M4); no `local_M0_*` or `llm_sens` anywhere, so the chained M0/M1 and sweeps command of 9 Oct did not run (most likely started before the servers answered).
+- 11 Oct: the node has two H100s now, not three. Decision (group): the local models run in turns, one model at a time on both cards; no script change, the GPU count is detected. RUNBOOK section 7 gives the three turns with their commands, the shard rule for continuing a run begun on three cards (`SHARDS=12`), the times and the copy-back path.
