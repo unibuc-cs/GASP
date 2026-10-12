@@ -39,7 +39,7 @@ wait_with_progress() {   # $1 = total episodes, $2... = globs of run directories
   python -m gasp.experiments.progress --runs "$@" --total "$total" --watch 20 &
   local mon=$!
   while [[ -n "$(jobs -rp | grep -v "^$mon$")" ]]; do sleep 5; done
-  kill "$mon" 2>/dev/null; wait "$mon" 2>/dev/null; echo
+  kill "$mon" 2>/dev/null || true; wait "$mon" 2>/dev/null || true; echo   # (a killed monitor must not stop the script)
   python -m gasp.experiments.progress --runs "$@" --total "$total"
 }
 if [[ "${1:-full}" == "pilot" ]]; then
