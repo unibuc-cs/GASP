@@ -5,10 +5,8 @@ and `C:\Work\GASP` on the PC.
 
 ## 1. Sync code
 
-```bash
-git push                      # PC, in C:\Work\GASP
-git pull                      # server, in ~/GASP (or PyCharm: Deployment > Upload)
-```
+The server has no git: PyCharm copies the code. Right-click the project > Deployment > Upload to the server
+(or turn on Tools > Deployment > Automatic Upload once). `git push` on the PC only updates GitHub.
 
 ## 2. Local models on the GPU server
 
