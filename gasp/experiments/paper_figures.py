@@ -67,7 +67,7 @@ def main() -> None:
         ax.tick_params(axis="y", labelsize=7)
         ax.spines[["top", "right"]].set_visible(False)
         ax.grid(True, axis="y", color="#eeeeee", linewidth=0.6)
-    axes[0].legend(frameon=False, fontsize=7, loc="lower left")
+    axes[3].legend(frameon=False, fontsize=7, loc="center right")
     fig.tight_layout()
     args.out.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(args.out, bbox_inches="tight")

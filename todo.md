@@ -1,23 +1,23 @@
 # GASP → SEAMS 2027: plan and status
 
-## Status (11 October 2026)
+## Status (12 October 2026)
 
 Branch `main`, 45 tests pass, `make` in `paper/` builds the 10 page draft. Everything that does not depend on model runs
-is written. In the paper: the deterministic results and Glimmer M2–M4. Missing: Glimmer M0, M1 and the sweeps; gpt-oss-120b
-and Gemma 4 (lab GPU, cards 0 and 1 only); the two API models. 12 days left.
+is written. In the paper: the deterministic results and Glimmer M0–M4. Missing: the Glimmer sweeps; gpt-oss-120b and
+Gemma 4 (lab GPU, cards 0 and 1 only); the two API models. 11 days left.
 
 ## What is left
 
 Group:
 
-- [ ] Glimmer M0, M1 and the sweeps on the lab GPU (`RUNBOOK.md` section 7, turn 1). The command of 9 Oct did not run; nothing exists yet.
+- [ ] Glimmer sweeps (`bash scripts/run_local_ablation.sh sens`, 640 episodes), then `python scripts/fetch_outputs.py user@gpu-server`. M0 and M1 are in the paper.
 - [ ] gpt-oss-120b, then Gemma 4 E4B (turns 2 and 3), pilot first. After each turn: `python scripts/fetch_outputs.py user@gpu-server` on the PC.
 - [ ] The two API models: pilot, then main grid (`scripts/run_pilot.sh`, `scripts/run_main_grid.sh`, about 120 USD), then the "API:" red marks in the paper, or hand the results back.
 - [ ] Repository private or anonymous mirror before 23 Oct. HotCRP author data (names, affiliations, ORCIDs) by 16 Oct.
 
 Me, as results arrive:
 
-- [ ] Fill the red marks (M0/M1, sweeps, API models, anonymous link); one sentence per new model in the Models paragraph; the size comparison in RQ4.
+- [ ] Fill the red marks (sweeps, API models, anonymous link); one sentence per new model in the Models paragraph; the size comparison in RQ4.
 - [ ] Keep 10 pages; anonymity check (names, repository strings, PDF metadata); last language pass.
 - [ ] Artifact track description (2 pages) by 7 Dec.
 
@@ -41,3 +41,4 @@ Me, as results arrive:
 - 9 Oct: Glimmer M2–M4 (720 episodes) in the paper: with the rules only in its prompt the model breaks one rule 0.12 times per incident; with the guard added none, at no cost; with the guard alone none, at a cost. Paper 10 pages, red marks only where data is missing.
 - 10 Oct: scripts take any local model; configs for gpt-oss-120b and Gemma 4 E4B. The M0/M1 and sweeps command of 9 Oct did not run.
 - 11 Oct: only cards 0 and 1 are ours now (the node still shows three): `GPU_IDS=0,1` on every serve command; local models in turns, one at a time (`RUNBOOK.md` section 7). `scripts/fetch_outputs.py` brings all results from the server in one go.
+- 12 Oct: Glimmer M0 and M1 (480 episodes) in the paper. Without rules the roles break one in every second incident (114 pollution-zone reroutes, 12 alerts without approval); the prompt removes three quarters, the guard the rest. One agent with every tool keeps the rules about as well as the governed society (4 reroutes) but loses one traffic accident in three: it secures the route again and again and never sends the public notice. Eight red marks left: sweeps, API models, link.
