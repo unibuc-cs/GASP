@@ -1,185 +1,87 @@
-# Runbook: the LLM experiments
+# Runbook
 
-Two API models (`gpt-6-sol`, `gpt-6-luna`; sections 1–6): a Python script on any computer with internet calls the
-OpenAI API with your key (environment variable `OPENAI_API_KEY`), records the answers as traces and writes the tables.
-Three local models on the lab GPU (section 7).
+Every operation, in the order you need them. `user@gpu-server` is the lab GPU node; the repository is `~/GASP` there
+and `C:\Work\GASP` on the PC.
 
-| Way | Where | Good for |
+## 1. Sync code
+
+```bash
+git push                      # PC, in C:\Work\GASP
+git pull                      # server, in ~/GASP (or PyCharm: Deployment > Upload)
+```
+
+## 2. Local models on the GPU server
+
+Only cards 0 and 1 are ours: always `GPU_IDS=0,1`. One model at a time. Two tmux windows: serve in one, run in the other.
+
+```bash
+ssh user@gpu-server
+tmux new -s vllm                               # later: tmux attach -t vllm
+source ~/muse-glimmer/.venv/bin/activate
+cd ~/GASP
+```
+
+tmux: `Ctrl-b c` new window, `Ctrl-b n` next window, `Ctrl-b d` leave (everything keeps running).
+
+| Step | Window 0 (serve) | Window 1 (run) |
 |---|---|---|
-| `bash scripts/run_pilot.sh` | any laptop with Python 3.10+ | the pilot (under an hour, a few USD) |
-| `notebooks/GASP_pilot_colab.ipynb` | Google Colab, no installation | the pilot, if installing Python is a hassle |
-| `bash scripts/run_main_grid.sh` | a machine that can stay on for hours (a lab server, a cloud VM) | the main grid and the sensitivity sweeps |
-| `bash scripts/run_local_ablation.sh` | the lab GPU server, vLLM, over ssh | the local models (section 7) |
+| Glimmer sweeps (left to do) | `GPU_IDS=0,1 bash scripts/serve_local_model.sh` | `bash scripts/run_local_ablation.sh sens` |
+| gpt-oss-120b | `MODEL=openai/gpt-oss-120b NAME=gptoss120b GPU_IDS=0,1 bash scripts/serve_local_model.sh` | `CONFIG=configs/llm_grid_local_large.yaml bash scripts/run_local_ablation.sh pilot`, then the same without `pilot` |
+| Gemma 4 E4B | `MODEL=google/gemma-4-E4B-it NAME=gemma4 GPU_IDS=0,1 bash scripts/serve_local_model.sh` | `CONFIG=configs/llm_grid_local_small.yaml bash scripts/run_local_ablation.sh pilot`, then the same without `pilot` |
 
-Prices at list rates: GPT-6 Sol 2 / 10 USD per million input / output tokens; GPT-6 Luna 0.10 / 0.50. Main grid, five
-repeats: about 40M tokens per model, so roughly 110 USD for Sol and 6 USD for Luna. Pilot: a few USD in total.
-
-## 1. Setup (10 minutes)
+Between models:
 
 ```bash
-git clone https://github.com/unibuc-cs/GASP.git && cd GASP     # or unzip the zip
-export OPENAI_API_KEY=sk-...               # your key; never commit it
-python -m pip install -r requirements.txt
-python -m pytest tests -q                  # expect: 45 passed
+pkill -f "vllm serve"; sleep 10; nvidia-smi    # stop the old servers; memory comes back
+curl -s localhost:8000/v1/models               # new servers ready when this prints the model name; only then run
 ```
 
-`configs/llm_grid.yaml` already names the two models. Leave `temperature: 0.7`, `repeats: 5`, `max_steps: 16`,
-`rule_set: R2`.
+Good to know:
 
-## 2. Estimate before spending (no API calls)
+- A run prints one progress line every 20 s with the time left. Ctrl-c stops it; the same command continues where it stopped.
+- Pilot is fine when: format failures under 1 per episode, success in M2 above 0.3, executed violations 0 in M3 and M4.
+  Otherwise stop and tell me.
+- Times on two cards: sweeps about half a day; the full run of a new model about a day.
+
+## 3. Bring the results to the PC
+
+After each step, in a terminal on the PC (not PyCharm's Run button):
 
 ```bash
-python -m gasp.experiments.run_grid --config configs/llm_grid.yaml --out outputs/llm_estimate \
-    --scenarios outputs/paper/scenarios.json --estimate --repeats 1
+python scripts/fetch_outputs.py user@gpu-server          # --no-traces skips the large trace files
 ```
 
-Prints calls and tokens for one repeat of the five modes with a perfectly compliant policy (measured: about 4,100 calls and 5.5M tokens for 400 episodes). Plan for 1.5x with a real model, times 5 repeats: roughly 30k calls and 40M tokens per model for the main grid, about 110 USD for Sol and 6 USD for Luna.
+It copies everything into `outputs\` and prints the episode counts. Then tell me; I write the paper part.
 
-## 3. Pilot (30–60 minutes, a few USD)
+## 4. Build the paper
 
 ```bash
-bash scripts/run_pilot.sh        # or the cells of notebooks/GASP_pilot_colab.ipynb
+cd paper && make              # tables, figure, statistics from outputs/, then main.pdf
 ```
 
-which is the same as
+`make sync` needs only Python (no TeX); compile in Overleaf if there is no TeX. Red marks in the PDF say what is missing
+and which file the numbers come from; none may remain at submission.
+
+## 5. API models (GPT-6 Sol and Luna)
+
+On any machine with internet; about 120 USD in total.
 
 ```bash
-python -m gasp.experiments.run_grid --config configs/llm_grid.yaml --out outputs/llm_pilot \
-    --scenarios outputs/paper/scenarios.json --limit 2 --repeats 1
+export OPENAI_API_KEY=sk-...                     # never commit it
+pip install -r requirements.txt
+bash scripts/run_pilot.sh                        # under an hour; check outputs/llm_pilot/PILOT_REPORT.md (same checks as above)
+bash scripts/run_main_grid.sh                    # a few hours; rerun the same command if it stops
+bash scripts/run_main_grid.sh sens               # sweeps on Luna
 ```
 
-Eight scenarios (two per family), five modes, one repeat, every model in the config. The script writes
-`outputs/llm_pilot/PILOT_REPORT.md` with the health checks marked PASS or CHECK; `docs/RESULTS_GUIDE.md` section 2 says
-what each check means. Blockers for the main grid: `executed_violations`, `false_alert` or `hidden_harm` above 0.00 with
-the guard on (a bug: send the traces); `formatting_failures` above 1 or `success` in M2 under 0.3 (the prompt or the
-temperature gets changed first). Also open two or three files in `outputs/llm_pilot/traces/`: does the `rationale`
-field make sense?
+Then `fetch` is not needed: the results are already in `outputs/llm/` on that machine; copy that folder to the PC
+(or run `make` there) and fill the red marks that start with "API:", or send the folder to me.
 
-## 4. Main grid (hours; resumable)
+## 6. If something goes wrong
 
-`bash scripts/run_main_grid.sh` does all of this; `bash scripts/run_main_grid.sh sens` does the sensitivity sweeps on Luna.
-By hand, run modes in parallel processes, one output directory per mode, so nothing is written to the same file twice:
+- "No server serving ...": the servers are not ready yet; wait for the `curl` line above to answer.
+- The run uses the third card: `GPU_IDS=0,1` was missing on the serve command; stop and serve again.
+- API errors 429 or 5xx: rerun the same command; finished episodes are kept.
+- Every episode takes 16 steps: a result, not a bug; tell me.
 
-```bash
-for m in M0 M1 M2 M3 M4; do
-  nohup python -m gasp.experiments.run_grid --config configs/llm_grid.yaml --out outputs/llm/$m \
-      --scenarios outputs/paper/scenarios.json --modes $m --repeats 5 > outputs/llm_$m.log 2>&1 &
-done
-```
-
-Each process appends one line per finished episode to `episodes.jsonl` and can be stopped and restarted at any time; finished episodes are skipped. Sequential speed is about 3 s per call, so one mode for one model takes 4–5 hours; five processes bring the whole grid to about that.
-
-Sensitivity (Luna only, M2 and M3, one repeat is enough):
-
-```bash
-for rs in R1 R3; do
-  python -m gasp.experiments.run_grid --config configs/llm_grid.yaml --out outputs/llm_sens/$rs \
-      --scenarios outputs/paper/scenarios.json --modes M2,M3 --models luna --repeats 1 --rule-set $rs --tag $rs
-done
-for ov in always never; do
-  python -m gasp.experiments.run_grid --config configs/llm_grid.yaml --out outputs/llm_sens/ov_$ov \
-      --scenarios outputs/paper/scenarios.json --modes M2,M3 --models luna --repeats 1 --overseer $ov --tag ov-$ov
-done
-```
-
-## 5. Statistics
-
-```bash
-python -m gasp.experiments.analyze --episodes "outputs/llm/*/episodes.csv" --out outputs/llm/stats \
-    --pairs M2:M3,M0:M3,M3:M4,M1:M2 --group model
-python -m gasp.experiments.analyze --episodes "outputs/llm_sens/*/episodes.csv" --out outputs/llm_sens/stats \
-    --pairs M2:M3 --group tag
-```
-
-## 6. What to hand back
-
-For the pilot: `outputs/llm_pilot/PILOT_REPORT.md` (generated by `scripts/run_pilot.sh`; fill the four remaining fields) plus
-`outputs/llm_pilot.zip`. An example report from a run without a model is `outputs/llm_pilot_example/PILOT_REPORT.md`;
-`docs/RESULTS_GUIDE.md` explains every number, the health checks and the expected ranges.
-
-For the main grid:
-
-Small files (a few MB), by mail or in the repo:
-
-- `outputs/llm/*/episodes.csv`, `outputs/llm/*/manifest.json`, `outputs/llm/*/table_llm.md`
-- `outputs/llm/stats/paired_stats.md` and `.json`
-- `outputs/llm_sens/**` (same files)
-- the pilot directory as a whole
-
-Large: `outputs/llm/*/traces/` (zip it; a few hundred MB). Needed for the worked example, the failure catalogue and the hallucinated-reference examples.
-
-## 7. Open-weight models on the lab GPU (vLLM over ssh)
-
-Three local models, no key, no cost: Glimmer 30B (`meta-models/Muse-Glimmer-30B`, done for M2–M4), gpt-oss-120b and
-Gemma 4 E4B (configs `configs/llm_grid_local*.yaml`, with the model settings in their comments). Same scenarios as the API
-models, three repeats. We may use cards 0 and 1 only (the node shows three), so `GPU_IDS=0,1` on every serve command, one
-model at a time; every turn is the same three steps: stop the servers of the model before, serve the next one, run it
-(pilot first for a new model).
-
-```bash
-ssh user@gpu-server; tmux new -s vllm; source ~/muse-glimmer/.venv/bin/activate
-# turn 1: Glimmer, the two modes still missing (M0, M1) and the sweeps (rule sets R1, R3; human always or never available)
-GPU_IDS=0,1 bash scripts/serve_local_model.sh                                       # window 0 (Ctrl-b c: new window)
-MODES="M0 M1" bash scripts/run_local_ablation.sh && bash scripts/run_local_ablation.sh sens   # window 1
-# turn 2: gpt-oss-120b, all five modes
-pkill -f "vllm serve"; sleep 10; nvidia-smi                                         # memory comes back on both cards
-MODEL=openai/gpt-oss-120b NAME=gptoss120b GPU_IDS=0,1 bash scripts/serve_local_model.sh
-CONFIG=configs/llm_grid_local_large.yaml bash scripts/run_local_ablation.sh pilot   # then the same line without "pilot"
-# turn 3: Gemma 4 E4B, all five modes
-pkill -f "vllm serve"; sleep 10
-MODEL=google/gemma-4-E4B-it NAME=gemma4 GPU_IDS=0,1 bash scripts/serve_local_model.sh
-CONFIG=configs/llm_grid_local_small.yaml bash scripts/run_local_ablation.sh pilot   # then without "pilot"
-```
-
-Rules of thumb:
-
-- Start a run only when the servers answer: `curl -s localhost:8000/v1/models` prints the model name. Otherwise the run
-  script stops with "No server serving ..." and nothing after `&&` runs either.
-- Without `GPU_IDS` the serve script takes the cards `CUDA_VISIBLE_DEVICES` names, else every card `nvidia-smi` lists, one
-  copy per card. The run script uses every server it finds on ports 8000–8031, so stop servers you do not want first.
-- Ctrl-c in the run window stops a run; started again it continues where it was, as long as `SHARDS` stays the same
-  (default: four per server). A run begun on three servers continues with `SHARDS=12` in front of the command.
-- Times: the 720 Glimmer episodes took one night on three cards; count about a day on two for turn 1 (1,120 episodes).
-  The run script prints one progress line every 20 s with the time left; `nvidia-smi` shows the cards working.
-- Pilot checks: formatting failures under 1 per episode, success in M2 above 0.3, executed violations 0 under the guard.
-  Glimmer reasons at level "high" (model card) with 4096 tokens per answer; the API models run at their defaults.
-- Without tmux: `nohup bash scripts/serve_local_model.sh > vllm.log 2>&1 &` and the same for the run script.
-
-After each turn, in a terminal on the PC (not PyCharm's Run button, which runs on the server):
-
-```bash
-python scripts/fetch_outputs.py user@gpu-server      # add the repository's path on the server if it is not ~/GASP; --no-traces skips the large trace files
-```
-
-It packs the results on the server, copies the pack, unpacks it into `outputs/` here at the right place and prints what is
-there (`scripts\fetch_outputs.cmd user@gpu-server` does the same on a PC without Python). `make` in `paper/` then picks
-every model up as new table rows; the Models paragraph needs one sentence per model.
-
-## 8. Building the paper and filling the red marks
-
-`paper/main.tex` reads every number that comes from a run through generated files, so after any run the sequence is:
-
-```bash
-cd paper && make            # sync: tables, figure, statistics, failure catalogue from outputs/; then latexmk -> main.pdf
-```
-
-`make sync` alone needs only Python; `make` also needs a TeX distribution with latexmk (if the server has none, run
-`make sync` there, then compile `paper/` in Overleaf or on a laptop with TeX Live). The LLM parts switch on by themselves
-when `outputs/llm/*/episodes.csv` exists: the API runs land in `outputs/llm/M0` to `M4` (one directory per mode, both
-models), the local runs in `outputs/llm/local_*`, the sweeps in `outputs/llm_sens/`; all of them appear in the same tables
-and figure. Each remaining red mark in the PDF says which table or statistics file its sentence comes from:
-
-- `tables/table_llm_main.tex` (also `outputs/llm/*/table_llm.md`): the model by mode means.
-- `outputs/llm/stats/paired_stats.md`: paired differences with intervals, Cliff's delta and corrected p, one block per model and pair.
-- `tables/table_llm_sens.tex`: the sweeps, once `outputs/llm_sens/` exists.
-- `outputs/llm/failure_catalogue.md`: counts and quotable excerpts of the failure types.
-- `tables/llm_macros.tex`: the GAU weight grid sentence, regenerated for every model.
-
-Red marks that start with "API:" wait for the two API models; "M0/M1" and "Sweeps" for the Glimmer turn of section 7.
-Remove each `\todo{...}` once its sentence is written; the paper must have none at submission.
-
-## 9. If something goes wrong
-
-- 429 or 5xx from the API: the backend retries five times with backoff; if a run dies, restart the same command.
-- A model never returns valid JSON: lower `temperature` to 0.3 in the config for that model and rerun the pilot; if it still fails, replace the model.
-- Very long episodes (always 16 steps): look at `last_guard` in the traces; if the model keeps repeating a blocked action, that is a result (report it), not a bug.
+Details on every number: `docs/RESULTS_GUIDE.md`.

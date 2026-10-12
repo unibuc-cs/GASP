@@ -25,7 +25,7 @@ Send back `outputs/llm_results.zip` and `outputs/llm_traces.zip`. Nothing runs o
 that calls the API; no GPU.
 
 Local models on the lab GPU (Glimmer 30B, gpt-oss-120b, Gemma 4 E4B; no key, no cost): one model at a time, served with
-`bash scripts/serve_local_model.sh` and run with `bash scripts/run_local_ablation.sh`; the turns are in `RUNBOOK.md`, section 7.
+`bash scripts/serve_local_model.sh` and run with `bash scripts/run_local_ablation.sh`; the steps are in `RUNBOOK.md`, section 2.
 
 ## What to check in the pilot table
 
