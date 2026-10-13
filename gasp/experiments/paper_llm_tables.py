@@ -32,6 +32,14 @@ STATS_METRICS = [("executed_violations", "executed violations"), ("attempted_vio
                  ("false_alert", "false alert"), ("hidden_harm", "hidden harm"), ("success", "success"), ("steps", "steps"),
                  ("overseer_load", "overseer load"), ("hallucinated_refs", "hallucinated refs")]
 
+DISPLAY = {"glimmer": "Glimmer 30B", "gptoss120b": "gpt-oss-120b", "gemma4": "Gemma 4 E4B", "sol": "GPT-6 Sol", "luna": "GPT-6 Luna"}
+
+
+def display(model: str) -> str:
+    """The model's name as the paper writes it; unknown names are printed as they are."""
+    return DISPLAY.get(model, model)
+
+
 MODE_DESC = {"M0": "one agent, rules in prompt", "M0g": "one agent, rules, guard", "M1": "roles, no rules", "M2": "roles, rules in prompts",
              "M3": "roles, guard", "M4": "roles, rules and guard"}
 
@@ -54,36 +62,50 @@ def main_table(rows: List[Dict[str, Any]]) -> str:
         if last_model is not None and model:
             lines.append(r"\midrule")
         last_model = a["model"]
-        lines.append(f"{model} & {a['mode']} ({MODE_DESC.get(a['mode'], '')}) & " + " & ".join(fmt(a.get(c)) for c, _ in MAIN_COLUMNS) + r" \\")
+        lines.append(f"{display(model)} & {a['mode']} ({MODE_DESC.get(a['mode'], '')}) & " + " & ".join(fmt(a.get(c)) for c, _ in MAIN_COLUMNS) + r" \\")
     lines += [r"\bottomrule", r"\end{tabular}"]
     return "\n".join(lines) + "\n"
+
+
+COMPACT_METRICS = [("executed_violations", "Exec. viol."), ("attempted_violations", "Att. viol."), ("success", "Succ."),
+                   ("steps", "Steps"), ("overseer_load", "Overseer"), ("tokens", "Tokens")]
+PAIR_ORDER = ["M2:M3", "M2:M4", "M3:M4", "M0:M3", "M1:M2"]
+
+
+def stars(p) -> str:
+    if p is None:
+        return ""
+    return "$^{***}$" if p < 0.001 else "$^{**}$" if p < 0.01 else "$^{*}$" if p < 0.05 else ""
 
 
 def stats_table(stats: List[Dict[str, Any]]) -> str:
+    """One row per model and comparison: mean paired difference (second mode minus first), Holm-corrected Wilcoxon p as stars.
+    Intervals and Cliff's delta stay in outputs/llm/stats/paired_stats.md."""
     by_pair: Dict[str, Dict[str, Dict[str, Any]]] = defaultdict(dict)
     for r in stats:
         by_pair[(r["group"], r["pair"])][r["metric"]] = r
-    lines = [r"\begin{tabular}{llrrr}", r"\toprule",
-             r"\textbf{Model, comparison} & \textbf{Metric} & \textbf{Difference [95\% CI]} & \textbf{Cliff's $\delta$} & \textbf{$p$ (Holm)} \\", r"\midrule"]
-    for (group, pair), metrics in sorted(by_pair.items()):
-        a, b = pair.split(":")
-        first = True
-        for key, label in STATS_METRICS:
-            r = metrics.get(key)
-            if r is None:
-                continue
-            head = f"{group}, {b} vs {a}" if first else ""
-            first = False
-            ci = r["ci_diff"]
-            p = r.get("p_holm")
-            p_txt = "--" if p is None else (r"$<$0.001" if p < 0.001 else f"{p:.3f}")
-            lines.append(f"{head} & {label} & {r['mean_diff']:+.2f} [{ci[0]:.2f}, {ci[1]:.2f}] & {r['cliffs_delta']:+.2f} & {p_txt} \\\\")
-        lines.append(r"\midrule")
-    if lines[-1] == r"\midrule":
-        lines.pop()
+    lines = [r"\begin{tabular}{ll" + "r" * len(COMPACT_METRICS) + "}", r"\toprule",
+             r"\textbf{Model} & \textbf{Pair} & " + " & ".join(r"\textbf{" + h + "}" for _, h in COMPACT_METRICS) + r" \\", r"\midrule"]
+    groups = sorted({g for g, _ in by_pair})
+    for gi, group in enumerate(groups):
+        pairs = [p for p in PAIR_ORDER if (group, p) in by_pair] + sorted(p for g, p in by_pair if g == group and p not in PAIR_ORDER)
+        for k, pair in enumerate(pairs):
+            a, b = pair.split(":")
+            metrics = by_pair[(group, pair)]
+            cells = []
+            for key, _ in COMPACT_METRICS:
+                r = metrics.get(key)
+                if r is None:
+                    cells.append("--")
+                    continue
+                d = r["mean_diff"]
+                txt = f"{d / 1000:+.1f}k" if key == "tokens" else f"{d:+.2f}".replace("-0.00", "+0.00")
+                cells.append(txt + stars(r.get("p_holm")))
+            lines.append(f"{display(group) if k == 0 else ''} & {b} $-$ {a} & " + " & ".join(cells) + r" \\")
+        if gi < len(groups) - 1:
+            lines.append(r"\midrule")
     lines += [r"\bottomrule", r"\end{tabular}"]
     return "\n".join(lines) + "\n"
-
 
 SENS_COLUMNS = [("success", "Succ."), ("steps", "Steps"), ("attempted_violations", "Att. viol."), ("executed_violations", "Exec. viol."),
                 ("overseer_load", "Overseer"), ("approvals_denied", "Denied"), ("false_alert", "False alert"), ("hidden_harm", "Hidden harm")]
@@ -103,24 +125,36 @@ def sens_table(rows: List[Dict[str, Any]]) -> str:
         if last is not None and key != last:
             lines.append(r"\midrule")
         last = key
-        lines.append(f"{model} & {tag} & {a['mode']} & " + " & ".join(fmt(a.get(c)) for c, _ in SENS_COLUMNS) + r" \\")
+        lines.append(f"{display(model)} & {tag} & {a['mode']} & " + " & ".join(fmt(a.get(c)) for c, _ in SENS_COLUMNS) + r" \\")
     lines += [r"\bottomrule", r"\end{tabular}"]
     return "\n".join(lines) + "\n"
 
 
 def macros(rows: List[Dict[str, Any]]) -> str:
-    """Numbers used in the prose that change when rows are added: the GAU weight grid per model."""
+    """Numbers used in the prose that change when rows are added: the GAU weight grid per model.
+    Modes whose mean GAU is equal (for instance two modes with no violations and the same success when steps weigh
+    nothing) share first place; the order sentence counts only settings without ties."""
     out = []
     for model in sorted({r["model"] for r in rows}):
         grid = gau_weight_grid([r for r in rows if r["model"] == model], max_steps=16)
-        first = Counter(g["ranking"][0] for g in grid)
-        order = Counter(tuple(g["ranking"]) for g in grid).most_common(1)[0]
-        best, n = first.most_common(1)[0]
+        top_sets = []
+        for g in grid:
+            best_value = max(g["means"].values())
+            top_sets.append({m for m, v in g["means"].items() if v >= best_value - 1e-9})
+        first = Counter(m for t in top_sets for m in t)
+        best, n = sorted(first.items(), key=lambda kv: (-kv[1], kv[0]))[0]
+        tied = sum(1 for t in top_sets if best in t and len(t) > 1)
+        strict = [tuple(g["ranking"]) for g in grid if len({round(v, 9) for v in g["means"].values()}) == len(g["means"])]
+        order = Counter(strict).most_common(1)[0] if strict else (tuple(), 0)
         name = "".join(ch for ch in model if ch.isalpha())
-        out.append(f"\\newcommand{{\\gaugrid{name}}}{{{best} ranks first in {n} of {len(grid)} weight settings; the order "
-                   + ", ".join(order[0]) + f" holds in {order[1]} of them}}")
+        text = f"{best} ranks first in {n} of {len(grid)} weight settings"
+        if tied:
+            others = sorted({m for t in top_sets if best in t for m in t} - {best})
+            text += f" (in {tied} of them tied with {', '.join(others)})"
+        if order[1]:
+            text += "; the order " + ", ".join(order[0]) + f" holds in {order[1]} of them"
+        out.append(f"\\newcommand{{\\gaugrid{name}}}{{{text}}}")
     return "\n".join(out) + "\n"
-
 
 def main() -> None:
     ap = argparse.ArgumentParser()

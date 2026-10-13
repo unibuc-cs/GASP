@@ -2,10 +2,16 @@
 \toprule
 \textbf{Model} & \textbf{Mode} & \textbf{Succ.} & \textbf{Steps} & \textbf{Att. viol.} & \textbf{Exec. viol.} & \textbf{Overseer} & \textbf{TSC} & \textbf{Halluc.} & \textbf{False alert} & \textbf{Hidden harm} & \textbf{Silent viol.} & \textbf{Format fail.} & \textbf{Tokens} & \textbf{GAU} \\
 \midrule
-glimmer & M0 (one agent, rules in prompt) & 0.90 & 8.10 & 0.02 & 0.02 & 0.31 & 1.00 & 0.00 & 0.00 & 0.00 & 0.02 & 0.00 & 25.7k & 0.85 \\
+Glimmer 30B & M0 (one agent, rules in prompt) & 0.90 & 8.10 & 0.02 & 0.02 & 0.31 & 1.00 & 0.00 & 0.00 & 0.00 & 0.02 & 0.00 & 25.7k & 0.85 \\
  & M1 (roles, no rules) & 0.92 & 8.32 & 0.53 & 0.53 & 0.50 & 1.00 & 0.00 & 0.00 & 0.00 & 0.46 & 0.04 & 43.8k & 0.70 \\
  & M2 (roles, rules in prompts) & 0.96 & 4.22 & 0.12 & 0.12 & 0.34 & 1.00 & 0.00 & 0.00 & 0.00 & 0.12 & 0.04 & 28.7k & 0.90 \\
  & M3 (roles, guard) & 0.90 & 8.22 & 0.58 & 0.00 & 0.56 & 1.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.06 & 43.5k & 0.84 \\
  & M4 (roles, rules and guard) & 0.96 & 4.23 & 0.06 & 0.00 & 0.35 & 1.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.03 & 29.1k & 0.94 \\
+\midrule
+gpt-oss-120b & M0 (one agent, rules in prompt) & 0.95 & 6.98 & 0.11 & 0.11 & 0.39 & 0.96 & 0.00 & 0.00 & 0.00 & 0.10 & 0.00 & 25.2k & 0.88 \\
+ & M1 (roles, no rules) & 0.97 & 4.18 & 0.74 & 0.74 & 0.62 & 1.00 & 0.00 & 0.00 & 0.05 & 0.63 & 0.00 & 29.2k & 0.64 \\
+ & M2 (roles, rules in prompts) & 0.97 & 4.27 & 0.19 & 0.19 & 0.54 & 1.00 & 0.00 & 0.00 & 0.00 & 0.18 & 0.00 & 30.2k & 0.89 \\
+ & M3 (roles, guard) & 0.97 & 4.64 & 0.80 & 0.00 & 0.97 & 1.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 31.6k & 0.94 \\
+ & M4 (roles, rules and guard) & 0.97 & 4.17 & 0.22 & 0.00 & 0.53 & 1.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 29.3k & 0.94 \\
 \bottomrule
 \end{tabular}

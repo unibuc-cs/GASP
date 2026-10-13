@@ -14,6 +14,7 @@ from typing import Any, Dict, List
 import numpy as np
 
 from gasp.experiments.analyze import bootstrap_ci, read_rows
+from gasp.experiments.paper_llm_tables import display
 
 
 PANELS = [("success", "task success"), ("executed_violations", "executed violations per incident"),
@@ -60,7 +61,7 @@ def main() -> None:
                 ys.append(m)
                 lo.append(m - a)
                 hi.append(b - m)
-            ax.errorbar(xs, ys, yerr=[lo, hi], fmt="o", color=COLORS[i % len(COLORS)], markersize=4, capsize=2, linewidth=1, label=model)
+            ax.errorbar(xs, ys, yerr=[lo, hi], fmt="o", color=COLORS[i % len(COLORS)], markersize=4, capsize=2, linewidth=1, label=display(model))
         ax.set_xticks(range(len(modes)))
         ax.set_xticklabels(modes, fontsize=7)
         ax.set_title(title, fontsize=8)

@@ -3,14 +3,14 @@
 ## Status (13 October 2026)
 
 Branch `main`, 45 tests pass, `make` in `paper/` builds the 10 page draft. Everything that does not depend on model runs
-is written. In the paper: the deterministic results, Glimmer M0–M4 and its sweeps. Missing: gpt-oss-120b and
-Gemma 4 (lab GPU, cards 0 and 1 only); the two API models. 10 days left.
+is written. In the paper: the deterministic results, Glimmer M0–M4 and its sweeps, gpt-oss-120b M0–M4. Missing: Gemma 4
+(lab GPU, cards 0 and 1 only); the two API models. 10 days left.
 
 ## What is left
 
 Group:
 
-- [ ] gpt-oss-120b, then Gemma 4 E4B (turns 2 and 3), pilot first. After each turn: `python scripts/fetch_outputs.py user@gpu-server` on the PC.
+- [ ] Gemma 4 E4B (last local turn), pilot first. After each turn: `python scripts/fetch_outputs.py user@gpu-server` on the PC.
 - [ ] The two API models: pilot, then main grid (`scripts/run_pilot.sh`, `scripts/run_main_grid.sh`, about 120 USD), then the "API:" red marks in the paper, or hand the results back.
 - [ ] Repository private or anonymous mirror before 23 Oct. HotCRP author data (names, affiliations, ORCIDs) by 16 Oct.
 
@@ -42,3 +42,4 @@ Me, as results arrive:
 - 11 Oct: only cards 0 and 1 are ours now (the node still shows three): `GPU_IDS=0,1` on every serve command; local models in turns, one at a time (`RUNBOOK.md` section 2). `scripts/fetch_outputs.py` brings all results from the server in one go.
 - 12 Oct: Glimmer M0 and M1 (480 episodes) in the paper. Without rules the roles break one in every second incident (114 pollution-zone reroutes, 12 alerts without approval); the prompt removes three quarters, the guard the rest. One agent with every tool keeps the rules about as well as the governed society (4 reroutes) but loses one traffic accident in three: it secures the route again and again and never sends the public notice. Eight red marks left: sweeps, API models, link. Found why the chained sweeps did not start: the run script killed its progress monitor and then waited on it, which under `set -e` ended the script before the statistics and before anything chained after it; fixed.
 - 13 Oct: Glimmer sweeps (640 episodes) in the paper. R1 (no pollution rule): no violations in either mode. R3: prompted roles leak 3 reroutes but skip no approval, 86% success; guard alone 76%. Human never available (R2): guarded roles keep their success, prompted roles lose six points to approval lockouts. Seven API marks and the link left.
+- 13 Oct (later): gpt-oss-120b M0–M4 (1,200 episodes) in the paper. Same leak as Glimmer (pollution-zone reroutes, 0.19 per incident in M2, zero in M4 at no cost); without rules it skips approvals (0.37 per incident) and hidden context harms 5% of incidents; the guard alone costs it human requests (0.97 against 0.54), not steps. Model names now printed as the paper writes them; paired statistics table compacted to one row per model and pair; the weight grid sentence now reports ties (Glimmer order holds in 216 settings, not 243 as printed before).

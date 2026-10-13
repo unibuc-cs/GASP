@@ -24,7 +24,7 @@ tmux: `Ctrl-b c` new window, `Ctrl-b n` next window, `Ctrl-b d` leave (everythin
 | Step | Window 0 (serve) | Window 1 (run) |
 |---|---|---|
 | Glimmer sweeps (done) | `GPU_IDS=0,1 bash scripts/serve_local_model.sh` | `bash scripts/run_local_ablation.sh sens` |
-| gpt-oss-120b | `MODEL=openai/gpt-oss-120b NAME=gptoss120b GPU_IDS=0,1 bash scripts/serve_local_model.sh` | `CONFIG=configs/llm_grid_local_large.yaml bash scripts/run_local_ablation.sh pilot`, then the same without `pilot` |
+| gpt-oss-120b (done) | `MODEL=openai/gpt-oss-120b NAME=gptoss120b GPU_IDS=0,1 bash scripts/serve_local_model.sh` | `CONFIG=configs/llm_grid_local_large.yaml bash scripts/run_local_ablation.sh pilot`, then the same without `pilot` |
 | Gemma 4 E4B | `MODEL=google/gemma-4-E4B-it NAME=gemma4 GPU_IDS=0,1 bash scripts/serve_local_model.sh` | `CONFIG=configs/llm_grid_local_small.yaml bash scripts/run_local_ablation.sh pilot`, then the same without `pilot` |
 
 Between models:
