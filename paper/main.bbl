@@ -23,7 +23,7 @@
 
 \bibitem{yao2023react}
 S.~Yao \emph{et~al.}, ``{ReAct}: Synergizing reasoning and acting in language
-  models,'' 2023, iCLR 2023; arXiv:2210.03629.
+  models,'' 2023, {ICLR} 2023; arXiv:2210.03629.
 
 \bibitem{wu2023autogen}
 Q.~Wu \emph{et~al.}, ``{AutoGen}: Enabling next-gen {LLM} applications via
@@ -31,7 +31,7 @@ Q.~Wu \emph{et~al.}, ``{AutoGen}: Enabling next-gen {LLM} applications via
 
 \bibitem{li2023camel}
 G.~Li \emph{et~al.}, ``{CAMEL}: Communicative agents for ``mind'' exploration
-  of large language model society,'' 2023, neurIPS 2023; arXiv:2303.17760.
+  of large language model society,'' 2023, {NeurIPS} 2023; arXiv:2303.17760.
 
 \bibitem{cemri2025mast}
 M.~Cemri, M.~Z. Pan, S.~Yang \emph{et~al.}, ``Why do multi-agent {LLM} systems
@@ -135,7 +135,7 @@ J.~F. H{\"u}bner, J.~S. Sichman, and O.~Boissier, ``Developing organised
 
 \bibitem{park2023generative}
 J.~S. Park \emph{et~al.}, ``Generative agents: Interactive simulacra of human
-  behavior,'' 2023, uIST 2023; arXiv:2304.03442.
+  behavior,'' 2023, {UIST} 2023; arXiv:2304.03442.
 
 \bibitem{packer2023memgpt}
 C.~Packer \emph{et~al.}, ``{MemGPT}: Towards {LLM}s as operating systems,''
@@ -143,6 +143,6 @@ C.~Packer \emph{et~al.}, ``{MemGPT}: Towards {LLM}s as operating systems,''
 
 \bibitem{shinn2023reflexion}
 N.~Shinn \emph{et~al.}, ``Reflexion: Language agents with verbal reinforcement
-  learning,'' 2023, neurIPS 2023; arXiv:2303.11366.
+  learning,'' 2023, {NeurIPS} 2023; arXiv:2303.11366.
 
 \end{thebibliography}

@@ -9,7 +9,8 @@ sync:
 	cp ../$(OUT)/table_main.tex tables/table_main.tex
 	cp ../$(OUT)/worked_example/worked_example.tex tables/worked_example.tex
 	cp ../$(OUT)/adaptive/tradeoff_R3_15.png figures/tradeoff_R3_15.png
-	cp ../outputs/paper_ops/table_main.tex tables/table_main_ops.tex
+	# the second domain: only the rows the text discusses (single agent, naive society with and without the guard, compliant society)
+	grep -v '^D0g \|^D1 \|^D1g \|^D6g ' ../outputs/paper_ops/table_main.tex > tables/table_main_ops.tex
 	# LLM results, when they exist (outputs/llm/*/episodes.csv from the grid runs)
 	@if ls ../outputs/llm/*/episodes.csv > /dev/null 2>&1; then \
 	  cd .. && python -m gasp.experiments.analyze --episodes "outputs/llm/*/episodes.csv" --out outputs/llm/stats --pairs M2:M3,M2:M4,M3:M4,M0:M3,M1:M2 --group model > /dev/null && \
