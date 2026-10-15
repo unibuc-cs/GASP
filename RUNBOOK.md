@@ -22,7 +22,7 @@ tmux new -s vllm                               # later: tmux attach -t vllm
 source ~/muse-glimmer/.venv/bin/activate
 cd ~/GASP
 ```
-
+   
 tmux: `Ctrl-b c` new window, `Ctrl-b n` next window, `Ctrl-b d` leave (everything keeps running).
 
 | Step | Window 0 (serve) | Window 1 (run) |
@@ -32,7 +32,7 @@ tmux: `Ctrl-b c` new window, `Ctrl-b n` next window, `Ctrl-b d` leave (everythin
 | Gemma 4 E4B (again: results lost 15 Oct; first `rm -rf outputs/llm/gemma4_*`) | `MODEL=google/gemma-4-E4B-it NAME=gemma4 GPU_IDS=0,1 bash scripts/serve_local_model.sh` | `CONFIG=configs/llm_grid_local_small.yaml bash scripts/run_local_ablation.sh pilot`, then the same without `pilot` |
 
 Between models:
-
+  
 ```bash
 pkill -f "vllm serve"; sleep 10; nvidia-smi    # stop the old servers; memory comes back
 curl -s localhost:8000/v1/models               # new servers ready when this prints the model name; only then run

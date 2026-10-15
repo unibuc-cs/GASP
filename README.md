@@ -1,4 +1,4 @@
-# GASP: governed agent societies
+# GASP2: governed agent societies
 
 Code, experiments and paper draft for the SEAMS 2027 submission (deadline Friday 23 October 2026, AoE). A society of
 LLM-driven roles handles city incidents under rules; a runtime guard enforces the rules, a human answers approval
@@ -14,7 +14,7 @@ pip install -r requirements.txt && python -m pytest tests -q     # expect: 45 pa
 export OPENAI_API_KEY=sk-...                                      # your key, never committed
 bash scripts/run_pilot.sh                                         # under an hour, a few USD
 ```
-
+ 
 Send back `outputs/llm_pilot/PILOT_REPORT.md` and `outputs/llm_pilot.zip`. When the pilot is cleared:
 
 ```bash
