@@ -39,13 +39,27 @@ def main():
     os.makedirs(os.path.dirname(local_pack), exist_ok=True)
     print("copying ...", flush=True)
     run(["scp", "-q", f"{server}:{remote}/{PACK}", local_pack])
+    if os.path.getsize(local_pack) == 0:
+        os.remove(local_pack)
+        sys.exit("the copy arrived empty; nothing was changed here. Run the command again.")
     print("unpacking ...", flush=True)
+    kept = 0
     with tarfile.open(local_pack) as tar:
+        members = []
+        for m in tar.getmembers():
+            target = os.path.join(ROOT, m.name)
+            # never replace a file that has content with an empty one
+            if m.isfile() and m.size == 0 and os.path.exists(target) and os.path.getsize(target) > 0:
+                kept += 1
+                continue
+            members.append(m)
         try:
-            tar.extractall(ROOT, filter="data")
+            tar.extractall(ROOT, members=members, filter="data")
         except TypeError:          # Python before the filter argument
-            tar.extractall(ROOT)
+            tar.extractall(ROOT, members=members)
     os.remove(local_pack)
+    if kept:
+        print(f"warning: {kept} files arrived empty and were not copied over the files already here")
     report()
 
 
@@ -68,6 +82,9 @@ def report():
                 n = sum(1 for line in f if line.strip())
         dirs, eps = groups.get(key, (0, 0))
         groups[key] = (dirs + 1, eps + n)
+    empty = sum(1 for p in glob.glob(os.path.join(ROOT, "outputs", "**", "*"), recursive=True) if os.path.isfile(p) and os.path.getsize(p) == 0)
+    if empty:
+        print(f"warning: {empty} empty files under outputs/ (an empty episodes.csv means that run's results are missing)")
     print("now in outputs/ (episodes finished / shard directories):")
     for key, (dirs, eps) in groups.items():
         print(f"  {key:28s} {eps:5d} episodes in {dirs} directories")

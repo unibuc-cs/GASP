@@ -34,6 +34,11 @@ N=${#SERVERS[@]}
 if (( N == 0 )); then echo "No server serving '$MODEL_ID' answers on ports 8000-8031. Start scripts/serve_local_model.sh with NAME=$MODEL_ID (or set LOCAL_BASE_URL) first."; exit 1; fi
 echo "Model $NAME ($MODEL_ID): using $N server(s): ${SERVERS[*]}"
 python -m gasp.experiments.reproduce --out outputs/paper --no-traces --skip-ablation > /dev/null
+backup() {   # $1 = name, $2... = paths; a copy outside the project folder, which no PyCharm sync can touch
+  mkdir -p ~/gasp_backups
+  local f=~/gasp_backups/$1_$(date +%Y%m%d_%H%M).tgz
+  tar czf "$f" "${@:2}" && echo "Backup: $f ($(du -h "$f" | cut -f1))"
+}
 wait_with_progress() {   # $1 = total episodes, $2... = globs of run directories; redraws every 20 s while jobs run
   local total=$1; shift
   python -m gasp.experiments.progress --runs "$@" --total "$total" --watch 20 &
@@ -80,7 +85,8 @@ elif [[ "${1:-full}" == "sens" ]]; then
   wait_with_progress 640 "outputs/llm_sens/${PREFIX}_*"
   python -m gasp.experiments.analyze --episodes "outputs/llm_sens/${PREFIX}_*/episodes.csv" --out outputs/llm_sens/${PREFIX}_stats \
       --pairs M2:M3 --group tag
-  echo "Done. Results in outputs/llm_sens/ (the folder sync brings them over)."
+  backup "${PREFIX}_sens" outputs/llm_sens/${PREFIX}_*
+  echo "Done. Results in outputs/llm_sens/; on the PC: python scripts/fetch_outputs.py user@gpu-server"
 else
   # MODES x SHARDS processes at once, dealt round-robin over the servers; each vLLM server batches the requests
   # it receives. Default: 4 shards per server, so about 12 concurrent requests per GPU.
@@ -104,5 +110,6 @@ else
   wait_with_progress "$total" "${globs[@]}"
   python -m gasp.experiments.analyze --episodes "outputs/llm/${PREFIX}_*/episodes.csv" --out outputs/llm_${PREFIX}_stats \
       --pairs M2:M3,M3:M4,M2:M4,M0:M3,M1:M2 --group model
-  echo "Done. Results in outputs/llm/${PREFIX}_* and outputs/llm_${PREFIX}_stats (the folder sync brings them over)."
+  backup "${PREFIX}_$(echo $MODES | tr -d ' ')" outputs/llm/${PREFIX}_* outputs/llm_${PREFIX}_stats
+  echo "Done. Results in outputs/llm/${PREFIX}_*; on the PC: python scripts/fetch_outputs.py user@gpu-server"
 fi

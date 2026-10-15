@@ -8,6 +8,10 @@ and `C:\Work\GASP` on the PC.
 The server has no git: PyCharm copies the code. Right-click the project > Deployment > Upload to the server
 (or turn on Tools > Deployment > Automatic Upload once). `git push` on the PC only updates GitHub.
 
+Keep PyCharm away from the results: Settings > Build, Execution, Deployment > Deployment > Excluded Paths, add `outputs`
+both locally and on the server. Results travel only with `fetch_outputs.py` (section 3). On 15 Oct a sync left every
+file under `outputs` empty.
+
 ## 2. Local models on the GPU server
 
 Only cards 0 and 1 are ours: always `GPU_IDS=0,1`. One model at a time. Two tmux windows: serve in one, run in the other.
@@ -25,7 +29,7 @@ tmux: `Ctrl-b c` new window, `Ctrl-b n` next window, `Ctrl-b d` leave (everythin
 |---|---|---|
 | Glimmer sweeps (done) | `GPU_IDS=0,1 bash scripts/serve_local_model.sh` | `bash scripts/run_local_ablation.sh sens` |
 | gpt-oss-120b (done) | `MODEL=openai/gpt-oss-120b NAME=gptoss120b GPU_IDS=0,1 bash scripts/serve_local_model.sh` | `CONFIG=configs/llm_grid_local_large.yaml bash scripts/run_local_ablation.sh pilot`, then the same without `pilot` |
-| Gemma 4 E4B | `MODEL=google/gemma-4-E4B-it NAME=gemma4 GPU_IDS=0,1 bash scripts/serve_local_model.sh` | `CONFIG=configs/llm_grid_local_small.yaml bash scripts/run_local_ablation.sh pilot`, then the same without `pilot` |
+| Gemma 4 E4B (again: results lost 15 Oct; first `rm -rf outputs/llm/gemma4_*`) | `MODEL=google/gemma-4-E4B-it NAME=gemma4 GPU_IDS=0,1 bash scripts/serve_local_model.sh` | `CONFIG=configs/llm_grid_local_small.yaml bash scripts/run_local_ablation.sh pilot`, then the same without `pilot` |
 
 Between models:
 
@@ -39,6 +43,7 @@ Good to know:
 - A run prints one progress line every 20 s with the time left. Ctrl-c stops it; the same command continues where it stopped.
 - Pilot is fine when: format failures under 1 per episode, success in M2 above 0.3, executed violations 0 in M3 and M4.
   Otherwise stop and tell me.
+- Each finished run also leaves a copy in `~/gasp_backups/` on the server, outside the project, so a sync cannot reach it.
 - Times on two cards: sweeps about half a day; the full run of a new model about a day.
 
 ## 3. Bring the results to the PC
