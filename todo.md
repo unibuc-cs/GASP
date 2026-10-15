@@ -1,22 +1,20 @@
 # GASP → SEAMS 2027: plan and status
 
-## Status (13 October 2026)
+## Status (16 October 2026)
 
 Branch `main`, 45 tests pass, `make` in `paper/` builds the 10 page draft. Everything that does not depend on model runs
-is written. In the paper: the deterministic results, Glimmer M0–M4 and its sweeps, gpt-oss-120b M0–M4. Missing: Gemma 4
-(lab GPU, cards 0 and 1 only); the two API models. 10 days left.
+is written. In the paper: the deterministic results and three local models (Gemma 4 E4B, Glimmer 30B with its sweeps, gpt-oss-120b), all five modes. Missing: the two API models. 7 days left.
 
 ## What is left
 
 Group:
 
-- [ ] Gemma 4 E4B again (the first run was lost on 15 Oct), pilot first. After each turn: `python scripts/fetch_outputs.py user@gpu-server` on the PC.
 - [ ] The two API models: pilot, then main grid (`scripts/run_pilot.sh`, `scripts/run_main_grid.sh`, about 120 USD), then the "API:" red marks in the paper, or hand the results back.
 - [ ] Repository private or anonymous mirror before 23 Oct. HotCRP author data (names, affiliations, ORCIDs) by 16 Oct.
 
 Me, as results arrive:
 
-- [ ] Fill the red marks (API models, anonymous link); one sentence per new model in the Models paragraph; the size comparison in RQ4.
+- [ ] Fill the red marks (API models, anonymous link); one sentence per API model in the Models paragraph. With the API rows the LLM tables grow by two blocks: check the 10 pages.
 - [ ] Keep 10 pages; anonymity check (names, repository strings, PDF metadata); last language pass.
 - [ ] Artifact track description (2 pages) by 7 Dec.
 
@@ -44,3 +42,4 @@ Me, as results arrive:
 - 13 Oct: Glimmer sweeps (640 episodes) in the paper. R1 (no pollution rule): no violations in either mode. R3: prompted roles leak 3 reroutes but skip no approval, 86% success; guard alone 76%. Human never available (R2): guarded roles keep their success, prompted roles lose six points to approval lockouts. Seven API marks and the link left.
 - 13 Oct (later): gpt-oss-120b M0–M4 (1,200 episodes) in the paper. Same leak as Glimmer (pollution-zone reroutes, 0.19 per incident in M2, zero in M4 at no cost); without rules it skips approvals (0.37 per incident) and hidden context harms 5% of incidents; the guard alone costs it human requests (0.97 against 0.54), not steps. Model names now printed as the paper writes them; paired statistics table compacted to one row per model and pair; the weight grid sentence now reports ties (Glimmer order holds in 216 settings, not 243 as printed before).
 - 15 Oct: every file under `outputs` on the PC (and, by the group's report, the Gemma 4 results on the server) became empty during a copy; cause unknown, most likely PyCharm syncing the folder. Restored the PC from my copies: every episode table behind the paper is safe; traces survive only for Glimmer M2–M4 (the others were read for the paper but are gone). Gemma 4 runs again. Guards: `outputs` excluded from PyCharm deployment, a backup in `~/gasp_backups` after each run, the fetch never writes an empty file over one with content.
+- 16 Oct: Gemma 4 E4B (1,200 episodes) in the paper. The prompt barely helps it (1.34 to 0.96 violations per incident, mostly pollution-zone reroutes); the guard brings it to zero at no cost over M2; the guard alone doubles the human's requests; as one agent it resolves 45% of the incidents. It fails a quarter of the incidents in M2 and M4, nearly all flooded underpasses: the communication role keeps asking to verify a report another role never checks. Size does not order the leak (0.96, 0.12, 0.19 for 4B, 30B, 120B). The run used three servers (ports 8000-8002), so three cards.

@@ -2,6 +2,12 @@
 \toprule
 \textbf{Model} & \textbf{Mode} & \textbf{Succ.} & \textbf{Steps} & \textbf{Att. viol.} & \textbf{Exec. viol.} & \textbf{Overseer} & \textbf{TSC} & \textbf{Halluc.} & \textbf{False alert} & \textbf{Hidden harm} & \textbf{Silent viol.} & \textbf{Format fail.} & \textbf{Tokens} & \textbf{GAU} \\
 \midrule
+Gemma 4 E4B & M0 (one agent, rules in prompt) & 0.45 & 12.70 & 1.43 & 1.43 & 0.46 & 0.77 & 0.00 & 0.00 & 0.02 & 0.58 & 0.00 & 32.6k & -0.08 \\
+ & M1 (roles, no rules) & 0.78 & 8.15 & 1.34 & 1.34 & 1.94 & 0.96 & 0.00 & 0.00 & 0.07 & 0.68 & 0.00 & 43.1k & 0.26 \\
+ & M2 (roles, rules in prompts) & 0.74 & 8.66 & 0.96 & 0.96 & 0.98 & 0.98 & 0.00 & 0.00 & 0.01 & 0.44 & 0.03 & 51.6k & 0.39 \\
+ & M3 (roles, guard) & 0.68 & 9.57 & 1.57 & 0.00 & 2.27 & 1.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 49.0k & 0.62 \\
+ & M4 (roles, rules and guard) & 0.75 & 8.81 & 0.90 & 0.00 & 0.93 & 1.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.01 & 52.3k & 0.69 \\
+\midrule
 Glimmer 30B & M0 (one agent, rules in prompt) & 0.90 & 8.10 & 0.02 & 0.02 & 0.31 & 1.00 & 0.00 & 0.00 & 0.00 & 0.02 & 0.00 & 25.7k & 0.85 \\
  & M1 (roles, no rules) & 0.92 & 8.32 & 0.53 & 0.53 & 0.50 & 1.00 & 0.00 & 0.00 & 0.00 & 0.46 & 0.04 & 43.8k & 0.70 \\
  & M2 (roles, rules in prompts) & 0.96 & 4.22 & 0.12 & 0.12 & 0.34 & 1.00 & 0.00 & 0.00 & 0.00 & 0.12 & 0.04 & 28.7k & 0.90 \\
