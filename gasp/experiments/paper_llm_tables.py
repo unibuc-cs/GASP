@@ -32,7 +32,8 @@ STATS_METRICS = [("executed_violations", "executed violations"), ("attempted_vio
                  ("false_alert", "false alert"), ("hidden_harm", "hidden harm"), ("success", "success"), ("steps", "steps"),
                  ("overseer_load", "overseer load"), ("hallucinated_refs", "hallucinated refs")]
 
-DISPLAY = {"glimmer": "Glimmer 30B", "gptoss120b": "gpt-oss-120b", "gemma4": "Gemma 4 E4B", "sol": "GPT-6 Sol", "luna": "GPT-6 Luna"}
+DISPLAY = {"glimmer": "Glimmer 30B", "gptoss120b": "gpt-oss-120b", "gemma4": "Gemma 4 E4B", "qwen122b": "Qwen3.5-122B",
+           "sol": "GPT-6 Sol", "luna": "GPT-6 Luna"}
 
 
 def display(model: str) -> str:
