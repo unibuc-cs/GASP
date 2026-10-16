@@ -99,7 +99,8 @@ class GovernanceGuard:
                 outcome=GuardOutcome.ALLOW,
                 executed=True,
                 rule_id=decision.rule_id,
-                violation_type=decision.violation_type,
+                # executing while the approval is still pending is an action without approval
+                violation_type=decision.violation_type or ("missed_approval" if decision.rule_id == "approval" else None),
                 attempted_violation=True,
                 reason="unguarded execution; would have violated rule " + str(decision.rule_id),
                 requires_approval=decision.requires_approval,
