@@ -52,3 +52,20 @@ def test_system_prompt_variants():
     without = system_prompt(domain, "TrafficAgent", rules, False)
     assert "Operating rules" in with_rules and "Operating rules" not in without
     assert "open_bus_lane" in with_rules
+
+
+def test_reinforced_prompt_variant_repeats_the_rules():
+    from gasp.policies.llm import user_prompt
+    domain = get_domain("smartcity")
+    rules = RuleSet.named("R2")
+    plain = system_prompt(domain, "TrafficAgent", rules, True)
+    strong = system_prompt(domain, "TrafficAgent", rules, True, "reinforced")
+    assert "use escalate first" in strong and "use escalate first" not in plain
+    assert system_prompt(domain, "TrafficAgent", rules, False, "reinforced") == system_prompt(domain, "TrafficAgent", rules, False)
+    policy = LLMRolePolicy(domain, MockBackend(['{"action_type": "noop"}']), rules, include_rules=True, prompt_variant="reinforced")
+    assert policy.name.endswith("-reinforced")
+    assert "Rules, again:" in user_prompt({"step": 0, "scenario": {"target": "x"}}, policy._reminder())
+    assert "Rules, again:" not in user_prompt({"step": 0, "scenario": {"target": "x"}})
+    import pytest
+    with pytest.raises(ValueError):
+        system_prompt(domain, "TrafficAgent", rules, True, "shouty")

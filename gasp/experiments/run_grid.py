@@ -124,7 +124,8 @@ def main() -> None:
                 model_temperature = float(model_spec.get("temperature", temperature))
                 policy = LLMRolePolicy(domain, backend, rules, include_rules=m["include_rules"], temperature=model_temperature,
                                        max_tokens=int(model_spec.get("max_tokens", 400)),
-                                       cache_dir=(out / "cache") if model_temperature == 0 else None)
+                                       cache_dir=(out / "cache") if model_temperature == 0 else None,
+                                       prompt_variant=str(model_spec.get("prompt_variant", "plain")))
                 env_cfg = EnvConfig(activation=m["activation"], guarded=m["guarded"], rule_set=rule_set_name,
                                     mode_name=mode, max_steps=max_steps, overseer_available=overseer_override)
                 for sc in scenarios:

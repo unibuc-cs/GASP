@@ -5,7 +5,7 @@
 For every model found in the runs' episodes.csv files, two columns: executed violations per incident in M2 (rules in the
 prompts, no guard) and blocked attempts per incident in M3 (guard, rules not in the prompts), one row per rule of the
 active rule set. Reads the trace records (`rule_id`, `executed_violation`, `attempted_violation`), so it needs the traces
-of M2 and M3 for every model; when some model's traces are missing the table is left as it is, so that a partial copy of
+of M2 and M3 for every model that ran both modes; when such a model's traces are missing the table is left as it is, so that a partial copy of
 the results (for instance a workspace without the trace files) cannot overwrite a complete table.
 """
 
@@ -22,6 +22,7 @@ from pathlib import Path
 RULES = [("scope", "scope"), ("memory_provenance", "memory provenance"), ("public_comm", "public communication"),
          ("evidence", "evidence"), ("approval", "approval"), ("pollution_zone", "pollution zone")]
 DISPLAY = {"glimmer": "Glimmer 30B", "gptoss120b": "gpt-oss-120b", "gemma4": "Gemma 4 E4B", "qwen122b": "Qwen3.5-122B", "gemma4nt": "Gemma 4 E4B, no reasoning",
+           "gemma4rp": "Gemma 4 E4B, reinforced prompt", "qwen122brp": "Qwen3.5-122B, reinforced prompt",
            "sol": "GPT-6 Sol", "luna": "GPT-6 Luna"}
 
 
@@ -50,16 +51,16 @@ def scan(run_dirs, modes=("M2", "M3")):
     return episodes, executed, blocked
 
 
-def models_in_tables(run_dirs):
-    models = set()
+def models_in_tables(run_dirs, modes=("M2", "M3")):
+    """Models whose episode tables cover every mode the table needs; a control run with M2 only is left out."""
+    seen = defaultdict(set)
     for d in run_dirs:
         p = os.path.join(d, "episodes.csv")
         if os.path.exists(p):
             with open(p, newline="", encoding="utf-8") as f:
                 for row in csv.DictReader(f):
-                    models.add(row["model"])
-                    break
-    return models
+                    seen[row["model"]].add(row["mode"])
+    return {m for m, ms in seen.items() if set(modes) <= ms}
 
 
 def table(models, episodes, executed, blocked) -> str:

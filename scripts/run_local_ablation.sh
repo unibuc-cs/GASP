@@ -54,14 +54,14 @@ wait_with_progress() {   # $1 = total episodes, $2... = globs of run directories
 if [[ "${1:-full}" == "pilot" ]]; then
   # one process per mode, each on its own server when there are several; merged into one directory for the report
   j=0
-  for m in M2 M3 M4; do
+  for m in ${MODES:-${CONFIG_MODES//,/ }}; do       # the config's modes (a control config may have only M2)
     python -m gasp.experiments.run_grid --config "$CONFIG" --out outputs/llm_local_pilot_${NAME}${DOMAIN_SUFFIX}/$m \
         --scenarios "$SCEN" --limit 2 --repeats 1 --modes $m --base-url "${SERVERS[$((j % N))]}" \
         > outputs/llm_local_pilot_${NAME}${DOMAIN_SUFFIX}_$m.log 2>&1 &
     j=$((j + 1))
   done
-  echo "3 pilot processes started (logs: outputs/llm_local_pilot_${NAME}${DOMAIN_SUFFIX}_M*.log); 30-60 minutes at reasoning level high."
-  wait_with_progress 24 "outputs/llm_local_pilot_${NAME}${DOMAIN_SUFFIX}/M*"
+  echo "$j pilot processes started (logs: outputs/llm_local_pilot_${NAME}${DOMAIN_SUFFIX}_M*.log); 30-60 minutes at reasoning level high."
+  wait_with_progress $((8 * j)) "outputs/llm_local_pilot_${NAME}${DOMAIN_SUFFIX}/M*"
   python -m gasp.experiments.merge_runs --runs "outputs/llm_local_pilot_${NAME}${DOMAIN_SUFFIX}/M*" --out outputs/llm_local_pilot_${NAME}${DOMAIN_SUFFIX}
   python -m gasp.experiments.analyze --episodes outputs/llm_local_pilot_${NAME}${DOMAIN_SUFFIX}/episodes.csv --out outputs/llm_local_pilot_${NAME}${DOMAIN_SUFFIX}/stats \
       --pairs M2:M3,M3:M4 --group model > /dev/null

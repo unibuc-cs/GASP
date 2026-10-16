@@ -33,6 +33,8 @@ tmux: `Ctrl-b c` new window, `Ctrl-b n` next window, `Ctrl-b d` leave (everythin
 | Qwen3.5-122B, no reasoning (done as the rehearsal; relabelled) | `MODEL=Qwen/Qwen3.5-122B-A10B NAME=qwen122b QUANT=fp8 LAYOUT=tp GPU_IDS=0,1 bash scripts/serve_local_model.sh` | `CONFIG=configs/mimic/llm_grid_mimic.yaml bash scripts/run_main_grid.sh`, then `... sens` |
 | Glimmer, second domain (next) | `GPU_IDS=0,1 bash scripts/serve_local_model.sh` | `CONFIG=configs/llm_grid_local_ops.yaml bash scripts/run_local_ablation.sh pilot`, then the same without `pilot` (about a night) |
 | Gemma 4 E4B, reasoning off (control, after that) | `MODEL=google/gemma-4-E4B-it NAME=gemma4 GPU_IDS=0,1 bash scripts/serve_local_model.sh` | `CONFIG=configs/llm_grid_local_small_nothink.yaml bash scripts/run_local_ablation.sh pilot`, then the same without `pilot` (fast) |
+| Gemma 4 E4B, reinforced prompt (control, optional; same server) | as above, already running | `CONFIG=configs/llm_grid_local_small_reinforced.yaml bash scripts/run_local_ablation.sh` (M2 only, 240 episodes, 1–2 h; no pilot needed) |
+| Qwen3.5-122B, reinforced prompt (control, optional) | `MODEL=Qwen/Qwen3.5-122B-A10B NAME=qwen122b QUANT=fp8 LAYOUT=tp GPU_IDS=0,1 bash scripts/serve_local_model.sh` | `CONFIG=configs/llm_grid_local_qwen_reinforced.yaml bash scripts/run_local_ablation.sh` (M2 only, 240 episodes, 1–3 h) |
 
 Between models:
   
@@ -71,7 +73,11 @@ cd paper && make              # tables, figure, statistics from outputs/, then m
 ```
 
 `make sync` needs only Python (no TeX); compile in Overleaf if there is no TeX. Red marks in the PDF say what is missing
-and which file the numbers come from; none may remain at submission.
+and which file the numbers come from; none may remain at submission. The API models have empty red rows in the LLM
+tables until their results exist.
+
+Anonymous artifact for the submission link: `python scripts/make_artifact.py` (adds `--traces` for the large version);
+it writes `dist/gasp-artifact.zip` and refuses if a name, affiliation or repository URL is left anywhere.
 
 ## 5. API models (GPT-6 Sol and Luna)
 

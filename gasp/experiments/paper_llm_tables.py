@@ -5,7 +5,8 @@
 
 Writes table_llm_main.tex (one row per model and mode) and table_llm_stats.tex (M2 vs M3, M0 vs M3,
 M3 vs M4 per model: mean difference with its interval, Cliff's delta, Holm-adjusted p) for the metrics that
-carry RQ1 to RQ3.  Run analyze.py first for the stats file.
+carry RQ1 to RQ3.  Run analyze.py first for the stats file.  --placeholder NAME adds empty rows (name in red) for a model
+that has not run yet; they disappear as soon as its episodes exist.
 """
 
 from __future__ import annotations
@@ -33,6 +34,7 @@ STATS_METRICS = [("executed_violations", "executed violations"), ("attempted_vio
                  ("overseer_load", "overseer load"), ("hallucinated_refs", "hallucinated refs")]
 
 DISPLAY = {"glimmer": "Glimmer 30B", "gptoss120b": "gpt-oss-120b", "gemma4": "Gemma 4 E4B", "qwen122b": "Qwen3.5-122B", "gemma4nt": "Gemma 4 E4B, no reasoning",
+           "gemma4rp": "Gemma 4 E4B, reinforced prompt", "qwen122brp": "Qwen3.5-122B, reinforced prompt",
            "sol": "GPT-6 Sol", "luna": "GPT-6 Luna"}
 
 
@@ -53,7 +55,12 @@ def fmt(v, digits=2):
     return f"{v:.{digits}f}"
 
 
-def main_table(rows: List[Dict[str, Any]]) -> str:
+def placeholder(name: str) -> str:
+    """A model that has no results yet: its name in red, so the empty rows are seen as a placeholder in the draft."""
+    return r"\textcolor{red}{" + display(name) + "}"
+
+
+def main_table(rows: List[Dict[str, Any]], placeholders: List[str] = ()) -> str:
     aggs = aggregate(rows, ("model", "mode"))
     lines = [r"\begin{tabular}{ll" + "c" * len(MAIN_COLUMNS) + "}", r"\toprule",
              r"\textbf{Model} & \textbf{Mode} & " + " & ".join(r"\textbf{" + h + "}" for _, h in MAIN_COLUMNS) + r" \\", r"\midrule"]
@@ -64,6 +71,13 @@ def main_table(rows: List[Dict[str, Any]]) -> str:
             lines.append(r"\midrule")
         last_model = a["model"]
         lines.append(f"{display(model)} & {a['mode']} ({MODE_DESC.get(a['mode'], '')}) & " + " & ".join(fmt(a.get(c)) for c, _ in MAIN_COLUMNS) + r" \\")
+    present = {a["model"] for a in aggs}
+    for name in placeholders:                      # empty rows for the models still to run; they vanish once results exist
+        if name in present:
+            continue
+        lines.append(r"\midrule")
+        for k, mode in enumerate(["M0", "M1", "M2", "M3", "M4"]):
+            lines.append(f"{placeholder(name) if k == 0 else ''} & {mode} ({MODE_DESC[mode]}) & " + " & ".join("" for _ in MAIN_COLUMNS) + r" \\")
     lines += [r"\bottomrule", r"\end{tabular}"]
     return "\n".join(lines) + "\n"
 
@@ -79,7 +93,7 @@ def stars(p) -> str:
     return "$^{***}$" if p < 0.001 else "$^{**}$" if p < 0.01 else "$^{*}$" if p < 0.05 else ""
 
 
-def stats_table(stats: List[Dict[str, Any]]) -> str:
+def stats_table(stats: List[Dict[str, Any]], placeholders: List[str] = ()) -> str:
     """One row per model and comparison: mean paired difference (second mode minus first), Holm-corrected Wilcoxon p as stars.
     Intervals and Cliff's delta stay in outputs/llm/stats/paired_stats.md."""
     by_pair: Dict[str, Dict[str, Dict[str, Any]]] = defaultdict(dict)
@@ -88,21 +102,25 @@ def stats_table(stats: List[Dict[str, Any]]) -> str:
     lines = [r"\begin{tabular}{ll" + "r" * len(COMPACT_METRICS) + "}", r"\toprule",
              r"\textbf{Model} & \textbf{Pair} & " + " & ".join(r"\textbf{" + h + "}" for _, h in COMPACT_METRICS) + r" \\", r"\midrule"]
     groups = sorted({g for g, _ in by_pair})
+    groups += [name for name in placeholders if name not in groups]
     for gi, group in enumerate(groups):
         pairs = [p for p in PAIR_ORDER if (group, p) in by_pair]
+        if not pairs:                                   # a placeholder: the three comparisons with empty cells
+            pairs = PAIR_ORDER
         for k, pair in enumerate(pairs):
             a, b = pair.split(":")
-            metrics = by_pair[(group, pair)]
+            metrics = by_pair.get((group, pair), {})
             cells = []
             for key, _ in COMPACT_METRICS:
                 r = metrics.get(key)
                 if r is None:
-                    cells.append("--")
+                    cells.append("--" if (group, pair) in by_pair else "")
                     continue
                 d = r["mean_diff"]
                 txt = f"{d / 1000:+.1f}k" if key == "tokens" else f"{d:+.2f}".replace("-0.00", "+0.00")
                 cells.append(txt + stars(r.get("p_holm")))
-            lines.append(f"{display(group) if k == 0 else ''} & {b} $-$ {a} & " + " & ".join(cells) + r" \\")
+            name = (display(group) if (group, pair) in by_pair else placeholder(group)) if k == 0 else ""
+            lines.append(f"{name} & {b} $-$ {a} & " + " & ".join(cells) + r" \\")
         if gi < len(groups) - 1:
             lines.append(r"\midrule")
     lines += [r"\bottomrule", r"\end{tabular}"]
@@ -164,16 +182,19 @@ def main() -> None:
     ap.add_argument("--sens", type=str, default=None, help="glob of sensitivity-sweep episodes.csv files (rows carry a tag)")
     ap.add_argument("--dest", type=Path, default=Path("paper/tables"))
     ap.add_argument("--skip-tag", action="append", default=[], help="sweep tag to leave out of the sensitivity table")
+    ap.add_argument("--placeholder", action="append", default=[], metavar="MODEL",
+                    help="model name (as in episodes.csv) that has no results yet: empty rows in the main and stats tables, "
+                         "name in red, until its episodes exist")
     args = ap.parse_args()
     rows: List[Dict[str, Any]] = []
     for path in sorted(glob.glob(args.episodes)) or [args.episodes]:
         rows += read_rows(Path(path))
     args.dest.mkdir(parents=True, exist_ok=True)
-    (args.dest / "table_llm_main.tex").write_text(main_table(rows), encoding="utf-8")
+    (args.dest / "table_llm_main.tex").write_text(main_table(rows, args.placeholder), encoding="utf-8")
     (args.dest / "llm_macros.tex").write_text(macros(rows), encoding="utf-8")
     if args.stats and args.stats.exists():
         stats = json.loads(args.stats.read_text(encoding="utf-8"))
-        (args.dest / "table_llm_stats.tex").write_text(stats_table(stats), encoding="utf-8")
+        (args.dest / "table_llm_stats.tex").write_text(stats_table(stats, args.placeholder), encoding="utf-8")
     if args.sens:
         srows: List[Dict[str, Any]] = []
         for path in sorted(glob.glob(args.sens)):
