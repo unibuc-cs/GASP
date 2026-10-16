@@ -112,8 +112,11 @@ def to_latex(rows: List[Dict[str, str]], lines: List[str], title: str) -> str:
            r"\textbf{Step} & \textbf{Role} & \textbf{Action} & \textbf{Evidence} & \textbf{Guard} & \textbf{Rule} & \textbf{Note} \\", r"\midrule"]
     for r in rows:
         out.append(" & ".join(esc(r[k]) for k in ("step", "role", "action", "evidence", "guard", "rule", "note")) + r" \\")
+    # the paper shows the trace and the derived metrics in one short line; the full derivation is in the markdown file
+    short = [l for l in lines if l.startswith(("attempted violations", "executed violations", "escalations", "TSC", "GAU"))]
+    short = [l.split(" (")[0] if l.startswith(("executed violations",)) else l for l in short]
     out += [r"\bottomrule", r"\end{tabular}}", "", r"\smallskip", r"\begin{minipage}{0.96\linewidth}\footnotesize\raggedright"]
-    out += [r"\textbf{Derivation.} " + " ".join(esc(l) + "." for l in lines)]
+    out += [r"\textbf{Derived.} " + "; ".join(esc(l) for l in short) + "."]
     out += [r"\end{minipage}", r"\end{table*}"]
     return "\n".join(out) + "\n"
 

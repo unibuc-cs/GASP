@@ -21,7 +21,7 @@ from pathlib import Path
 
 RULES = [("scope", "scope"), ("memory_provenance", "memory provenance"), ("public_comm", "public communication"),
          ("evidence", "evidence"), ("approval", "approval"), ("pollution_zone", "pollution zone")]
-DISPLAY = {"glimmer": "Glimmer 30B", "gptoss120b": "gpt-oss-120b", "gemma4": "Gemma 4 E4B", "qwen122b": "Qwen3.5-122B",
+DISPLAY = {"glimmer": "Glimmer 30B", "gptoss120b": "gpt-oss-120b", "gemma4": "Gemma 4 E4B", "qwen122b": "Qwen3.5-122B", "gemma4nt": "Gemma 4 E4B, no reasoning",
            "sol": "GPT-6 Sol", "luna": "GPT-6 Luna"}
 
 

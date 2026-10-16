@@ -1,0 +1,22 @@
+# Control for the reasoning question: Gemma 4 E4B with its thinking mode OFF, same prompts, scenarios and modes as
+# configs/llm_grid_local_small.yaml (thinking on). Same server as gemma4; only the request differs. Results land in
+# outputs/llm/gemma4nt_<mode>_s<k> and appear in the tables as "Gemma 4 E4B, no reasoning".
+#   MODEL=google/gemma-4-E4B-it NAME=gemma4 GPU_IDS=0,1 bash scripts/serve_local_model.sh        # window 0
+#   CONFIG=configs/llm_grid_local_small_nothink.yaml bash scripts/run_local_ablation.sh pilot  # window 1, then without "pilot"
+domain: smartcity
+rule_set: R2
+max_steps: 16
+repeats: 3
+temperature: 0.7
+modes: [M2, M3, M4]
+models:
+  - name: gemma4nt
+    kind: openai
+    model: gemma4                                # must equal NAME in the serve command
+    base_url: http://localhost:8000/v1
+    api_key_env: LOCAL_API_KEY
+    max_tokens: 1024
+    timeout: 900
+    extra_body:
+      chat_template_kwargs:
+        enable_thinking: false

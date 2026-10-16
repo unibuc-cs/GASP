@@ -32,7 +32,7 @@ STATS_METRICS = [("executed_violations", "executed violations"), ("attempted_vio
                  ("false_alert", "false alert"), ("hidden_harm", "hidden harm"), ("success", "success"), ("steps", "steps"),
                  ("overseer_load", "overseer load"), ("hallucinated_refs", "hallucinated refs")]
 
-DISPLAY = {"glimmer": "Glimmer 30B", "gptoss120b": "gpt-oss-120b", "gemma4": "Gemma 4 E4B", "qwen122b": "Qwen3.5-122B",
+DISPLAY = {"glimmer": "Glimmer 30B", "gptoss120b": "gpt-oss-120b", "gemma4": "Gemma 4 E4B", "qwen122b": "Qwen3.5-122B", "gemma4nt": "Gemma 4 E4B, no reasoning",
            "sol": "GPT-6 Sol", "luna": "GPT-6 Luna"}
 
 
@@ -70,7 +70,7 @@ def main_table(rows: List[Dict[str, Any]]) -> str:
 
 COMPACT_METRICS = [("executed_violations", "Exec. viol."), ("attempted_violations", "Att. viol."), ("success", "Succ."),
                    ("steps", "Steps"), ("overseer_load", "Overseer"), ("tokens", "Tokens")]
-PAIR_ORDER = ["M2:M3", "M2:M4", "M3:M4", "M0:M3", "M1:M2"]
+PAIR_ORDER = ["M2:M3", "M2:M4", "M3:M4"]          # the table shows the three primary pairs; M0:M3 and M1:M2 are quoted in the text
 
 
 def stars(p) -> str:
@@ -89,7 +89,7 @@ def stats_table(stats: List[Dict[str, Any]]) -> str:
              r"\textbf{Model} & \textbf{Pair} & " + " & ".join(r"\textbf{" + h + "}" for _, h in COMPACT_METRICS) + r" \\", r"\midrule"]
     groups = sorted({g for g, _ in by_pair})
     for gi, group in enumerate(groups):
-        pairs = [p for p in PAIR_ORDER if (group, p) in by_pair] + sorted(p for g, p in by_pair if g == group and p not in PAIR_ORDER)
+        pairs = [p for p in PAIR_ORDER if (group, p) in by_pair]
         for k, pair in enumerate(pairs):
             a, b = pair.split(":")
             metrics = by_pair[(group, pair)]
@@ -163,6 +163,7 @@ def main() -> None:
     ap.add_argument("--stats", type=Path, default=None)
     ap.add_argument("--sens", type=str, default=None, help="glob of sensitivity-sweep episodes.csv files (rows carry a tag)")
     ap.add_argument("--dest", type=Path, default=Path("paper/tables"))
+    ap.add_argument("--skip-tag", action="append", default=[], help="sweep tag to leave out of the sensitivity table")
     args = ap.parse_args()
     rows: List[Dict[str, Any]] = []
     for path in sorted(glob.glob(args.episodes)) or [args.episodes]:
@@ -177,6 +178,7 @@ def main() -> None:
         srows: List[Dict[str, Any]] = []
         for path in sorted(glob.glob(args.sens)):
             srows += read_rows(Path(path))
+        srows = [r for r in srows if r.get("tag") not in args.skip_tag]
         if srows:
             (args.dest / "table_llm_sens.tex").write_text(sens_table(srows), encoding="utf-8")
     print("wrote", args.dest / "table_llm_main.tex", "llm_macros.tex", "(+ table_llm_stats.tex)" if args.stats else "",

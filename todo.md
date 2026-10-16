@@ -1,27 +1,39 @@
 # GASP → SEAMS 2027: plan and status
 
-## Status (16 October 2026)
+## Status (16 October 2026, evening)
 
-Branch `main`, 45 tests pass, `make` in `paper/` builds the 10 page draft. Everything that does not depend on model runs
-is written. In the paper: the deterministic results and three local models (Gemma 4 E4B, Glimmer 30B with its sweeps, gpt-oss-120b), all five modes. Missing: the two API models. 7 days left.
+Branch `main`, 45 tests pass, `make` in `paper/` builds the 10 page draft. In the paper: the deterministic results and four
+local models in all five modes (Gemma 4 E4B, Glimmer 30B, gpt-oss-120b, and Qwen3.5-122B without reasoning, which came
+from the rehearsal of the API path), sweeps for Glimmer and Qwen, and a rule-by-rule table of what the prompt leaks.
+Missing: the two API models (optional now), the second domain with LLM roles, a reasoning-off control. 7 days left.
 
 ## What is left
 
-Group:
+Plan, in order; each step is a day or less on the two cards and goes into the paper the same day:
 
-- [ ] The two API models: pilot, then main grid (`scripts/run_pilot.sh`, `scripts/run_main_grid.sh`, about 120 USD), then the "API:" red marks in the paper, or hand the results back.
-- [ ] Repository private or anonymous mirror before 23 Oct. HotCRP author data (names, affiliations, ORCIDs) by 16 Oct.
+1. **Second domain with Glimmer** (next, about a night): `CONFIG=configs/llm_grid_local_ops.yaml`, pilot then M2–M4. Answers
+   whether the leak follows the rule type (its counterpart rule is the full restart during a traffic spike) and turns the
+   paper's future work into a result.
+2. **Reasoning-off control** (a few hours): Gemma 4 E4B with thinking off, `CONFIG=configs/llm_grid_local_small_nothink.yaml`,
+   M2–M4. Separates "the model" from "answering without reasoning" for the approval leak Qwen showed.
+3. **API models** (group's call, about 120 USD, a few hours): `bash scripts/run_main_grid.sh` with the key; results land in
+   `outputs/llm/M0`–`M4` and the "API:" red marks get filled. Without them the paper stands on four open-weight models.
+4. **Fetch after each step**: `python scripts/fetch_outputs.py user@gpu-server`; tell me, I write it in.
+5. **Final pass** (19–21 Oct): page budget (the body now ends exactly at the bottom of page 10), anonymity check, language.
+
+Group also:
+
+- [ ] Repository private or anonymous mirror before 23 Oct. HotCRP author data (names, affiliations, ORCIDs).
 
 Me, as results arrive:
 
-- [ ] Fill the red marks (API models, anonymous link); one sentence per API model in the Models paragraph. With the API rows the LLM tables grow by two blocks: check the 10 pages.
-- [ ] Keep 10 pages (now 13 lines of slack before the references); anonymity check (names, repository strings, PDF metadata); last language pass after the API sentences.
+- [ ] Each run: tables, text, page budget. Red marks left: API models (seven) and the anonymous link.
 - [ ] Artifact track description (2 pages) by 7 Dec.
 
 ## Dates
 
 - Submission Fri 23 Oct 2026 AoE (https://seams27.hotcrp.com/): 10 pages + 2 of references, IEEEtran, double anonymous. Notification 3 Dec, revisions 5 Jan, camera ready 29 Jan. Artifact track: abstract 1 Dec, submission 7 Dec.
-- 11–15 Oct: the three local turns, one model at a time. Proposal: a model not done by Sun 18 Oct stays out of this submission.
+- 17–18 Oct: second domain and reasoning-off control on the two cards; a run not done by Mon 19 Oct stays out of this submission.
 - 13–18 Oct: results text, full draft. 19–20 Oct: internal review. 21 Oct: anonymity and format check. 23 Oct: submit.
 
 ## Decisions
@@ -44,3 +56,4 @@ Me, as results arrive:
 - 15 Oct: every file under `outputs` on the PC (and, by the group's report, the Gemma 4 results on the server) became empty during a copy; cause unknown, most likely PyCharm syncing the folder. Restored the PC from my copies: every episode table behind the paper is safe; traces survive only for Glimmer M2–M4 (the others were read for the paper but are gone). Gemma 4 runs again. Guards: `outputs` excluded from PyCharm deployment, a backup in `~/gasp_backups` after each run, the fetch never writes an empty file over one with content.
 - 16 Oct: Gemma 4 E4B (1,200 episodes) in the paper. The prompt barely helps it (1.34 to 0.96 violations per incident, mostly pollution-zone reroutes); the guard brings it to zero at no cost over M2; the guard alone doubles the human's requests; as one agent it resolves 45% of the incidents. It fails a quarter of the incidents in M2 and M4, nearly all flooded underpasses: the communication role keeps asking to verify a report another role never checks. Size does not order the leak (0.96, 0.12, 0.19 for 4B, 30B, 120B). The run used three servers (ports 8000-8002), so three cards.
 - 16 Oct (later): full review pass. Fixed: abstract said the naive roles broadcast a false alert in a quarter of the episodes with a false report (it is a quarter of all episodes, every one with such a report); the ops domain sentence read as if half of the violations were missed approvals (it is one missed approval every second incident); the formatting-failure range; several Glimmer-only claims (silent violations, hidden harm, false alerts, unnecessary requests) were stated as if for all models; lowercase venue names in four references. Rewritten for flow: results split into shorter paragraphs that give the three-model answer first, then detail; RQ1 reworded so the by-construction zero is not the question; RQ4 now covers incident families and evidence quality with numbers; the deterministic rows mapped to the modes; the single agent got its own discussion paragraph; trust-adaptive paragraph says that GAU would even prefer full delegation; threats note untuned prompts. Second-domain table reduced to the rows the text uses; artifact note folded into the conclusion. 10 pages, references from the bottom of page 10. Eight red marks left: API models and link.
+- 16 Oct (evening): the rehearsal results (Qwen3.5-122B-A10B, fp8, thinking off, two identical entries named sol and luna) are in the paper as a fourth model, relabelled `qwen122b` with ten repeats; they are not the GPT-6 models. Found and fixed a metric gap: an action executed while its own approval request was still pending was labelled an approval violation but not counted as a missed approval; `scripts/recount_missed_approvals.py` corrected 391 episodes (mostly Qwen). Qwen leaks approvals through the prompt (0.49 per incident; 217 executed while pending, 130 hard road closures never asked, 106 of them with a rationale saying approval is required), so the guard costs it 14 points of success: the approvals it had skipped. New rule-by-rule table (`paper_rule_table.py`, from traces). LLM figure dropped for space; tables tightened; the "For engineers" paragraph folded into the recommendation. Second-domain config and run-script support, and a reasoning-off control config, ready for the server.

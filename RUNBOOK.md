@@ -30,6 +30,9 @@ tmux: `Ctrl-b c` new window, `Ctrl-b n` next window, `Ctrl-b d` leave (everythin
 | Glimmer sweeps (done) | `GPU_IDS=0,1 bash scripts/serve_local_model.sh` | `bash scripts/run_local_ablation.sh sens` |
 | gpt-oss-120b (done) | `MODEL=openai/gpt-oss-120b NAME=gptoss120b GPU_IDS=0,1 bash scripts/serve_local_model.sh` | `CONFIG=configs/llm_grid_local_large.yaml bash scripts/run_local_ablation.sh pilot`, then the same without `pilot` |
 | Gemma 4 E4B (done) | `MODEL=google/gemma-4-E4B-it NAME=gemma4 GPU_IDS=0,1 bash scripts/serve_local_model.sh` | `CONFIG=configs/llm_grid_local_small.yaml bash scripts/run_local_ablation.sh pilot`, then the same without `pilot` |
+| Qwen3.5-122B, no reasoning (done as the rehearsal; relabelled) | `MODEL=Qwen/Qwen3.5-122B-A10B NAME=qwen122b QUANT=fp8 LAYOUT=tp GPU_IDS=0,1 bash scripts/serve_local_model.sh` | `CONFIG=configs/mimic/llm_grid_mimic.yaml bash scripts/run_main_grid.sh`, then `... sens` |
+| Glimmer, second domain (next) | `GPU_IDS=0,1 bash scripts/serve_local_model.sh` | `CONFIG=configs/llm_grid_local_ops.yaml bash scripts/run_local_ablation.sh pilot`, then the same without `pilot` (about a night) |
+| Gemma 4 E4B, reasoning off (control, after that) | `MODEL=google/gemma-4-E4B-it NAME=gemma4 GPU_IDS=0,1 bash scripts/serve_local_model.sh` | `CONFIG=configs/llm_grid_local_small_nothink.yaml bash scripts/run_local_ablation.sh pilot`, then the same without `pilot` (fast) |
 
 Between models:
   
@@ -44,6 +47,11 @@ Good to know:
 - Pilot is fine when: format failures under 1 per episode, success in M2 above 0.3, executed violations 0 in M3 and M4.
   Otherwise stop and tell me.
 - Each finished run also leaves a copy in `~/gasp_backups/` on the server, outside the project, so a sync cannot reach it.
+- The rehearsal of the API path (`configs/mimic`) ran Qwen3.5-122B under the names `sol` and `luna`. Those results are now
+  one model, `qwen122b`, in `outputs/llm/qwen122b_M*` and `outputs/llm_sens/qwen122b_*`; the originals sit in `outputs/mimic`.
+  If the real API run happens, its results land in `outputs/llm/M0` to `M4` as before and nothing collides. On the server,
+  do the same before the API run: `python scripts/relabel_runs.py outputs/llm/M2 outputs/llm/qwen122b_M2 --model qwen122b --offset luna=5`
+  for each mode, then move `outputs/llm/M?` away.
 - Times on two cards: sweeps about half a day; the full run of a new model about a day.
 
 ## 3. Bring the results to the PC

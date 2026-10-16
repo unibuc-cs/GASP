@@ -17,7 +17,7 @@ import tarfile
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 PACK = "outputs/gasp_outputs.tgz"      # on the server, inside the repository (git ignores it)
-WANTED = "outputs/llm outputs/llm_sens outputs/llm_*_stats outputs/llm_local_pilot* outputs/*.log"
+WANTED = "outputs/llm outputs/llm_sens outputs/llm_ops outputs/llm_ops_sens outputs/llm_*_stats outputs/llm_local_pilot* outputs/*.log"
 
 
 def run(args):

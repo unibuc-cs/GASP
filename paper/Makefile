@@ -6,7 +6,8 @@ all: sync pdf
 
 sync:
 	cd .. && python -m gasp.experiments.paper_tables --paper-out $(OUT) --dest paper/tables
-	cp ../$(OUT)/table_main.tex tables/table_main.tex
+	# the city domain: the rows the text discusses (single agent, naive society with and without the guard, compliant society)
+	grep -v '^D0g \|^D1 \|^D1g \|^D6g ' ../$(OUT)/table_main.tex > tables/table_main.tex
 	cp ../$(OUT)/worked_example/worked_example.tex tables/worked_example.tex
 	cp ../$(OUT)/adaptive/tradeoff_R3_15.png figures/tradeoff_R3_15.png
 	# the second domain: only the rows the text discusses (single agent, naive society with and without the guard, compliant society)
@@ -14,7 +15,7 @@ sync:
 	# LLM results, when they exist (outputs/llm/*/episodes.csv from the grid runs)
 	@if ls ../outputs/llm/*/episodes.csv > /dev/null 2>&1; then \
 	  cd .. && python -m gasp.experiments.analyze --episodes "outputs/llm/*/episodes.csv" --out outputs/llm/stats --pairs M2:M3,M2:M4,M3:M4,M0:M3,M1:M2 --group model > /dev/null && \
-	  python -m gasp.experiments.paper_llm_tables --episodes "outputs/llm/*/episodes.csv" --stats outputs/llm/stats/paired_stats.json --sens "outputs/llm_sens/*/episodes.csv" --dest paper/tables && \
+	  python -m gasp.experiments.paper_llm_tables --episodes "outputs/llm/*/episodes.csv" --stats outputs/llm/stats/paired_stats.json --sens "outputs/llm_sens/*/episodes.csv" --skip-tag ov-always --skip-tag R1 --dest paper/tables && \
 	  python -m gasp.experiments.paper_figures --episodes "outputs/llm/*/episodes.csv" --out paper/figures/llm_modes.png && \
 	  python -m gasp.experiments.paper_rule_table --runs "outputs/llm/*" --dest paper/tables && \
 	  python -m gasp.experiments.failure_catalogue --traces "outputs/llm/*/traces" --out outputs/llm/failure_catalogue.md > /dev/null; \
