@@ -57,6 +57,9 @@ def main() -> None:
     ap.add_argument("--overseer", choices=["scenario", "always", "never"], default="scenario",
                     help="force the overseer available or unavailable in every scenario (sensitivity runs)")
     ap.add_argument("--tag", type=str, default=None, help="label stored with every row (e.g. R3-never)")
+    ap.add_argument("--adaptive-threshold", type=float, default=None,
+                    help="trust-adaptive governor in the guarded modes: a role with trust at or above this value skips soft "
+                         "approvals; trust is carried from one scenario to the next within this process (its lifetime)")
     ap.add_argument("--base-url", type=str, default=None,
                     help="send every OpenAI-compatible model in the config to this server (one vLLM server per GPU: "
                          "each process gets its own); recorded in the manifest")
@@ -127,17 +130,23 @@ def main() -> None:
                                        cache_dir=(out / "cache") if model_temperature == 0 else None,
                                        prompt_variant=str(model_spec.get("prompt_variant", "plain")))
                 env_cfg = EnvConfig(activation=m["activation"], guarded=m["guarded"], rule_set=rule_set_name,
-                                    mode_name=mode, max_steps=max_steps, overseer_available=overseer_override)
+                                    mode_name=mode, max_steps=max_steps, overseer_available=overseer_override,
+                                    adaptive_threshold=args.adaptive_threshold if m["guarded"] else None)
+                trust: Dict[str, float] = {}      # carried across scenarios when the adaptive governor is on
                 for sc in scenarios:
                     for rep in range(repeats):
                         key = (model_spec["name"], mode, sc.scenario_id, rep)
                         if key in done:
                             continue
-                        res = run_episode(domain, sc, policy, env_cfg, rules)
+                        res = run_episode(domain, sc, policy, env_cfg, rules,
+                                          initial_trust=trust if env_cfg.adaptive_threshold is not None else None)
+                        if env_cfg.adaptive_threshold is not None:
+                            trust.update(res.final_trust)
                         write_jsonl(res.records, trace_dir / f"{model_spec['name']}__{mode}__{sc.scenario_id}__r{rep}.jsonl")
                         row = episode_metrics(res, max_steps)
                         row.update({"model": model_spec["name"], "repeat": rep, "rule_set": rule_set_name,
                                     "overseer": args.overseer, "tag": args.tag or "",
+                                    "adaptive_threshold": "" if args.adaptive_threshold is None else args.adaptive_threshold,
                                     "include_rules": m["include_rules"], "guarded": m["guarded"], "activation": m["activation"]})
                         rows_f.write(json.dumps(row) + "\n")
                         rows_f.flush()
@@ -159,7 +168,7 @@ def main() -> None:
                 system_prompt(domain, role, rules, include).encode("utf-8")).hexdigest()[:16]
     (out / "manifest.json").write_text(json.dumps(manifest({
         "config": cfg, "modes": modes, "repeats": repeats, "temperature": temperature, "n_scenarios": len(scenarios),
-        "shard": args.shard,
+        "shard": args.shard, "adaptive_threshold": args.adaptive_threshold, "overseer": args.overseer, "tag": args.tag,
         "n_episodes": len(rows), "mode_definitions": MODES, "system_prompt_hashes": prompt_hashes,
         "backend_adaptations": {name: getattr(b, "adaptations", []) for name, b in backend_notes.items()},
     }), indent=1), encoding="utf-8")

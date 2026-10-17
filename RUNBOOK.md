@@ -31,10 +31,12 @@ tmux: `Ctrl-b c` new window, `Ctrl-b n` next window, `Ctrl-b d` leave (everythin
 | gpt-oss-120b (done) | `MODEL=openai/gpt-oss-120b NAME=gptoss120b GPU_IDS=0,1 bash scripts/serve_local_model.sh` | `CONFIG=configs/llm_grid_local_large.yaml bash scripts/run_local_ablation.sh pilot`, then the same without `pilot` |
 | Gemma 4 E4B (done) | `MODEL=google/gemma-4-E4B-it NAME=gemma4 GPU_IDS=0,1 bash scripts/serve_local_model.sh` | `CONFIG=configs/llm_grid_local_small.yaml bash scripts/run_local_ablation.sh pilot`, then the same without `pilot` |
 | Qwen3.5-122B, no reasoning (done as the rehearsal; relabelled) | `MODEL=Qwen/Qwen3.5-122B-A10B NAME=qwen122b QUANT=fp8 LAYOUT=tp GPU_IDS=0,1 bash scripts/serve_local_model.sh` | `CONFIG=configs/mimic/llm_grid_mimic.yaml bash scripts/run_main_grid.sh`, then `... sens` |
-| Glimmer, second domain (next) | `GPU_IDS=0,1 bash scripts/serve_local_model.sh` | `CONFIG=configs/llm_grid_local_ops.yaml bash scripts/run_local_ablation.sh pilot`, then the same without `pilot` (about a night) |
-| Gemma 4 E4B, reasoning off (control, after that) | `MODEL=google/gemma-4-E4B-it NAME=gemma4 GPU_IDS=0,1 bash scripts/serve_local_model.sh` | `CONFIG=configs/llm_grid_local_small_nothink.yaml bash scripts/run_local_ablation.sh pilot`, then the same without `pilot` (fast) |
-| Gemma 4 E4B, reinforced prompt (control, optional; same server) | as above, already running | `CONFIG=configs/llm_grid_local_small_reinforced.yaml bash scripts/run_local_ablation.sh` (M2 only, 240 episodes, 1–2 h; no pilot needed) |
-| Qwen3.5-122B, reinforced prompt (control, optional) | `MODEL=Qwen/Qwen3.5-122B-A10B NAME=qwen122b QUANT=fp8 LAYOUT=tp GPU_IDS=0,1 bash scripts/serve_local_model.sh` | `CONFIG=configs/llm_grid_local_qwen_reinforced.yaml bash scripts/run_local_ablation.sh` (M2 only, 240 episodes, 1–3 h) |
+| Glimmer, second domain (done 17 Oct; rerun below) | `GPU_IDS=0,1 bash scripts/serve_local_model.sh` | `CONFIG=configs/llm_grid_local_ops.yaml bash scripts/run_local_ablation.sh pilot`, then the same without `pilot` |
+| Gemma 4 E4B, reasoning off (done 17 Oct) | `MODEL=google/gemma-4-E4B-it NAME=gemma4 GPU_IDS=0,1 bash scripts/serve_local_model.sh` | `CONFIG=configs/llm_grid_local_small_nothink.yaml bash scripts/run_local_ablation.sh pilot`, then the same without `pilot` |
+| Gemma 4 E4B and Qwen, reinforced prompt (done 17 Oct) | as the model's row | `CONFIG=configs/llm_grid_local_small_reinforced.yaml ...`, `CONFIG=configs/llm_grid_local_qwen_reinforced.yaml ...` (M2 only) |
+| **Next 1.** Glimmer, second domain again (the diagnosis role now sees the telemetry its job names; about a night) | `GPU_IDS=0,1 bash scripts/serve_local_model.sh` | first `mv outputs/llm_ops outputs/llm_ops_v1`, then `CONFIG=configs/llm_grid_local_ops.yaml bash scripts/run_local_ablation.sh` (no pilot needed) |
+| **Next 2.** Glimmer, trust-adaptive governor (R3, guard only, thresholds 0.7/0.3/0.0; 240 episodes, 3-4 h) | same server | `bash scripts/run_local_ablation.sh adaptive` |
+| **Next 3** (optional, half a day). gpt-oss-120b, second domain | `MODEL=openai/gpt-oss-120b NAME=gptoss120b GPU_IDS=0,1 bash scripts/serve_local_model.sh` | `CONFIG=configs/llm_grid_local_ops_large.yaml bash scripts/run_local_ablation.sh` |
 
 Between models:
   
@@ -58,7 +60,8 @@ Good to know:
 
 ## 3. Bring the results to the PC
 
-After each step, in a terminal on the PC (not PyCharm's Run button):
+After each step, in a terminal on the PC (not PyCharm's Run button). Before the first fetch of the second-domain rerun,
+rename the old folder: `ren outputs\llm_ops llm_ops_v1`.
 
 ```bash
 python scripts/fetch_outputs.py user@gpu-server          # --no-traces skips the large trace files

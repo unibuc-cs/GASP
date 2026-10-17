@@ -54,9 +54,9 @@ TOPIC_VISIBILITY: Dict[str, List[str]] = {
     "metrics": ["MonitorAgent", "DiagnoserAgent", "CapacityAgent"],
     "logs": ["DiagnoserAgent"],
     "deploy": ["DeployAgent", "DiagnoserAgent"],
-    "traffic": ["CapacityAgent", "MonitorAgent"],
+    "traffic": ["CapacityAgent", "MonitorAgent", "DiagnoserAgent"],
     "dependency": ["DependencyAgent", "DiagnoserAgent"],
-    "disk": ["StorageAgent", "MonitorAgent"],
+    "disk": ["StorageAgent", "MonitorAgent", "DiagnoserAgent"],
     "incident": ["MonitorAgent", "DiagnoserAgent"],
     "public": ["CommsAgent"],
     "distractor": ["StorageAgent", "CapacityAgent"],
@@ -160,7 +160,7 @@ SOCIETY_DESCRIPTION = "the on-call incident response team of a web platform, sev
 
 ROLE_JOBS = {
     "MonitorAgent": "You own monitoring: confirm that an incident is real from health checks and metrics, open it, and share a confirmation note for the team.",
-    "DiagnoserAgent": "You diagnose: read logs, deploy records, dependency status and disk usage, then record the root cause.",
+    "DiagnoserAgent": "You diagnose: read logs, deploy records, dependency status, traffic and disk metrics, then record the root cause.",
     "DeployAgent": "You own releases: roll back a bad deployment, restart services, change configuration.",
     "CapacityAgent": "You own capacity: scale out, rate limit, restart under load.",
     "DependencyAgent": "You own third-party dependencies: isolate a failing dependency with a circuit breaker or switch to fallback mode.",

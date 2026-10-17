@@ -3,6 +3,8 @@
 # uses outputs/paper_ops/scenarios.json, so the city tables are untouched.
 #   GPU_IDS=0,1 bash scripts/serve_local_model.sh                                        # window 0 (Glimmer)
 #   CONFIG=configs/llm_grid_local_ops.yaml bash scripts/run_local_ablation.sh pilot      # window 1, then without "pilot"
+# 17 Oct: the diagnosis role now sees the traffic and disk metrics its job names (it could not before and looped on
+# queries); the results of the first run are kept as outputs/llm_ops_v1 and the domain is run again.
 domain: ops
 rule_set: R2
 max_steps: 16

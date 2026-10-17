@@ -1,0 +1,21 @@
+# gpt-oss-120b on the second domain (software incident response), M2-M4, same settings as configs/llm_grid_local_large.yaml.
+# Results land in outputs/llm_ops/gptoss120b_<mode>_s<k> and join Glimmer's rows in the second-domain table.
+#   MODEL=openai/gpt-oss-120b NAME=gptoss120b GPU_IDS=0,1 bash scripts/serve_local_model.sh      # window 0
+#   CONFIG=configs/llm_grid_local_ops_large.yaml bash scripts/run_local_ablation.sh                # window 1 (no pilot needed)
+domain: ops
+rule_set: R2
+max_steps: 16
+repeats: 3
+temperature: 0.7
+modes: [M2, M3, M4]
+models:
+  - name: gptoss120b
+    kind: openai
+    model: gptoss120b                          # must equal NAME in the serve command
+    base_url: http://localhost:8000/v1
+    api_key_env: LOCAL_API_KEY
+    max_tokens: 4096
+    timeout: 900
+    json_mode: false
+    extra_body:
+      reasoning_effort: high

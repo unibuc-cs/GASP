@@ -58,7 +58,7 @@ def features_table(feature_json: Path, label: str = "tab:features") -> str:
         if key in data:
             rows.append((name, " / ".join(str(data[key].get(k, 0)) for k in ("1", "2", "3"))))
     lines = [r"\begin{table}[t]", r"\centering",
-             r"\caption{Scenario set used in every run: " + str(total) + r" scenarios, stratified by family, generated from seed 2027. Hidden context (the overseer would refuse soft requests) is drawn independently with probability 0.15 and is not shown to any role.}",
+             r"\caption{Scenario set used in every run (" + str(total) + r" scenarios, seed 2027). Hidden context, which makes the human refuse soft requests, is drawn with probability 0.15 and shown to no role.}",
              r"\label{" + label + r"}", r"\footnotesize",
              r"\begin{tabular}{@{}p{0.54\linewidth}p{0.40\linewidth}@{}}", r"\toprule",
              r"\textbf{Feature} & \textbf{Count} \\", r"\midrule"]

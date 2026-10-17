@@ -91,6 +91,25 @@ elif [[ "${1:-full}" == "sens" ]]; then
       --pairs M2:M3 --group tag
   backup "${PREFIX}_sens" ${SENS_OUT}/${PREFIX}_*
   echo "Done. Results in ${SENS_OUT}/; on the PC: python scripts/fetch_outputs.py user@gpu-server"
+elif [[ "${1:-full}" == "adaptive" ]]; then
+  # Trust-adaptive governor with LLM roles: strict rules R3, guard only (M3), one repeat, thresholds 0.7, 0.3 and 0.0
+  # (the static guard is the R3 M3 sweep). Trust is carried from scenario to scenario inside each process, so few shards:
+  # 3 thresholds x 2 shards = 6 processes, 240 episodes. Results in outputs/llm_sens/<prefix>_adaptive-t<th>_M3_s<k>.
+  SHARDS=${SHARDS:-2}
+  j=0
+  for th in 0.7 0.3 0.0; do
+    tag=adaptive-t$th
+    for ((k = 0; k < SHARDS; k++)); do
+      python -m gasp.experiments.run_grid --config "$CONFIG" --out ${SENS_OUT}/${PREFIX}_${tag}_M3_s$k \
+          --scenarios "$SCEN" --modes M3 --repeats 1 --shard $k/$SHARDS --rule-set R3 --adaptive-threshold $th --tag $tag \
+          --base-url "${SERVERS[$((j % N))]}" > ${SENS_OUT}_${PREFIX}_${tag}_M3_s$k.log 2>&1 &
+      j=$((j + 1))
+    done
+  done
+  echo "$j processes started over $N server(s); logs in ${SENS_OUT}_${PREFIX}_adaptive-*.log."
+  wait_with_progress 240 "${SENS_OUT}/${PREFIX}_adaptive-*"
+  backup "${PREFIX}_adaptive" ${SENS_OUT}/${PREFIX}_adaptive-*
+  echo "Done. Results in ${SENS_OUT}/; on the PC: python scripts/fetch_outputs.py user@gpu-server"
 else
   # MODES x SHARDS processes at once, dealt round-robin over the servers; each vLLM server batches the requests
   # it receives. Default: 4 shards per server, so about 12 concurrent requests per GPU.
