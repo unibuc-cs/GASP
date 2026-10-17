@@ -66,11 +66,24 @@ D.~Weyns, \emph{An Introduction to Self-adaptive Systems: A Contemporary
   Software Engineering Perspective}.\hskip 1em plus 0.5em minus 0.4em\relax
   Wiley, 2020.
 
+\bibitem{weyns2013patterns}
+D.~Weyns, B.~Schmerl, V.~Grassi, S.~Malek, R.~Mirandola, C.~Prehofer,
+  J.~Wuttke, J.~Andersson, H.~Giese, and K.~M. G{\"o}schka, ``On patterns for
+  decentralized control in self-adaptive systems,'' in \emph{Software
+  Engineering for Self-Adaptive Systems {II}}, ser. LNCS.\hskip 1em plus 0.5em
+  minus 0.4em\relax Springer, 2013, vol. 7475, pp. 76--107.
+
 \bibitem{calinescu2018entrust}
 R.~Calinescu, D.~Weyns, S.~Gerasimou, M.~U. Iftikhar, I.~Habli, and T.~Kelly,
   ``Engineering trustworthy self-adaptive software with dynamic assurance
   cases,'' \emph{IEEE Transactions on Software Engineering}, vol.~44, no.~11,
   pp. 1039--1069, 2018.
+
+\bibitem{camara2015human}
+J.~C{\'a}mara, G.~A. Moreno, and D.~Garlan, ``Reasoning about human
+  participation in self-adaptive systems,'' in \emph{Proceedings of the 10th
+  International Symposium on Software Engineering for Adaptive and
+  Self-Managing Systems ({SEAMS})}, 2015, pp. 146--156.
 
 \bibitem{li2020explanations}
 N.~Li, S.~Adepu, E.~Kang, and D.~Garlan, ``Explanations for human-on-the-loop:
@@ -108,6 +121,19 @@ Y.~Falcone, L.~Mounier, J.-C. Fernandez, and J.-L. Richier, ``Runtime
   enforcement monitors: composition, synthesis, and enforcement abilities,''
   \emph{Formal Methods in System Design}, vol.~38, no.~3, pp. 223--262, 2011.
 
+\bibitem{rebedea2023nemo}
+T.~Rebedea, R.~Dinu, M.~Sreedhar, C.~Parisien, and J.~Cohen, ``{NeMo}
+  guardrails: A toolkit for controllable and safe {LLM} applications with
+  programmable rails,'' in \emph{Proceedings of the 2023 Conference on
+  Empirical Methods in Natural Language Processing ({EMNLP}): System
+  Demonstrations}, 2023, pp. 431--445.
+
+\bibitem{hua2024trustagent}
+W.~Hua, X.~Yang, M.~Jin, Z.~Li, W.~Cheng, R.~Tang, and Y.~Zhang,
+  ``{TrustAgent}: Towards safe and trustworthy {LLM}-based agents,'' in
+  \emph{Findings of the Association for Computational Linguistics: {EMNLP}
+  2024}, 2024, arXiv:2402.01586.
+
 \bibitem{xiang2025guardagent}
 Z.~Xiang \emph{et~al.}, ``{GuardAgent}: Safeguard {LLM} agents via
   knowledge-enabled reasoning,'' in \emph{International Conference on Machine
@@ -117,10 +143,32 @@ Z.~Xiang \emph{et~al.}, ``{GuardAgent}: Safeguard {LLM} agents via
 T.~Shi \emph{et~al.}, ``Progent: Programmable privilege control for {LLM}
   agents,'' 2025, arXiv:2504.11703.
 
+\bibitem{chen2025shieldagent}
+Z.~Chen, M.~Kang, and B.~Li, ``{ShieldAgent}: Shielding agents via verifiable
+  safety policy reasoning,'' 2025, arXiv:2503.22738.
+
 \bibitem{yao2025taubench}
 S.~Yao, N.~Shinn, P.~Razavi, and K.~Narasimhan, ``$\tau$-bench: A benchmark for
   tool-agent-user interaction in real-world domains,'' in \emph{International
   Conference on Learning Representations (ICLR)}, 2025, arXiv:2406.12045.
+
+\bibitem{ruan2024toolemu}
+Y.~Ruan, H.~Dong, A.~Wang, S.~Pitis, Y.~Zhou, J.~Ba, Y.~Dubois, C.~J. Maddison,
+  and T.~Hashimoto, ``Identifying the risks of {LM} agents with an
+  {LM}-emulated sandbox,'' in \emph{International Conference on Learning
+  Representations ({ICLR})}, 2024, arXiv:2309.15817.
+
+\bibitem{debenedetti2024agentdojo}
+E.~Debenedetti, J.~Zhang, M.~Balunovi{\'c}, L.~Beurer-Kellner, M.~Fischer, and
+  F.~Tram{\`e}r, ``{AgentDojo}: A dynamic environment to evaluate prompt
+  injection attacks and defenses for {LLM} agents,'' in \emph{Advances in
+  Neural Information Processing Systems ({NeurIPS}), Datasets and Benchmarks
+  Track}, 2024, arXiv:2406.13352.
+
+\bibitem{carmona2018conformance}
+J.~Carmona, B.~van Dongen, A.~Solti, and M.~Weidlich, \emph{Conformance
+  Checking: Relating Processes and Models}.\hskip 1em plus 0.5em minus
+  0.4em\relax Springer, 2018.
 
 \bibitem{esteva2001ei}
 M.~Esteva, J.~A. Rodr{\'\i}guez-Aguilar, C.~Sierra, P.~Garcia, and J.~L. Arcos,
@@ -132,6 +180,16 @@ J.~F. H{\"u}bner, J.~S. Sichman, and O.~Boissier, ``Developing organised
   multiagent systems using the {MOISE+} model: programming issues at the system
   and agent levels,'' \emph{International Journal of Agent-Oriented Software
   Engineering}, vol.~1, no. 3/4, pp. 370--395, 2007.
+
+\bibitem{dastani2018monitoring}
+M.~Dastani, P.~Torroni, and N.~Yorke-Smith, ``Monitoring norms: A
+  multi-disciplinary perspective,'' \emph{The Knowledge Engineering Review},
+  vol.~33, p. e25, 2018.
+
+\bibitem{boissier2020jacamo}
+O.~Boissier, R.~H. Bordini, J.~F. H{\"u}bner, and A.~Ricci, \emph{Multi-Agent
+  Oriented Programming: Programming Multi-Agent Systems Using {JaCaMo}}.\hskip
+  1em plus 0.5em minus 0.4em\relax MIT Press, 2020.
 
 \bibitem{park2023generative}
 J.~S. Park \emph{et~al.}, ``Generative agents: Interactive simulacra of human

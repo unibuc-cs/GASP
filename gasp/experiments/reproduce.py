@@ -46,7 +46,7 @@ DETERMINISTIC_MODES = [
 
 def latex_table(aggs: List[Dict[str, Any]], columns: List[str]) -> str:
     header = {"success": "Succ.", "steps": "Steps", "proposals": "Prop.", "attempted_violations": "Att. viol.",
-              "executed_violations": "Exec. viol.", "missed_approvals": "Miss. appr.", "overseer_load": "Overseer",
+              "executed_violations": "Exec. viol.", "missed_approvals": "Missed appr.", "overseer_load": "Overseer",
               "tsc": "TSC", "false_alert": "False alert", "hidden_harm": "Hidden harm", "silent_violation_rate": "Silent viol.", "gau": "GAU"}
     lines = [r"\begin{tabular}{l" + "c" * len(columns) + "}", r"\toprule",
              r"\textbf{Mode} & " + " & ".join(r"\textbf{" + header.get(c, c) + "}" for c in columns) + r" \\", r"\midrule"]

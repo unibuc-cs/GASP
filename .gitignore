@@ -15,6 +15,10 @@ outputs/llm_estimate/
 outputs/llm_local*/
 outputs/llm_pilot_example/traces/
 outputs/llm_sens/
+outputs/llm_ops/
+outputs/llm_ops_sens/
+outputs/llm_*_stats/
+outputs/mimic/
 outputs/paper/
 paper/*.aux
 paper/*.bbl

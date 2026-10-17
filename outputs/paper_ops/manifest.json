@@ -1,9 +1,9 @@
 {
- "gasp_version": "2.0.0-dev",
- "git_commit": "4fbdffccb7be638769a72e58e14700e94e5a1729",
+ "gasp_version": "2.0.0",
+ "git_commit": "770d3416b28106a1acac4f20f27bf0ac5474e49f",
  "python": "3.11.15",
- "platform": "Linux-6.18.44-fc-v37-x86_64-with-glibc2.39",
- "timestamp": "2026-09-24T21:53:01",
+ "platform": "Linux-6.18.44-fc-v139-x86_64-with-glibc2.39",
+ "timestamp": "2026-10-17T18:58:19",
  "per_family": 20,
  "seed": 2027,
  "max_steps": 16,

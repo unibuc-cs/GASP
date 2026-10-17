@@ -25,7 +25,7 @@ from gasp.experiments.analyze import read_rows
 
 
 MAIN_COLUMNS = [("success", "Succ."), ("steps", "Steps"), ("attempted_violations", "Att. viol."), ("executed_violations", "Exec. viol."),
-                ("overseer_load", "Overseer"), ("tsc", "TSC"), ("hallucinated_refs", "Halluc."), ("false_alert", "False alert"),
+                ("missed_approvals", "Missed appr."), ("overseer_load", "Overseer"), ("tsc", "TSC"), ("hallucinated_refs", "Halluc."), ("false_alert", "False alert"),
                 ("hidden_harm", "Hidden harm"), ("silent_violation_rate", "Silent viol."), ("formatting_failures", "Format fail."),
                 ("tokens", "Tokens"), ("gau", "GAU")]
 
@@ -75,9 +75,8 @@ def main_table(rows: List[Dict[str, Any]], placeholders: List[str] = ()) -> str:
     for name in placeholders:                      # empty rows for the models still to run; they vanish once results exist
         if name in present:
             continue
-        lines.append(r"\midrule")
-        for k, mode in enumerate(["M0", "M1", "M2", "M3", "M4"]):
-            lines.append(f"{placeholder(name) if k == 0 else ''} & {mode} ({MODE_DESC[mode]}) & " + " & ".join("" for _ in MAIN_COLUMNS) + r" \\")
+        lines.append(r"\midrule")                     # one row stands for the five modes until the results exist
+        lines.append(f"{placeholder(name)} & M0--M4 & " + " & ".join("" for _ in MAIN_COLUMNS) + r" \\")
     lines += [r"\bottomrule", r"\end{tabular}"]
     return "\n".join(lines) + "\n"
 
@@ -105,8 +104,11 @@ def stats_table(stats: List[Dict[str, Any]], placeholders: List[str] = ()) -> st
     groups += [name for name in placeholders if name not in groups]
     for gi, group in enumerate(groups):
         pairs = [p for p in PAIR_ORDER if (group, p) in by_pair]
-        if not pairs:                                   # a placeholder: the three comparisons with empty cells
-            pairs = PAIR_ORDER
+        if not pairs:                                   # a placeholder: one empty row for the three comparisons
+            lines.append(f"{placeholder(group)} & all pairs & " + " & ".join("" for _ in COMPACT_METRICS) + r" \\")
+            if gi < len(groups) - 1:
+                lines.append(r"\midrule")
+            continue
         for k, pair in enumerate(pairs):
             a, b = pair.split(":")
             metrics = by_pair.get((group, pair), {})
@@ -149,6 +151,36 @@ def sens_table(rows: List[Dict[str, Any]]) -> str:
     return "\n".join(lines) + "\n"
 
 
+CONTROL_COLUMNS = [("success", "Succ."), ("steps", "Steps"), ("executed_violations", "Exec. viol."), ("missed_approvals", "Missed appr."),
+                   ("overseer_load", "Overseer"), ("hidden_harm", "Hidden harm"), ("tokens", "Tokens")]
+CONTROL_LABEL = {"gemma4nt": "reasoning off", "gemma4rp": "reinforced prompt", "qwen122brp": "reinforced prompt"}
+
+
+def control_table(rows: List[Dict[str, Any]], controls: Dict[str, str]) -> str:
+    """Control runs next to the rows of the main run they vary: one block per base model, the base model's rows for the
+    modes the controls ran, then each control's rows. ``controls`` maps control name -> base model name."""
+    aggs = {(a["model"], a["mode"]): a for a in aggregate(rows, ("model", "mode"))}
+    lines = [r"\begin{tabular}{ll" + "c" * len(CONTROL_COLUMNS) + "}", r"\toprule",
+             r"\textbf{Run} & \textbf{Mode} & " + " & ".join(r"\textbf{" + h + "}" for _, h in CONTROL_COLUMNS) + r" \\", r"\midrule"]
+    bases = []
+    for c, b in controls.items():
+        if b not in bases:
+            bases.append(b)
+    for bi, base in enumerate(bases):
+        names = [c for c, b in controls.items() if b == base]
+        modes = sorted({m for (n, m) in aggs if n in names})
+        blocks = [(display(base) + " (Table~\\ref{tab:llm})", [(base, m) for m in modes if (base, m) in aggs])]
+        blocks += [(CONTROL_LABEL.get(c, c), [(c, m) for m in modes if (c, m) in aggs]) for c in names]
+        for label, keys in blocks:
+            for k, key in enumerate(keys):
+                a = aggs[key]
+                lines.append(f"{label if k == 0 else ''} & {key[1]} & " + " & ".join(fmt(a.get(col)) for col, _ in CONTROL_COLUMNS) + r" \\")
+        if bi < len(bases) - 1:
+            lines.append(r"\midrule")
+    lines += [r"\bottomrule", r"\end{tabular}"]
+    return "\n".join(lines) + "\n"
+
+
 def macros(rows: List[Dict[str, Any]]) -> str:
     """Numbers used in the prose that change when rows are added: the GAU weight grid per model.
     Modes whose mean GAU is equal (for instance two modes with no violations and the same success when steps weigh
@@ -183,17 +215,24 @@ def main() -> None:
     ap.add_argument("--dest", type=Path, default=Path("paper/tables"))
     ap.add_argument("--skip-tag", action="append", default=[], help="sweep tag to leave out of the sensitivity table")
     ap.add_argument("--placeholder", action="append", default=[], metavar="MODEL",
-                    help="model name (as in episodes.csv) that has no results yet: empty rows in the main and stats tables, "
+                    help="model name (as in episodes.csv) that has no results yet: one empty row in the main and stats tables, "
                          "name in red, until its episodes exist")
+    ap.add_argument("--control", action="append", default=[], metavar="NAME=BASE",
+                    help="a control run (e.g. gemma4nt=gemma4): shown next to its base model's rows in table_llm_controls.tex "
+                         "and left out of the main and stats tables")
     args = ap.parse_args()
+    controls = dict(kv.split("=", 1) for kv in args.control)
     rows: List[Dict[str, Any]] = []
     for path in sorted(glob.glob(args.episodes)) or [args.episodes]:
         rows += read_rows(Path(path))
     args.dest.mkdir(parents=True, exist_ok=True)
-    (args.dest / "table_llm_main.tex").write_text(main_table(rows, args.placeholder), encoding="utf-8")
+    main_rows = [r for r in rows if r["model"] not in controls]
+    (args.dest / "table_llm_main.tex").write_text(main_table(main_rows, args.placeholder), encoding="utf-8")
     (args.dest / "llm_macros.tex").write_text(macros(rows), encoding="utf-8")
+    if controls and any(r["model"] in controls for r in rows):
+        (args.dest / "table_llm_controls.tex").write_text(control_table(rows, controls), encoding="utf-8")
     if args.stats and args.stats.exists():
-        stats = json.loads(args.stats.read_text(encoding="utf-8"))
+        stats = [r for r in json.loads(args.stats.read_text(encoding="utf-8")) if r["group"] not in controls]
         (args.dest / "table_llm_stats.tex").write_text(stats_table(stats, args.placeholder), encoding="utf-8")
     if args.sens:
         srows: List[Dict[str, Any]] = []
