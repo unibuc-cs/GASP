@@ -65,7 +65,7 @@ def llm_series(sens_glob: str, rule_set: str = "R3") -> Dict[str, List[Dict[str,
                 continue
             tag = r.get("tag", "")
             if tag.startswith("adaptive-t"):
-                by_model[r["model"]][tag.replace("adaptive-", "")].append(r)
+                by_model[r["model"]]["t=" + tag[len("adaptive-t"):]].append(r)
             elif tag == rule_set:
                 by_model[r["model"]]["static"].append(r)
     series = {}
@@ -93,8 +93,8 @@ def plot(det: Dict[str, List[Dict[str, Any]]], llm: Dict[str, List[Dict[str, Any
         for p, x, y in zip(pts, xs, ys):
             if p["label"] in ("static", "t=0.0"):
                 txt = "static guard" if p["label"] == "static" else "all soft approvals delegated"
-                ax.annotate(txt, (x, y), textcoords="offset points",
-                            xytext=(6, -12 - 9 * i) if p["label"] == "static" else (6, 4 - 9 * i), fontsize=6, color=color)
+                ax.annotate(txt, (x, y), textcoords="offset points", ha="right" if p["label"] == "static" else "left",
+                            xytext=(-6, 4 + 8 * i) if p["label"] == "static" else (6, 4 - 9 * i), fontsize=6, color=color)
     ax.set_xlabel("approval requests per episode (overseer load)")
     ax.set_ylabel("episodes with hidden harm")
     ax.set_title("R3, hidden context in 15% of scenarios", fontsize=9)
