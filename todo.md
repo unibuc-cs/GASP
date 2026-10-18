@@ -1,12 +1,12 @@
 # GASP → SEAMS 2027: plan and status
 
-## Status (17 October 2026)
+## Status (18 October 2026, evening)
 
-Branch `main`, 48 tests pass, `make` in `paper/` builds the 10 page draft (references on page 11). All planned runs are
-done and in the paper: four models in five modes, the Glimmer and Qwen sweeps, Glimmer in the second domain (M2–M4),
-Gemma with reasoning off (M2–M4), the reinforced prompt for Gemma and Qwen (M2). The two API models have one empty red
-row each in Tables V and VI. A full review pass (mine and an independent one) is in; what it changed is in the log.
-Body ends at the bottom of page 10: every new sentence must be paid for with a cut. 6 days left.
+Branch `main`, 48 tests pass, `make` in `paper/` builds the 10 page body (references on page 11). Every planned run is in
+the paper; the final pass is done: every number checked against its file, language pass (no "we", plain sentences),
+anonymity check (PDF metadata empty, no names or URLs in the sources), format check (10 + 2 pages, no unresolved
+references). Left: the eight red marks (API models, anonymous link), the artifact upload, repository visibility, HotCRP
+data. `HANDOFF.md` has everything the next person needs.
 
 ## Plan to the submission
 
@@ -20,9 +20,9 @@ The three gaps the review left, and what closes each. A run not finished by Mon 
 | after each run | group | `python scripts/fetch_outputs.py user@gpu-server` (first `ren outputs\llm_ops llm_ops_v1` on the PC), then tell me | |
 | done 17 Oct | me | per-family and per-evidence table (Table VIII) in RQ4 | "numbers without a table" |
 | as results land | me | RQ5 text and table from the rerun; Fig. 2 and the trust-adaptive paragraph with the Glimmer line; Threats updated | |
-| 18 Oct | me | anonymous artifact zip (`python scripts/make_artifact.py`) and its README | verifiability |
-| 19–20 Oct | me, then group reads | numbers audit (every number in the text against its file), language pass | |
-| 21 Oct | me | format and anonymity check: 10 + 2 pages, IEEEtran 10pt, PDF metadata, no author strings; red marks gone or the sentence removed | |
+| done 18 Oct | me | anonymous artifact zip without traces (`python scripts/make_artifact.py`); the full one with traces is run on the PC | |
+| done 18 Oct | me | numbers audit, language pass, format and anonymity check | |
+| 19–22 Oct | group | read the PDF once as a reader; decide on the API models; remove the red marks or fill them | |
 | by 22 Oct | group | repository private or anonymous mirror (artifact zip on an anonymous host, link in the paper); HotCRP author data; API models if still wanted (`RUNBOOK.md` section 5) | |
 | 23 Oct AoE | group | submit at https://seams27.hotcrp.com/ | |
 
@@ -60,3 +60,4 @@ sweeps (Threats). Artifact track description (2 pages) by 7 Dec.
 - 18 Oct: second domain rerun in the paper (720 episodes): success 0.96/0.96/0.98 in M2/M3/M4 (full disk 0.05 → 0.98); M2 leaks 0.11 per incident, 27 approvals never requested (21 critical-dependency isolations, 6 scale-outs), zero under the guard; M4 at no cost (Holm p ≥ 0.11 on every measure); M3 costs 0.41 requests and 2.4 steps. The first run is disclosed in RQ5 and Threats and kept as outputs/llm_ops_v1.
 - 18 Oct (later): trust-adaptive governor with Glimmer (240 episodes, R3, M3, one repeat) in Fig. 2 and the text: static 1.07 requests, 76% success, no hidden harm; threshold 0.7: 0.17 requests, 90%, harm 11%; 0.3 and 0.0: 0.01 requests, 95–97%, harm 14–15%. Threats updated (one repeat, one LLM).
 - 18 Oct (evening): gpt-oss-120b in the second domain (720 episodes) in Table X and RQ5: 0.20 violations per incident in M2 (19 dependency isolations, 27 disk purges, 3 status page updates, all approvals never requested), hidden harm 3%, zero under the guard; M4 costs 0.20 requests and nothing else, M3 0.65 requests and 1.3 steps; success 0.93–0.95. All runs of the plan are done; the cards are free.
+- 18 Oct (final pass): every number in the text checked against episodes tables, statistics files, deterministic tables and trace counts (fixed: 13 scenarios with hidden context, 14 with a distractor, 66 of 80 with the human available; Glimmer's R3 request count; "seven in ten" for M1 silent violations). Language pass: first person removed, hyphenated compounds reduced, long sentences split, lead-ins shortened. Anonymity: metadata empty, no names or URLs in tex, bib or figures. Artifact zip without traces built; `HANDOFF.md` written.

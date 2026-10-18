@@ -19,7 +19,7 @@ import sys
 import zipfile
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-EXCLUDE_PREFIXES = ("todo.md", "notebooks/", "legacy/", ".sync/", ".github/")
+EXCLUDE_PREFIXES = ("todo.md", "notebooks/", "legacy/", ".sync/", ".github/", "scripts/make_artifact.py", "runs-", "HANDOFF.md")
 REPLACE = {"unibuc-cs/GASP": "ANONYMIZED/GASP", "github.com/unibuc-cs": "github.com/ANONYMIZED",
            "Computer Science Department - University of Bucharest": "the authors"}
 FORBID = ["unibuc", "bucharest", "stefanescu", "ilds.ro", "@gmail"]
@@ -45,6 +45,11 @@ Reproduce: `pip install -r requirements.txt`, then `python -m gasp.experiments.r
 rows, seconds) and `cd paper && make sync` (every table and the statistics from `outputs/`). `RUNBOOK.md` and
 `docs/` describe the LLM runs; `scripts/serve_local_model.sh` serves an open-weight model with vLLM and
 `scripts/run_local_ablation.sh` runs the grid against it.
+
+Run directory names: `local_*` is Glimmer (city); `gemma4_*`, `gptoss120b_*`, `qwen122b_*` the other models; `gemma4nt_*`
+Gemma with reasoning off; `gemma4rp_*` and `qwen122brp_*` the reinforced prompt; `outputs/llm_sens/*_R1|R3|ov-always|ov-never_*`
+the sweeps and `*_adaptive-t<th>_*` the trust-adaptive governor; `outputs/llm_ops/` the second domain and
+`outputs/llm_ops_v1/` its first run, before the diagnosis role's visibility was corrected (see the paper, RQ5).
 
 Notes. The Qwen3.5-122B runs were made under two entry names with identical settings and merged into one model of ten
 repeats (`scripts/relabel_runs.py`; the manifests record it). Trace files are missing for the Glimmer M0, M1 and sweep
